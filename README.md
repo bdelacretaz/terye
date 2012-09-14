@@ -1,7 +1,4 @@
-terye
-=====
-
-An experimental JCR repository built on off-the-shelf components.
+# Terye - an experimental JCR repository built from off-the-shelf components.
 
 Just getting started - see the specs folder for more info.
 
