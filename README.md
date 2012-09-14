@@ -1,6 +1,6 @@
 # Terye - an experimental JCR repository built from off-the-shelf components.
 
-Just getting started - see the specs folder for more info.
+Just getting started - see the docs folder for more info.
 
 # Mailing list
 Terye development is discussed at terye-dev@googlegroups.com, see  https://groups.google.com/forum/#!forum/terye-dev
