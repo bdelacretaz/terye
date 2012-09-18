@@ -40,4 +40,56 @@ We might need a messaging tool for observation and cluster coordination.
 http://activemq.apache.org/ - popular and powerful messaging and integration patterns server.
 
 ### RabbitMQ
-http://www.rabbitmq.com/ - "messaging that just works" 
+http://www.rabbitmq.com/ - "messaging that just works"
+
+# Which part of JCR are we interested in?
+
+Here's a rough list of APIs that we want to tackle first.
+
+From Repository and Session: initially a minimum subset that allows us to get the root Node.
+
+From http://www.day.com/maven/jsr170/javadocs/jcr-2.0/index.html?javax/jcr/Node.html
+* addNode (node types == later)
+* getNode(path)
+* getNodes()  (only this variant so far)
+* getProperties() (only this variant so far, no name patterns)
+* getProperty(path)
+* hasNode(path)
+* hasNodes()
+* hasProperty(path)
+* hasProperties()
+* setProperty(...) (most variants?)
+
+From parent interface http://www.day.com/maven/jsr170/javadocs/jcr-2.0/javax/jcr/Item.html
+* getParent()
+* getName()
+* getSession()
+* isNode()
+* getPath()
+* remove()
+
+From http://www.day.com/maven/jsr170/javadocs/jcr-2.0/javax/jcr/Property.html
+* getXXX() starting with getString()
+* getValue() (slightly later)
+* isMultiple(later - multi-value properties)
+* setXXX()
+
+From http://www.day.com/maven/jsr170/javadocs/jcr-2.0/javax/jcr/Session.html
+* getItem(path)
+* getNode(path)
+* getProperty(path)
+* getRepository()
+* getRootNode()
+* hasPendingChanges(later: transient space)
+* itemExists()
+* propertyExists()
+* nodeExists()
+* move(path, path) (slightly later)
+* save(later: transient space)
+
+From http://www.day.com/maven/jsr170/javadocs/jcr-2.0/javax/jcr/observation/ObservationManager.html
+* later: observation events
+
+Later: node types (mostly mixins), locks, queries, versioning, security, maybe orderable nodes
+ 
+ 
