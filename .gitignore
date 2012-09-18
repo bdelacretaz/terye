@@ -1,0 +1,12 @@
+target
+.idea
+.classpath
+.metadata
+.project
+.settings
+.externalToolBuilders
+*.iml
+*.ipr
+*.iws
+.vlt
+.DS_Store
