@@ -17,6 +17,13 @@ import javax.jcr.version.VersionException;
 
 public class ItemImpl implements Item {
 
+	private String name;
+	
+	public ItemImpl(String name)
+	{
+		this.name = name;
+	}
+	
 	@Override
 	public void accept(ItemVisitor arg0) throws RepositoryException {
 		// TODO Auto-generated method stub
@@ -38,8 +45,7 @@ public class ItemImpl implements Item {
 
 	@Override
 	public String getName() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		return name;
 	}
 
 	@Override
