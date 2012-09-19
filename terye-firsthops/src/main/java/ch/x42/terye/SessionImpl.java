@@ -36,13 +36,13 @@ import org.xml.sax.SAXException;
 
 public class SessionImpl implements Session {
 
-	private Node rootNode = null;
+    private Node rootNode = null;
     private boolean live = true;
-    
+
     public SessionImpl() {
-    	rootNode = new NodeImpl("");
+        rootNode = new NodeImpl("");
     }
-    
+
     @Override
     public Repository getRepository() {
         // TODO Auto-generated method stub
@@ -144,7 +144,7 @@ public class SessionImpl implements Session {
             VersionException, ConstraintViolationException, LockException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -152,7 +152,7 @@ public class SessionImpl implements Session {
             LockException, ConstraintViolationException, AccessDeniedException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -161,13 +161,13 @@ public class SessionImpl implements Session {
             InvalidItemStateException, VersionException, LockException,
             NoSuchNodeTypeException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void refresh(boolean keepChanges) throws RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -194,7 +194,7 @@ public class SessionImpl implements Session {
     public void checkPermission(String absPath, String actions)
             throws AccessControlException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -219,7 +219,7 @@ public class SessionImpl implements Session {
             ConstraintViolationException, VersionException,
             InvalidSerializedDataException, LockException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -227,7 +227,7 @@ public class SessionImpl implements Session {
             boolean skipBinary, boolean noRecurse)
             throws PathNotFoundException, SAXException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -235,7 +235,7 @@ public class SessionImpl implements Session {
             boolean skipBinary, boolean noRecurse) throws IOException,
             PathNotFoundException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -243,7 +243,7 @@ public class SessionImpl implements Session {
             ContentHandler contentHandler, boolean skipBinary, boolean noRecurse)
             throws PathNotFoundException, SAXException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -251,14 +251,14 @@ public class SessionImpl implements Session {
             boolean skipBinary, boolean noRecurse) throws IOException,
             PathNotFoundException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void setNamespacePrefix(String prefix, String uri)
             throws NamespaceException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -294,7 +294,7 @@ public class SessionImpl implements Session {
     @Override
     public void addLockToken(String lt) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -306,7 +306,7 @@ public class SessionImpl implements Session {
     @Override
     public void removeLockToken(String lt) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override

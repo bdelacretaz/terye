@@ -17,102 +17,100 @@ import javax.jcr.version.VersionException;
 
 public class ItemImpl implements Item {
 
-	private String name;
-	
-	public ItemImpl(String name)
-	{
-		this.name = name;
-	}
-	
-	@Override
-	public void accept(ItemVisitor arg0) throws RepositoryException {
-		// TODO Auto-generated method stub
-		
-	}
+    private String name;
 
-	@Override
-	public Item getAncestor(int arg0) throws ItemNotFoundException,
-			AccessDeniedException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public ItemImpl(String name) {
+        this.name = name;
+    }
 
-	@Override
-	public int getDepth() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public void accept(ItemVisitor arg0) throws RepositoryException {
+        // TODO Auto-generated method stub
 
-	@Override
-	public String getName() throws RepositoryException {
-		return name;
-	}
+    }
 
-	@Override
-	public Node getParent() throws ItemNotFoundException,
-			AccessDeniedException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Item getAncestor(int arg0) throws ItemNotFoundException,
+            AccessDeniedException, RepositoryException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getPath() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public int getDepth() throws RepositoryException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public Session getSession() throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getName() throws RepositoryException {
+        return name;
+    }
 
-	@Override
-	public boolean isModified() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public Node getParent() throws ItemNotFoundException,
+            AccessDeniedException, RepositoryException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean isNew() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public String getPath() throws RepositoryException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean isNode() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public Session getSession() throws RepositoryException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean isSame(Item arg0) throws RepositoryException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isModified() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public void refresh(boolean arg0) throws InvalidItemStateException,
-			RepositoryException {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public boolean isNew() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public void remove() throws VersionException, LockException,
-			ConstraintViolationException, AccessDeniedException,
-			RepositoryException {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public boolean isNode() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public void save() throws AccessDeniedException, ItemExistsException,
-			ConstraintViolationException, InvalidItemStateException,
-			ReferentialIntegrityException, VersionException, LockException,
-			NoSuchNodeTypeException, RepositoryException {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public boolean isSame(Item arg0) throws RepositoryException {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
+    @Override
+    public void refresh(boolean arg0) throws InvalidItemStateException,
+            RepositoryException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void remove() throws VersionException, LockException,
+            ConstraintViolationException, AccessDeniedException,
+            RepositoryException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void save() throws AccessDeniedException, ItemExistsException,
+            ConstraintViolationException, InvalidItemStateException,
+            ReferentialIntegrityException, VersionException, LockException,
+            NoSuchNodeTypeException, RepositoryException {
+        // TODO Auto-generated method stub
+
+    }
 }
