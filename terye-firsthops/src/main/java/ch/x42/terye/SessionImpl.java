@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
 
 public class SessionImpl implements Session {
 
-    private boolean active = true;
+    private boolean live = true;
     
     @Override
     public Repository getRepository() {
@@ -279,12 +279,12 @@ public class SessionImpl implements Session {
 
     @Override
     public void logout() {
-        active = false;
+        live = false;
     }
 
     @Override
     public boolean isLive() {
-        return active;
+        return live;
     }
 
     @Override

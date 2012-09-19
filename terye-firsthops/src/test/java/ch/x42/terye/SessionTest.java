@@ -5,17 +5,19 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.junit.Test;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
-public class SessionTest {
+public class SessionTest
+{
     @Test
-    public void testSessionLogout() throws RepositoryException
+    public void testSessionLiveness() throws RepositoryException
     {
-        final Repository r = new RepositoryImpl();
-        final Session s = r.login();
-        assertTrue("Expecting Session to be initially live", s.isLive());
-        s.logout();
-        assertFalse("Expecting Session to be initially live", s.isLive());
+        final Repository repository = new RepositoryImpl();
+        final Session session = repository.login();
+        assertTrue("Expecting session to be initially live", session.isLive());
+        session.logout();
+        assertFalse("Session should not be live after logout", session.isLive());
     }
 }
