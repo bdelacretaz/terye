@@ -3,6 +3,8 @@ package ch.x42.terye;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Binary;
@@ -35,8 +37,10 @@ import javax.jcr.version.VersionHistory;
 
 public class NodeImpl extends ItemImpl implements Node {
 
-    public NodeImpl(String name) {
-        super(name);
+    private Map<String, NodeImpl> children = new LinkedHashMap<String, NodeImpl>();
+
+    public NodeImpl(Path path) {
+        super(path);
     }
 
     @Override
@@ -51,8 +55,24 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node addNode(String arg0) throws ItemExistsException,
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        Path absPath = getAbsolutePath(new Path(arg0));
+        return NodeManager.getInstance().createNode(absPath);
+    }
+
+    public void addChild(NodeImpl child) throws RepositoryException {
+        children.put(child.getName(), child);
+    }
+
+    private Path getAbsolutePath(Path relPath) throws RepositoryException {
+        // check if argument is relative
+        if (!relPath.isRelative()) {
+            throw new IllegalArgumentException("Path must be relative");
+        }
+        // add relative path to this node's absolute path
+        Path absPath = new Path(getPath()).concat(relPath);
+        // TODO: make absolute path canonical
+
+        return absPath;
     }
 
     @Override

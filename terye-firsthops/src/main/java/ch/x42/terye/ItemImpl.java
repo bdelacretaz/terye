@@ -17,10 +17,12 @@ import javax.jcr.version.VersionException;
 
 public class ItemImpl implements Item {
 
+    private Path path;
     private String name;
 
-    public ItemImpl(String name) {
-        this.name = name;
+    public ItemImpl(Path path) {
+        this.path = path;
+        this.name = path.getLastSegment();
     }
 
     @Override
@@ -56,8 +58,7 @@ public class ItemImpl implements Item {
 
     @Override
     public String getPath() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return path.toString();
     }
 
     @Override

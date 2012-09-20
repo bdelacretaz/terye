@@ -40,7 +40,11 @@ public class SessionImpl implements Session {
     private boolean live = true;
 
     public SessionImpl() {
-        rootNode = new NodeImpl("");
+        try {
+            rootNode = NodeManager.getInstance().createNode(new Path(Path.ROOT_SEGMENT));
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
