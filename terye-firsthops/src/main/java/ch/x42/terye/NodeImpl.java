@@ -45,7 +45,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public void addMixin(String arg0) throws NoSuchNodeTypeException,
+    public void addMixin(String mixinName) throws NoSuchNodeTypeException,
             VersionException, ConstraintViolationException, LockException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -53,11 +53,11 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Node addNode(String arg0) throws ItemExistsException,
+    public Node addNode(String relPath) throws ItemExistsException,
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
         // concat base path with relative path, make it canonical
-        Path p = path.concat(arg0).getCanonical();
+        Path p = path.concat(relPath).getCanonical();
         return ItemManager.getInstance().createNode(p);
     }
 
@@ -70,7 +70,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Node addNode(String arg0, String arg1) throws ItemExistsException,
+    public Node addNode(String relPath, String primaryNodeTypeName) throws ItemExistsException,
             PathNotFoundException, NoSuchNodeTypeException, LockException,
             VersionException, ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -78,18 +78,18 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public boolean canAddMixin(String arg0) throws NoSuchNodeTypeException,
-            RepositoryException {
+    public boolean canAddMixin(String mixinName)
+            throws NoSuchNodeTypeException, RepositoryException {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public void cancelMerge(Version arg0) throws VersionException,
+    public void cancelMerge(Version version) throws VersionException,
             InvalidItemStateException, UnsupportedRepositoryOperationException,
             RepositoryException {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
@@ -104,23 +104,23 @@ public class NodeImpl extends ItemImpl implements Node {
     public void checkout() throws UnsupportedRepositoryOperationException,
             LockException, ActivityViolationException, RepositoryException {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
-    public void doneMerge(Version arg0) throws VersionException,
+    public void doneMerge(Version version) throws VersionException,
             InvalidItemStateException, UnsupportedRepositoryOperationException,
             RepositoryException {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
-    public void followLifecycleTransition(String arg0)
+    public void followLifecycleTransition(String transition)
             throws UnsupportedRepositoryOperationException,
             InvalidLifecycleTransitionException, RepositoryException {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
@@ -138,7 +138,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public String getCorrespondingNodePath(String arg0)
+    public String getCorrespondingNodePath(String workspaceName)
             throws ItemNotFoundException, NoSuchWorkspaceException,
             AccessDeniedException, RepositoryException {
         // TODO Auto-generated method stub
@@ -177,10 +177,10 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Node getNode(String arg0) throws PathNotFoundException,
+    public Node getNode(String relPath) throws PathNotFoundException,
             RepositoryException {
         // concat base path with relative path, make it canonical
-        Path path = new Path(getPath()).concat(arg0).getCanonical();
+        Path path = new Path(getPath()).concat(relPath).getCanonical();
         return ItemManager.getInstance().getNode(path);
     }
 
@@ -190,13 +190,13 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public NodeIterator getNodes(String arg0) throws RepositoryException {
+    public NodeIterator getNodes(String namePattern) throws RepositoryException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public NodeIterator getNodes(String[] arg0) throws RepositoryException {
+    public NodeIterator getNodes(String[] nameGlobs) throws RepositoryException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -221,21 +221,21 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public PropertyIterator getProperties(String arg0)
+    public PropertyIterator getProperties(String namePattern)
             throws RepositoryException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public PropertyIterator getProperties(String[] arg0)
+    public PropertyIterator getProperties(String[] nameGlobs)
             throws RepositoryException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Property getProperty(String arg0) throws PathNotFoundException,
+    public Property getProperty(String relPath) throws PathNotFoundException,
             RepositoryException {
         // TODO Auto-generated method stub
         return null;
@@ -248,7 +248,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public PropertyIterator getReferences(String arg0)
+    public PropertyIterator getReferences(String name)
             throws RepositoryException {
         // TODO Auto-generated method stub
         return null;
@@ -281,16 +281,16 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public PropertyIterator getWeakReferences(String arg0)
+    public PropertyIterator getWeakReferences(String name)
             throws RepositoryException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public boolean hasNode(String arg0) throws RepositoryException {
+    public boolean hasNode(String relPath) throws RepositoryException {
         // concat base path with relative path, make it canonical
-        Path path = new Path(getPath()).concat(arg0).getCanonical();
+        Path path = new Path(getPath()).concat(relPath).getCanonical();
         return ItemManager.getInstance().nodeExists(path);
     }
 
@@ -306,7 +306,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public boolean hasProperty(String arg0) throws RepositoryException {
+    public boolean hasProperty(String relPath) throws RepositoryException {
         // TODO Auto-generated method stub
         return false;
     }
@@ -330,13 +330,13 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public boolean isNodeType(String arg0) throws RepositoryException {
+    public boolean isNodeType(String nodeTypeName) throws RepositoryException {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public Lock lock(boolean arg0, boolean arg1)
+    public Lock lock(boolean isDeep, boolean isSessionScoped)
             throws UnsupportedRepositoryOperationException, LockException,
             AccessDeniedException, InvalidItemStateException,
             RepositoryException {
@@ -345,7 +345,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public NodeIterator merge(String arg0, boolean arg1)
+    public NodeIterator merge(String srcWorkspace, boolean bestEffort)
             throws NoSuchWorkspaceException, AccessDeniedException,
             MergeException, LockException, InvalidItemStateException,
             RepositoryException {
@@ -354,78 +354,87 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public void orderBefore(String arg0, String arg1)
+    public void orderBefore(String srcChildRelPath, String destChildRelPath)
             throws UnsupportedRepositoryOperationException, VersionException,
             ConstraintViolationException, ItemNotFoundException, LockException,
             RepositoryException {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
-    public void removeMixin(String arg0) throws NoSuchNodeTypeException,
+    public void removeMixin(String mixinName) throws NoSuchNodeTypeException,
             VersionException, ConstraintViolationException, LockException,
             RepositoryException {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
     public void removeShare() throws VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
     public void removeSharedSet() throws VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
-    public void restore(String arg0, boolean arg1) throws VersionException,
-            ItemExistsException, UnsupportedRepositoryOperationException,
-            LockException, InvalidItemStateException, RepositoryException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void restore(Version arg0, boolean arg1) throws VersionException,
-            ItemExistsException, InvalidItemStateException,
+    public void restore(String versionName, boolean removeExisting)
+            throws VersionException, ItemExistsException,
             UnsupportedRepositoryOperationException, LockException,
-            RepositoryException {
+            InvalidItemStateException, RepositoryException {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
-    public void restore(Version arg0, String arg1, boolean arg2)
+    public void restore(Version version, boolean removeExisting)
+            throws VersionException, ItemExistsException,
+            InvalidItemStateException, UnsupportedRepositoryOperationException,
+            LockException, RepositoryException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void restore(Version version, String relPath, boolean removeExisting)
             throws PathNotFoundException, ItemExistsException,
             VersionException, ConstraintViolationException,
             UnsupportedRepositoryOperationException, LockException,
             InvalidItemStateException, RepositoryException {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
-    public void restoreByLabel(String arg0, boolean arg1)
+    public void restoreByLabel(String versionLabel, boolean removeExisting)
             throws VersionException, ItemExistsException,
             UnsupportedRepositoryOperationException, LockException,
             InvalidItemStateException, RepositoryException {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
-    public void setPrimaryType(String arg0) throws NoSuchNodeTypeException,
-            VersionException, ConstraintViolationException, LockException,
-            RepositoryException {
+    public void setPrimaryType(String nodeTypeName)
+            throws NoSuchNodeTypeException, VersionException,
+            ConstraintViolationException, LockException, RepositoryException {
         // TODO Auto-generated method stub
+        
+    }
 
+    @Override
+    public Property setProperty(String name, String[] values)
+            throws ValueFormatException, VersionException, LockException,
+            ConstraintViolationException, RepositoryException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
@@ -438,14 +447,6 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public Property setProperty(String name, Value[] values)
-            throws ValueFormatException, VersionException, LockException,
-            ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Property setProperty(String name, String[] values)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub

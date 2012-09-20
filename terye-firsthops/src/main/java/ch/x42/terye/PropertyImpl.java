@@ -137,7 +137,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(Value arg0) throws ValueFormatException,
+    public void setValue(BigDecimal value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -145,7 +145,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(Value[] arg0) throws ValueFormatException,
+    public void setValue(Binary value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -153,7 +153,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(String arg0) throws ValueFormatException,
+    public void setValue(boolean value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -161,7 +161,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(String[] arg0) throws ValueFormatException,
+    public void setValue(Calendar value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -169,7 +169,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(InputStream arg0) throws ValueFormatException,
+    public void setValue(double value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -177,7 +177,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(Binary arg0) throws ValueFormatException,
+    public void setValue(InputStream value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -185,7 +185,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(long arg0) throws ValueFormatException,
+    public void setValue(long value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -193,7 +193,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(double arg0) throws ValueFormatException,
+    public void setValue(Node value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -201,7 +201,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(BigDecimal arg0) throws ValueFormatException,
+    public void setValue(String value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -209,7 +209,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(Calendar arg0) throws ValueFormatException,
+    public void setValue(String[] values) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -217,7 +217,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(boolean arg0) throws ValueFormatException,
+    public void setValue(Value value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -225,7 +225,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
-    public void setValue(Node arg0) throws ValueFormatException,
+    public void setValue(Value[] values) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub

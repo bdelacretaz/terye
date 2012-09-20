@@ -26,13 +26,13 @@ public class ItemImpl implements Item {
     }
 
     @Override
-    public void accept(ItemVisitor arg0) throws RepositoryException {
+    public void accept(ItemVisitor visitor) throws RepositoryException {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public Item getAncestor(int arg0) throws ItemNotFoundException,
+    public Item getAncestor(int depth) throws ItemNotFoundException,
             AccessDeniedException, RepositoryException {
         // TODO Auto-generated method stub
         return null;

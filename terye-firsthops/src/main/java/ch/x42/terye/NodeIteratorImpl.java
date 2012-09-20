@@ -29,13 +29,13 @@ public class NodeIteratorImpl implements NodeIterator {
     }
 
     @Override
-    public void skip(long arg0) {
-        if (arg0 < 0) {
+    public void skip(long skipNum) {
+        if (skipNum < 0) {
             throw new IllegalArgumentException("Parameter must be non-negative");
         }
-        while (arg0 > 0) {
+        while (skipNum > 0) {
             next();
-            arg0--;
+            skipNum--;
         }
     }
 
