@@ -56,4 +56,12 @@ public class NodeManager {
         nodes.put(path.toString(), node);
         return node;
     }
+    
+    public NodeImpl getNode(Path path) throws PathNotFoundException {
+        NodeImpl node = nodes.get(path.toString());
+        if(node == null) {
+            throw new PathNotFoundException();
+        }
+        return node;
+    }
 }
