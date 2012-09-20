@@ -3,8 +3,8 @@ package ch.x42.terye;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Calendar;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Binary;
@@ -37,7 +37,7 @@ import javax.jcr.version.VersionHistory;
 
 public class NodeImpl extends ItemImpl implements Node {
 
-    private Map<String, NodeImpl> children = new LinkedHashMap<String, NodeImpl>();
+    private List<NodeImpl> children = new LinkedList<NodeImpl>();
 
     public NodeImpl(Path path) {
         super(path);
@@ -61,7 +61,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     public void addChild(NodeImpl child) throws RepositoryException {
-        children.put(child.getName(), child);
+        children.add(child);
     }
 
     @Override
@@ -181,8 +181,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public NodeIterator getNodes() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new NodeIteratorImpl(children);
     }
 
     @Override

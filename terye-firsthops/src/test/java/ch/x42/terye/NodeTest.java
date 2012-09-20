@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -35,39 +36,43 @@ public class NodeTest {
         Node a = root.addNode("a");
         assertEquals("a", a.getName());
         assertEquals("/a", a.getPath());
-        
+
         Node b = root.addNode("a/b");
         assertEquals("b", b.getName());
         assertEquals("/a/b", b.getPath());
-        
+
         Node c = b.addNode("c");
         assertEquals("c", c.getName());
         assertEquals("/a/b/c", c.getPath());
+
+        Node d = b.addNode("d");
+        assertEquals("d", d.getName());
+        assertEquals("/a/b/d", d.getPath());
     }
-    
-    @Test(expected=IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void testAddIllegalArgument() throws RepositoryException {
         root.addNode("/not/allowed");
     }
-    
-    @Test(expected=PathNotFoundException.class)
+
+    @Test(expected = PathNotFoundException.class)
     public void testAddPathNotFound() throws RepositoryException {
         root.addNode("leads/to/nowhere");
     }
 
-    @Test(expected=ItemExistsException.class)
+    @Test(expected = ItemExistsException.class)
     public void testAddItemExists() throws RepositoryException {
         root.addNode("a");
         root.addNode("a");
     }
-    
+
     @Test
     public void testGet() throws RepositoryException {
         // add some nodes
         Node a1 = root.addNode("a");
         Node b1 = root.addNode("a/b");
         Node c1 = b1.addNode("c");
-        
+
         // get them back
         Node a2 = root.getNode("a");
         assertEquals("Added and queried nodes are not equal", a1, a2);
@@ -76,14 +81,34 @@ public class NodeTest {
         Node c2 = b2.getNode("c");
         assertEquals("Added and queried nodes are not equal", c1, c2);
     }
-    
-    @Test(expected=IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void testGetIllegalArgument() throws RepositoryException {
         root.getNode("/not/allowed");
     }
-    
-    @Test(expected=PathNotFoundException.class)
+
+    @Test(expected = PathNotFoundException.class)
     public void testGetPathNotFound() throws RepositoryException {
         root.getNode("leads/to/nowhere");
+    }
+
+    @Test
+    public void testGetChildren() throws RepositoryException {
+        // add some nodes
+        Node a = root.addNode("a");
+        Node[] bs = new Node[] { 
+            root.addNode("a/b1"), 
+            root.addNode("a/b2"),
+            root.addNode("a/b3")
+        };
+
+        // verify nodes
+        NodeIterator iterator = a.getNodes();
+        assertEquals(3, iterator.getSize());
+        for (Node b : bs) {
+            Node b1 = iterator.nextNode();
+            assertEquals(b, b1);
+        }
+        assertEquals(false, iterator.hasNext());
     }
 }
