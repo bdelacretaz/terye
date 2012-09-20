@@ -5,9 +5,6 @@ import java.util.Arrays;
 public class Path {
 
     public static final String DELIMITER = "/";
-    public static final String ROOT_SEGMENT = "/";
-    public static final String SELF_SEGMENT = ".";
-    public static final String PARENT_SEGMENT = "..";
 
     private String[] segments;
     private boolean isAbsolute = false;
@@ -16,7 +13,7 @@ public class Path {
         // TODO: check if argument is valid path string
         
         // check if path is absolute
-        if (path.startsWith(ROOT_SEGMENT)) {
+        if (path.startsWith(Path.DELIMITER)) {
             isAbsolute = true;
             path = path.substring(1, path.length());
         }

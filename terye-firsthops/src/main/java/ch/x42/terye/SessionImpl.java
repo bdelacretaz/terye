@@ -41,7 +41,7 @@ public class SessionImpl implements Session {
 
     public SessionImpl() {
         try {
-            rootNode = NodeManager.getInstance().createNode(new Path(Path.ROOT_SEGMENT));
+            rootNode = NodeManager.getInstance().createNode(new Path(Path.DELIMITER));
         } catch (RepositoryException e) {
             e.printStackTrace();
         }
