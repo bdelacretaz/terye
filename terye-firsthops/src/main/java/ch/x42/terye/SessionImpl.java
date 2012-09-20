@@ -287,6 +287,8 @@ public class SessionImpl implements Session {
 
     @Override
     public void logout() {
+        // reset node manager
+        NodeManager.reset();
         live = false;
     }
 

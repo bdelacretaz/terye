@@ -21,6 +21,10 @@ public class NodeManager {
         }
         return instance;
     }
+    
+    public static void reset() {
+        instance = null;
+    }
 
     public NodeImpl createNode(Path path) throws ItemExistsException, PathNotFoundException,
             RepositoryException {
