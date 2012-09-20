@@ -38,6 +38,7 @@ import javax.jcr.version.VersionHistory;
 public class NodeImpl extends ItemImpl implements Node {
 
     private List<NodeImpl> children = new LinkedList<NodeImpl>();
+    private List<PropertyImpl> properties = new LinkedList<PropertyImpl>();
 
     public NodeImpl(Path path) {
         super(path);
@@ -56,12 +57,16 @@ public class NodeImpl extends ItemImpl implements Node {
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
         // concat base path with relative path, make it canonical
-        Path path = new Path(getPath()).concat(arg0).getCanonical();
-        return NodeManager.getInstance().createNode(path);
+        Path p = path.concat(arg0).getCanonical();
+        return ItemManager.getInstance().createNode(p);
     }
 
     public void addChild(NodeImpl child) throws RepositoryException {
         children.add(child);
+    }
+    
+    public void addProperty(PropertyImpl property) throws RepositoryException {
+        properties.add(property);
     }
 
     @Override
@@ -176,7 +181,7 @@ public class NodeImpl extends ItemImpl implements Node {
             RepositoryException {
         // concat base path with relative path, make it canonical
         Path path = new Path(getPath()).concat(arg0).getCanonical();
-        return NodeManager.getInstance().getNode(path);
+        return ItemManager.getInstance().getNode(path);
     }
 
     @Override
@@ -286,7 +291,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public boolean hasNode(String arg0) throws RepositoryException {
         // concat base path with relative path, make it canonical
         Path path = new Path(getPath()).concat(arg0).getCanonical();
-        return NodeManager.getInstance().nodeExist(path);
+        return ItemManager.getInstance().nodeExists(path);
     }
 
     @Override
@@ -424,7 +429,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, Value arg1)
+    public Property setProperty(String name, Value value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -432,7 +437,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, Value[] arg1)
+    public Property setProperty(String name, Value[] values)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -440,7 +445,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, String[] arg1)
+    public Property setProperty(String name, String[] values)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -448,7 +453,16 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, String arg1)
+    public Property setProperty(String name, String value)
+            throws ValueFormatException, VersionException, LockException,
+            ConstraintViolationException, RepositoryException {
+        PropertyImpl property = ItemManager.getInstance().createProperty(path.concat(name), value);
+        properties.add(property);
+        return property;
+    }
+
+    @Override
+    public Property setProperty(String name, InputStream value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -456,7 +470,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, InputStream arg1)
+    public Property setProperty(String name, Binary value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -464,7 +478,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, Binary arg1)
+    public Property setProperty(String name, boolean value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -472,7 +486,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, boolean arg1)
+    public Property setProperty(String name, double value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -480,7 +494,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, double arg1)
+    public Property setProperty(String name, BigDecimal value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -488,7 +502,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, BigDecimal arg1)
+    public Property setProperty(String name, long value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -496,7 +510,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, long arg1)
+    public Property setProperty(String name, Calendar value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -504,7 +518,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, Calendar arg1)
+    public Property setProperty(String name, Node value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -512,7 +526,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, Node arg1)
+    public Property setProperty(String name, Value value, int type)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -520,7 +534,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, Value arg1, int arg2)
+    public Property setProperty(String name, Value[] values, int type)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -528,7 +542,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, Value[] arg1, int arg2)
+    public Property setProperty(String name, String[] values, int type)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -536,15 +550,7 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Property setProperty(String arg0, String[] arg1, int arg2)
-            throws ValueFormatException, VersionException, LockException,
-            ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Property setProperty(String arg0, String arg1, int arg2)
+    public Property setProperty(String name, String value, int type)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
@@ -566,4 +572,5 @@ public class NodeImpl extends ItemImpl implements Node {
         // TODO Auto-generated method stub
 
     }
+
 }

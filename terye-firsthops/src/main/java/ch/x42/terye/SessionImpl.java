@@ -41,7 +41,7 @@ public class SessionImpl implements Session {
 
     public SessionImpl() {
         try {
-            rootNode = NodeManager.getInstance().createNode(new Path(Path.DELIMITER));
+            rootNode = ItemManager.getInstance().createNode(new Path(Path.DELIMITER));
         } catch (RepositoryException e) {
             e.printStackTrace();
         }
@@ -288,7 +288,7 @@ public class SessionImpl implements Session {
     @Override
     public void logout() {
         // reset node manager
-        NodeManager.reset();
+        ItemManager.reset();
         live = false;
     }
 

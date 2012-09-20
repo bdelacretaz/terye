@@ -17,7 +17,7 @@ import javax.jcr.version.VersionException;
 
 public class ItemImpl implements Item {
 
-    private Path path;
+    protected Path path;
     private String name;
 
     public ItemImpl(Path path) {
