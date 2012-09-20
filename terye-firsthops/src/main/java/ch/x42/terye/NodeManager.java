@@ -64,4 +64,8 @@ public class NodeManager {
         }
         return node;
     }
+    
+    public boolean nodeExist(Path path) {
+        return nodes.containsKey(path.toString());
+    }
 }

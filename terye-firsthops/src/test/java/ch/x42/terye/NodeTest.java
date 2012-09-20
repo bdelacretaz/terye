@@ -1,6 +1,8 @@
 package ch.x42.terye;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
@@ -109,6 +111,35 @@ public class NodeTest {
             Node b1 = iterator.nextNode();
             assertEquals(b, b1);
         }
-        assertEquals(false, iterator.hasNext());
+        assertFalse(iterator.hasNext());
+    }
+    
+    @Test
+    public void testHasNode() throws RepositoryException {
+        root.addNode("a");
+        Node b = root.addNode("a/b");
+        root.addNode("a/b/c1");
+        root.addNode("a/b/c2");
+        assertTrue(root.hasNode("a"));
+        assertTrue(root.hasNode("a/b"));
+        assertTrue(b.hasNode("c2"));
+        assertFalse(b.hasNode("a/b/c"));
+        assertFalse(b.hasNode("c3"));
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void testHasNodeIllegalArgument() throws RepositoryException {
+        root.hasNode("/not/allowed");
+    }
+    
+    @Test
+    public void testHasNodes() throws RepositoryException {
+        root.addNode("a");
+        Node b = root.addNode("a/b");
+        Node c1 = root.addNode("a/b/c1");
+        root.addNode("a/b/c2");
+        assertTrue(root.hasNodes());
+        assertTrue(b.hasNodes());
+        assertFalse(c1.hasNodes());
     }
 }

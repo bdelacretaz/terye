@@ -284,14 +284,14 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasNode(String arg0) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        // concat base path with relative path, make it canonical
+        Path path = new Path(getPath()).concat(arg0).getCanonical();
+        return NodeManager.getInstance().nodeExist(path);
     }
 
     @Override
     public boolean hasNodes() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        return !children.isEmpty();
     }
 
     @Override
