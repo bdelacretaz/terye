@@ -9,29 +9,10 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-public class NodeTest {
-
-    private Session session;
-    private Node root;
-
-    @Before
-    public void setup() throws RepositoryException {
-        session = new RepositoryImpl().login();
-        root = session.getRootNode();
-    }
-
-    @After
-    public void cleanup() throws RepositoryException {
-        if (session != null) {
-            session.logout();
-        }
-    }
+public class NodeTest extends ItemTest {
 
     @Test
     public void testAdd() throws RepositoryException {
