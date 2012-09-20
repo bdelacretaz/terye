@@ -55,24 +55,13 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node addNode(String arg0) throws ItemExistsException,
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
-        Path absPath = getAbsolutePath(new Path(arg0));
-        return NodeManager.getInstance().createNode(absPath);
+        // concat base path with relative path, make it canonical
+        Path path = new Path(getPath()).concat(arg0).getCanonical();
+        return NodeManager.getInstance().createNode(path);
     }
 
     public void addChild(NodeImpl child) throws RepositoryException {
         children.put(child.getName(), child);
-    }
-
-    private Path getAbsolutePath(Path relPath) throws RepositoryException {
-        // check if argument is relative
-        if (!relPath.isRelative()) {
-            throw new IllegalArgumentException("Path must be relative");
-        }
-        // add relative path to this node's absolute path
-        Path absPath = new Path(getPath()).concat(relPath);
-        // TODO: make absolute path canonical
-
-        return absPath;
     }
 
     @Override

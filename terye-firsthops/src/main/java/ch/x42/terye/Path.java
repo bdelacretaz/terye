@@ -14,7 +14,7 @@ public class Path {
 
     public Path(String path) {
         // TODO: check if argument is valid path string
-
+        
         // check if path is absolute
         if (path.startsWith(ROOT_SEGMENT)) {
             isAbsolute = true;
@@ -56,9 +56,9 @@ public class Path {
         // make sure that lhs is absolute and rhs is relative
         // -> yields an absolute path
         if (isRelative()) {
-            throw new IllegalArgumentException("Left-hand path must be relative");
+            throw new IllegalArgumentException("Concat cannot be called on a relative path");
         } else if (that.isAbsolute()) {
-            throw new IllegalArgumentException("Right-hand path must be relative");
+            throw new IllegalArgumentException("Specified path must be relative");
         }
 
         // concat segments and return new path
@@ -67,7 +67,16 @@ public class Path {
         System.arraycopy(that.segments, 0, segments, this.segments.length, that.segments.length);
         return new Path(segments);
     }
-
+    
+    public Path concat(String path) {
+        return concat(new Path(path));
+    }
+    
+    public Path getCanonical() {
+        // TODO: implement
+        return this;
+    }
+    
     public Path getParent() {
         // should only be called on absolute paths
         if (!isAbsolute()) {
