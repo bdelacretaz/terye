@@ -56,9 +56,9 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node addNode(String relPath) throws ItemExistsException,
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
-        // concat base path with relative path, make it canonical
-        Path p = path.concat(relPath).getCanonical();
-        return ItemManager.getInstance().createNode(p);
+        // get absolute and canonical path to new node
+        Path absPath = path.concat(relPath).getCanonical();
+        return ItemManager.getInstance().createNode(absPath);
     }
 
     public void addChild(NodeImpl child) throws RepositoryException {
@@ -179,9 +179,9 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Node getNode(String relPath) throws PathNotFoundException,
             RepositoryException {
-        // concat base path with relative path, make it canonical
-        Path path = new Path(getPath()).concat(relPath).getCanonical();
-        return ItemManager.getInstance().getNode(path);
+        // get absolute and canonical path to new node
+        Path absPath = path.concat(relPath).getCanonical();
+        return ItemManager.getInstance().getNode(absPath);
     }
 
     @Override
