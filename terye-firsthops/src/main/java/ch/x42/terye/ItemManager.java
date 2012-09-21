@@ -1,7 +1,8 @@
 package ch.x42.terye;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Iterator;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import javax.jcr.ItemExistsException;
 import javax.jcr.PathNotFoundException;
@@ -11,7 +12,7 @@ import javax.jcr.Value;
 public class ItemManager {
 
     private static ItemManager instance = null;
-    private Map<String, ItemImpl> items = new HashMap<String, ItemImpl>();
+    private NavigableMap<String, ItemImpl> items = new TreeMap<String, ItemImpl>();
 
     private ItemManager() {
     }
@@ -111,4 +112,28 @@ public class ItemManager {
         }
         return (PropertyImpl) getItem(path);
     }
+    
+    public void removeItem(Path path) {
+        // remove item from map
+        String pathStr = path.toString();
+        items.remove(pathStr);
+        
+        // XXX: only do this for nodes
+        // remove all items that are further down the path tree
+        Iterator<String> iterator = items.tailMap(pathStr, true).navigableKeySet().iterator();
+        boolean done = false;
+        while (iterator.hasNext() && !done) {
+            String key = iterator.next();
+            if(!key.startsWith(pathStr)) {
+                done = true;
+            } else {
+                iterator.remove();
+            }
+        }
+        for(String k : items.keySet()) {
+            System.out.println(k);
+        }
+        System.out.println("----");
+    }
+    
 }

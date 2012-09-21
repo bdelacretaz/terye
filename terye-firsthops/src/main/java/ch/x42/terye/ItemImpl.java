@@ -103,8 +103,7 @@ public class ItemImpl implements Item {
     public void remove() throws VersionException, LockException,
             ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        ItemManager.getInstance().removeItem(path);
     }
 
     @Override

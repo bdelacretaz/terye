@@ -367,6 +367,16 @@ public class NodeImpl extends ItemImpl implements Node {
         // TODO Auto-generated method stub
         
     }
+    
+    @Override
+    public void remove() throws VersionException, LockException,
+            ConstraintViolationException, AccessDeniedException,
+            RepositoryException {
+        if (path.isRoot()) {
+            throw new RepositoryException("Cannot remove the root node");
+        }
+        super.remove();
+    }
 
     @Override
     public void removeMixin(String mixinName) throws NoSuchNodeTypeException,
