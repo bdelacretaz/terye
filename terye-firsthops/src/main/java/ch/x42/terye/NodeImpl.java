@@ -237,8 +237,9 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Property getProperty(String relPath) throws PathNotFoundException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        // get absolute and canonical path to new node
+        Path absPath = path.concat(relPath).getCanonical();
+        return ItemManager.getInstance().getProperty(absPath);
     }
 
     @Override

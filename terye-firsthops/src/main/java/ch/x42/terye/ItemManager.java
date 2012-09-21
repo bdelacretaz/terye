@@ -80,6 +80,7 @@ public class ItemManager {
             return itemExists(path) && getItem(path) instanceof NodeImpl;
         } catch (PathNotFoundException e) {
             // should not happen
+            e.printStackTrace();
         }
         return false;
     }
@@ -89,5 +90,22 @@ public class ItemManager {
             throw new PathNotFoundException();
         }
         return (NodeImpl) getItem(path);
+    }
+    
+    public boolean propertyExists(Path path) {
+        try {
+            return itemExists(path) && getItem(path) instanceof PropertyImpl;
+        } catch (PathNotFoundException e) {
+            // should not happen
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    public PropertyImpl getProperty(Path path) throws PathNotFoundException {
+        if (!propertyExists(path)) {
+            throw new PathNotFoundException();
+        }
+        return (PropertyImpl) getItem(path);
     }
 }
