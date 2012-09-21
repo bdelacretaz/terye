@@ -19,10 +19,12 @@ public class ItemImpl implements Item {
 
     protected Path path;
     private String name;
+    private NodeImpl parent;
 
-    public ItemImpl(Path path) {
+    public ItemImpl(Path path, NodeImpl parent) {
         this.path = path;
         this.name = path.getLastSegment();
+        this.parent = parent;
     }
 
     @Override
@@ -52,8 +54,7 @@ public class ItemImpl implements Item {
     @Override
     public Node getParent() throws ItemNotFoundException,
             AccessDeniedException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return parent;
     }
 
     @Override

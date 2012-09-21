@@ -34,13 +34,15 @@ public class ItemManager {
             throw new ItemExistsException("An item at that path already exists");
         }
 
-        NodeImpl node = new NodeImpl(path);
-        // get path to parent
+        // get parent
         Path parentPath = path.getParent();
-        // nodes that have a parent (all but the root node)
+        NodeImpl parent = null;
         if (parentPath != null) {
-            NodeImpl parent = getNode(parentPath);
-            // add as child to parent
+            parent = getNode(parentPath);
+        }
+        // create node and add to parent
+        NodeImpl node = new NodeImpl(path, parent);
+        if (parent != null) {
             parent.addChild(node);
         }
         items.put(path.toString(), node);
@@ -55,16 +57,16 @@ public class ItemManager {
             throw new ItemExistsException("An node at that path already exists");
         }
 
-        PropertyImpl property = new PropertyImpl(path, value);
         // get path to parent
         Path parentPath = path.getParent();
         NodeImpl parent = getNode(parentPath);
-        // add property to parent
+        // create property and add to parent
+        PropertyImpl property = new PropertyImpl(path, value, parent);
         parent.addProperty(property);
         items.put(path.toString(), property);
         return property;
     }
-
+    
     public boolean itemExists(Path path) {
         return items.containsKey(path.toString());
     }

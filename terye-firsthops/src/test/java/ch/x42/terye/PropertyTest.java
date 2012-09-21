@@ -96,5 +96,11 @@ public class PropertyTest extends ItemTest {
         p1.getDate();
         // XXX: improve
     }
+    
+    @Test
+    public void testParent() throws RepositoryException {
+        Property p = root.setProperty("p", "string");
+        assertEquals(root, p.getParent());
+    }
 
 }

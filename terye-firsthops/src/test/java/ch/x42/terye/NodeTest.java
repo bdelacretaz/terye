@@ -148,4 +148,11 @@ public class NodeTest extends ItemTest {
         a.setProperty("p", "string");
         assertTrue(a.hasProperties());
     }
+    
+    @Test
+    public void testParent() throws RepositoryException {
+        Node a = root.addNode("a");
+        assertEquals(null, root.getParent());
+        assertEquals(root, a.getParent());
+    }
 }

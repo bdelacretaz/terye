@@ -44,8 +44,8 @@ public class NodeImpl extends ItemImpl implements Node {
     private List<NodeImpl> children = new LinkedList<NodeImpl>();
     private Set<PropertyImpl> properties = new LinkedHashSet<PropertyImpl>();
 
-    public NodeImpl(Path path) {
-        super(path);
+    public NodeImpl(Path path, NodeImpl parent) {
+        super(path, parent);
     }
 
     @Override

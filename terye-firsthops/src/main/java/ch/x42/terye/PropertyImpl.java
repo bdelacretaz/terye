@@ -23,9 +23,9 @@ public class PropertyImpl extends ItemImpl implements Property {
     
     private Value value;
 
-    public PropertyImpl(Path path, Value value) {
+    public PropertyImpl(Path path, Value value, NodeImpl parent) {
         // TODO: validate name
-        super(path);
+        super(path, parent);
         this.value = value;
     }
 
