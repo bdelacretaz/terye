@@ -125,8 +125,6 @@ public class NodeTest extends ItemTest {
         assertTrue(b.hasNodes());
         assertFalse(c1.hasNodes());
     }
-    
-    // property-related tests of a node
 
     @Test
     public void testSetProperty() throws RepositoryException {
@@ -230,6 +228,22 @@ public class NodeTest extends ItemTest {
         Node a = root.addNode("a");
         assertEquals(null, root.getParent());
         assertEquals(root, a.getParent());
+    }
+    
+    @Test
+    public void testRemove() throws RepositoryException {
+        // XXX: todo
+        Node a = root.addNode("a");
+        Node b1 = root.addNode("a/b1");
+        Node b2 = root.addNode("a/b2");
+        Node b3 = root.addNode("a/b3");
+        Node c = root.addNode("a/b3/c");
+    }
+    
+    @Test
+    public void testIsNode() throws RepositoryException {
+        Node a = root.addNode("a");
+        assertTrue(a.isNode());
     }
     
 }
