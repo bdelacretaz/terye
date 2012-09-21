@@ -6,11 +6,13 @@ public class Path {
 
     public static final String DELIMITER = "/";
 
+    // store path as a string for toString
+    private String path;
     private String[] segments;
     private boolean isAbsolute = false;
 
     public Path(String path) {
-        // TODO: check if argument is valid path string
+        // XXX: check if argument is valid path string
         
         // check if path is absolute
         if (path.startsWith(Path.DELIMITER)) {
@@ -23,11 +25,11 @@ public class Path {
             path = path.substring(0, path.length() - 1);
         }
 
+        // split path into segments
         if (path.isEmpty()) {
             // split on empty string doesn't yield empty array
             segments = new String[0];
         } else {
-            // split path into segments
             segments = path.split(Path.DELIMITER);
         }
     }
@@ -70,7 +72,7 @@ public class Path {
     }
     
     public Path getCanonical() {
-        // TODO: implement
+        // XXX: implement
         return this;
     }
     
@@ -94,13 +96,15 @@ public class Path {
 
     @Override
     public String toString() {
-        String str = isAbsolute ? "/" : "";
-        for (int i = 0; i < segments.length; i++) {
-            str += segments[i];
-            if (i < segments.length - 1) {
-                str += "/";
+        if (path == null) {
+            path = isAbsolute ? Path.DELIMITER : "";
+            for (int i = 0; i < segments.length; i++) {
+                path += segments[i];
+                if (i < segments.length - 1) {
+                    path += Path.DELIMITER;
+                }
             }
         }
-        return str;
+        return path;
     }
 }
