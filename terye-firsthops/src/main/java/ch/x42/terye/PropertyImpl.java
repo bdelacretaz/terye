@@ -16,8 +16,6 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
-import ch.x42.terye.value.ValueFactoryImpl;
-
 
 public class PropertyImpl extends ItemImpl implements Property {
     
@@ -148,21 +146,21 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValue(boolean value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        setValue(ValueFactoryImpl.getInstance().createValue(value));
+        setValue(getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public void setValue(Calendar value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        setValue(ValueFactoryImpl.getInstance().createValue(value));
+        setValue(getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public void setValue(double value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        setValue(ValueFactoryImpl.getInstance().createValue(value));
+        setValue(getSession().getValueFactory().createValue(value));
     }
 
     @Override
@@ -177,7 +175,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValue(long value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        setValue(ValueFactoryImpl.getInstance().createValue(value));
+        setValue(getSession().getValueFactory().createValue(value));
     }
 
     @Override
@@ -192,7 +190,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValue(String value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        setValue(ValueFactoryImpl.getInstance().createValue(value));
+        setValue(getSession().getValueFactory().createValue(value));
     }
 
     @Override

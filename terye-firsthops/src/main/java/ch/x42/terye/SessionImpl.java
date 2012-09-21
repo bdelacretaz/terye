@@ -34,14 +34,18 @@ import javax.jcr.version.VersionException;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import ch.x42.terye.value.ValueFactoryImpl;
+
 public class SessionImpl implements Session {
 
     private ItemManager itemManager;
+    private ValueFactoryImpl valueFactory;
     private Node rootNode = null;
     private boolean live = true;
 
     public SessionImpl() {
         itemManager = new ItemManager(this);
+        valueFactory = new ValueFactoryImpl();
         try {
             rootNode = getItemManager().createNode(new Path(Path.DELIMITER));
         } catch (RepositoryException e) {
@@ -189,8 +193,7 @@ public class SessionImpl implements Session {
     @Override
     public ValueFactory getValueFactory()
             throws UnsupportedRepositoryOperationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return valueFactory;
     }
 
     @Override

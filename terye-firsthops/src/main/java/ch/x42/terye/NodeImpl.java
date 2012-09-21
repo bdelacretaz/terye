@@ -39,7 +39,6 @@ import javax.jcr.version.VersionHistory;
 
 import ch.x42.terye.iterator.NodeIteratorImpl;
 import ch.x42.terye.iterator.PropertyIteratorImpl;
-import ch.x42.terye.value.ValueFactoryImpl;
 
 public class NodeImpl extends ItemImpl implements Node {
 
@@ -474,7 +473,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, String value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
+        return setProperty(name, getSession().getValueFactory().createValue(value));
     }
 
     @Override
@@ -497,35 +496,35 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, boolean value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
+        return setProperty(name, getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, double value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
+        return setProperty(name, getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, BigDecimal value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
+        return setProperty(name, getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, long value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
+        return setProperty(name, getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, Calendar value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
+        return setProperty(name, getSession().getValueFactory().createValue(value));
     }
 
     @Override

@@ -14,17 +14,8 @@ import javax.jcr.ValueFormatException;
 
 public class ValueFactoryImpl implements ValueFactory {
 
-    private static ValueFactoryImpl instance;
+    public ValueFactoryImpl() {
 
-    private ValueFactoryImpl() {
-
-    }
-
-    public static ValueFactoryImpl getInstance() {
-        if (instance == null) {
-            instance = new ValueFactoryImpl();
-        }
-        return instance;
     }
 
     @Override
