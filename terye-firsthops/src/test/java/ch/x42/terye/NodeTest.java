@@ -123,4 +123,29 @@ public class NodeTest extends ItemTest {
         assertTrue(b.hasNodes());
         assertFalse(c1.hasNodes());
     }
+    
+    @Test
+    public void testHasProperty() throws RepositoryException {
+        Node a = root.addNode("a");
+        a.setProperty("p", "string");
+        a.setProperty("q", "string");
+        assertFalse(root.hasProperty("p"));
+        assertTrue(root.hasProperty("a/p"));
+        assertTrue(a.hasProperty("p"));
+        assertTrue(root.hasProperty("a/q"));
+        assertTrue(a.hasProperty("q"));
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void testHasPropertyIllegalArgument() throws RepositoryException {
+        root.hasProperty("/not/allowed");
+    }
+    
+    @Test
+    public void testHasProperties() throws RepositoryException {
+        Node a = root.addNode("a");
+        assertFalse(a.hasProperties());
+        a.setProperty("p", "string");
+        assertTrue(a.hasProperties());
+    }
 }

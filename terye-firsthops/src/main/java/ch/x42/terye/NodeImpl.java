@@ -294,9 +294,9 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasNode(String relPath) throws RepositoryException {
-        // concat base path with relative path, make it canonical
-        Path path = new Path(getPath()).concat(relPath).getCanonical();
-        return ItemManager.getInstance().nodeExists(path);
+        // get absolute and canonical path to new node
+        Path absPath = path.concat(relPath).getCanonical();
+        return ItemManager.getInstance().nodeExists(absPath);
     }
 
     @Override
@@ -306,14 +306,14 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasProperties() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        return !properties.isEmpty();
     }
 
     @Override
     public boolean hasProperty(String relPath) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        // get absolute and canonical path to new node
+        Path absPath = path.concat(relPath).getCanonical();
+        return ItemManager.getInstance().propertyExists(absPath);
     }
 
     @Override
