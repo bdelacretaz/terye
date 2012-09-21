@@ -9,6 +9,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
 import org.junit.Test;
@@ -172,6 +173,25 @@ public class NodeTest extends ItemTest {
         root.getProperty("leads/to/nowhere");
     }
 
+    @Test
+    public void testGetProperties() throws RepositoryException {
+        // add some properties
+        Property[] ps = new Property[] { 
+            root.setProperty("p1", "string1"), 
+            root.setProperty("p2", "string2"),
+            root.setProperty("p2", "string3")
+        };
+        
+        // verify properties
+        PropertyIterator iterator = root.getProperties();
+        assertEquals(3, iterator.getSize());
+        for (Property p : ps) {
+            Property p1 = iterator.nextProperty();
+            assertEquals(p, p1);
+        }
+        assertFalse(iterator.hasNext());
+    }
+    
     @Test
     public void testOverwriteProperty() throws RepositoryException {
         root.setProperty("p", "string1");

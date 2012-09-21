@@ -37,6 +37,8 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
+import ch.x42.terye.iterator.NodeIteratorImpl;
+import ch.x42.terye.iterator.PropertyIteratorImpl;
 import ch.x42.terye.value.ValueFactoryImpl;
 
 public class NodeImpl extends ItemImpl implements Node {
@@ -220,8 +222,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public PropertyIterator getProperties() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new PropertyIteratorImpl(properties);
     }
 
     @Override
