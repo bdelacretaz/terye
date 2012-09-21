@@ -8,6 +8,7 @@ import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
 import org.junit.Test;
@@ -15,7 +16,7 @@ import org.junit.Test;
 public class NodeTest extends ItemTest {
 
     @Test
-    public void testAdd() throws RepositoryException {
+    public void testAddNode() throws RepositoryException {
         Node a = root.addNode("a");
         assertEquals("a", a.getName());
         assertEquals("/a", a.getPath());
@@ -34,23 +35,23 @@ public class NodeTest extends ItemTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testAddIllegalArgument() throws RepositoryException {
+    public void testAddINodellegalArgument() throws RepositoryException {
         root.addNode("/not/allowed");
     }
 
     @Test(expected = PathNotFoundException.class)
-    public void testAddPathNotFound() throws RepositoryException {
+    public void testAddNodePathNotFound() throws RepositoryException {
         root.addNode("leads/to/nowhere");
     }
 
     @Test(expected = ItemExistsException.class)
-    public void testAddItemExists() throws RepositoryException {
+    public void testAddNodeItemExists() throws RepositoryException {
         root.addNode("a");
         root.addNode("a");
     }
 
     @Test
-    public void testGet() throws RepositoryException {
+    public void testGetNode() throws RepositoryException {
         // add some nodes
         Node a1 = root.addNode("a");
         Node b1 = root.addNode("a/b");
@@ -66,17 +67,17 @@ public class NodeTest extends ItemTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testGetIllegalArgument() throws RepositoryException {
+    public void testGetNodeIllegalArgument() throws RepositoryException {
         root.getNode("/not/allowed");
     }
 
     @Test(expected = PathNotFoundException.class)
-    public void testGetPathNotFound() throws RepositoryException {
+    public void testGetNodePathNotFound() throws RepositoryException {
         root.getNode("leads/to/nowhere");
     }
 
     @Test
-    public void testGetChildren() throws RepositoryException {
+    public void testGetNodes() throws RepositoryException {
         // add some nodes
         Node a = root.addNode("a");
         Node[] bs = new Node[] { 
@@ -124,6 +125,61 @@ public class NodeTest extends ItemTest {
         assertFalse(c1.hasNodes());
     }
     
+    // property-related tests of a node
+
+    @Test
+    public void testSetProperty() throws RepositoryException {
+        root.addNode("a");
+        Node b = root.addNode("a/b");
+
+        Property p = root.setProperty("p", "string1");
+        assertEquals("p", p.getName());
+        assertEquals("/p", p.getPath());
+
+        Property q = b.setProperty("q", "string2");
+        assertEquals("q", q.getName());
+        assertEquals("/a/b/q", q.getPath());
+    }
+
+    @Test(expected = ItemExistsException.class)
+    public void testSetPropertyItemExists() throws RepositoryException {
+        root.addNode("a");
+        root.setProperty("a", "string");
+    }
+
+    @Test
+    public void testGetProperty() throws RepositoryException {
+        root.addNode("a");
+        Node b = root.addNode("a/b");
+        Property p1 = root.setProperty("p", "string1");
+        Property q1 = b.setProperty("q", "string2");
+
+        Property p2 = root.getProperty("p");
+        assertEquals(p1, p2);
+        Property q2 = root.getProperty("a/b/q");
+        assertEquals(q1, q2);
+        q1 = b.getProperty("q");
+        assertEquals(q1, q2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetPropertyIllegalArgument() throws RepositoryException {
+        root.getProperty("/not/allowed");
+    }
+
+    @Test(expected = PathNotFoundException.class)
+    public void testGetPathNotFound() throws RepositoryException {
+        root.getProperty("leads/to/nowhere");
+    }
+
+    @Test
+    public void testOverwriteProperty() throws RepositoryException {
+        root.setProperty("p", "string1");
+        Property p = root.setProperty("p", "string2");
+        assertEquals(p, root.getProperty("p"));
+        assertEquals("string2", p.getString());
+    }
+
     @Test
     public void testHasProperty() throws RepositoryException {
         Node a = root.addNode("a");
@@ -150,9 +206,10 @@ public class NodeTest extends ItemTest {
     }
     
     @Test
-    public void testParent() throws RepositoryException {
+    public void testGetParent() throws RepositoryException {
         Node a = root.addNode("a");
         assertEquals(null, root.getParent());
         assertEquals(root, a.getParent());
     }
+    
 }
