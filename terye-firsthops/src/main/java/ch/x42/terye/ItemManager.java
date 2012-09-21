@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.jcr.ItemExistsException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 
 public class ItemManager {
 
@@ -46,9 +47,9 @@ public class ItemManager {
         return node;
     }
 
-    public PropertyImpl createProperty(Path path, Object value) throws ItemExistsException,
+    public PropertyImpl createProperty(Path path, Value value) throws ItemExistsException,
             PathNotFoundException, RepositoryException {
-        // check if node already exists at that path
+        // check if a node already exists at that path
         // (properties get overwritten)
         if (nodeExists(path)) {
             throw new ItemExistsException("An node at that path already exists");

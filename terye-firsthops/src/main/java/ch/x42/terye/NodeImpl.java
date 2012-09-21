@@ -3,8 +3,10 @@ package ch.x42.terye;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Binary;
@@ -35,10 +37,12 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
+import ch.x42.terye.value.ValueFactoryImpl;
+
 public class NodeImpl extends ItemImpl implements Node {
 
     private List<NodeImpl> children = new LinkedList<NodeImpl>();
-    private List<PropertyImpl> properties = new LinkedList<PropertyImpl>();
+    private Set<PropertyImpl> properties = new LinkedHashSet<PropertyImpl>();
 
     public NodeImpl(Path path) {
         super(path);
@@ -61,11 +65,11 @@ public class NodeImpl extends ItemImpl implements Node {
         return ItemManager.getInstance().createNode(absPath);
     }
 
-    public void addChild(NodeImpl child) throws RepositoryException {
+    protected void addChild(NodeImpl child) throws RepositoryException {
         children.add(child);
     }
     
-    public void addProperty(PropertyImpl property) throws RepositoryException {
+    protected void addProperty(PropertyImpl property) throws RepositoryException {
         properties.add(property);
     }
 
@@ -442,8 +446,9 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, Value value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        PropertyImpl property = ItemManager.getInstance().createProperty(path.concat(name), value);
+        addProperty(property);
+        return property;
     }
 
     @Override
@@ -458,9 +463,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, String value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        PropertyImpl property = ItemManager.getInstance().createProperty(path.concat(name), value);
-        properties.add(property);
-        return property;
+        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
     }
 
     @Override
@@ -483,40 +486,35 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, boolean value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, double value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, BigDecimal value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, long value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, Calendar value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return setProperty(name, ValueFactoryImpl.getInstance().createValue(value));
     }
 
     @Override
