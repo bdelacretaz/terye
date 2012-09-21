@@ -83,8 +83,7 @@ public class ItemImpl implements Item {
 
     @Override
     public boolean isNode() {
-        // TODO Auto-generated method stub
-        return false;
+        return this instanceof NodeImpl;
     }
 
     @Override
