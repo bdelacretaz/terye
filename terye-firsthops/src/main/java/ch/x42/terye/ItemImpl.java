@@ -17,11 +17,13 @@ import javax.jcr.version.VersionException;
 
 public class ItemImpl implements Item {
 
+    protected SessionImpl session;
     protected Path path;
     private String name;
     private NodeImpl parent;
 
-    public ItemImpl(Path path, NodeImpl parent) {
+    public ItemImpl(SessionImpl session, Path path, NodeImpl parent) {
+        this.session = session;
         this.path = path;
         this.name = path.getLastSegment();
         this.parent = parent;
@@ -64,8 +66,7 @@ public class ItemImpl implements Item {
 
     @Override
     public Session getSession() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return session;
     }
 
     @Override
@@ -103,7 +104,7 @@ public class ItemImpl implements Item {
     public void remove() throws VersionException, LockException,
             ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        ItemManager.getInstance().removeItem(path);
+        session.getItemManager().removeItem(path);
     }
 
     @Override

@@ -11,21 +11,11 @@ import javax.jcr.Value;
 
 public class ItemManager {
 
-    private static ItemManager instance = null;
+    private SessionImpl session;
     private NavigableMap<String, ItemImpl> items = new TreeMap<String, ItemImpl>();
 
-    private ItemManager() {
-    }
-
-    public static ItemManager getInstance() {
-        if (instance == null) {
-            instance = new ItemManager();
-        }
-        return instance;
-    }
-
-    public static void reset() {
-        instance = null;
+    protected ItemManager(SessionImpl session) {
+        this.session = session;
     }
 
     public NodeImpl createNode(Path path) throws ItemExistsException,
@@ -42,7 +32,7 @@ public class ItemManager {
             parent = getNode(parentPath);
         }
         // create node and add to parent
-        NodeImpl node = new NodeImpl(path, parent);
+        NodeImpl node = new NodeImpl(session, path, parent);
         if (parent != null) {
             parent.addChild(node);
         }
@@ -62,7 +52,7 @@ public class ItemManager {
         Path parentPath = path.getParent();
         NodeImpl parent = getNode(parentPath);
         // create property and add to parent
-        PropertyImpl property = new PropertyImpl(path, value, parent);
+        PropertyImpl property = new PropertyImpl(session, path, value, parent);
         parent.addProperty(property);
         items.put(path.toString(), property);
         return property;
@@ -130,10 +120,6 @@ public class ItemManager {
                 iterator.remove();
             }
         }
-        for(String k : items.keySet()) {
-            System.out.println(k);
-        }
-        System.out.println("----");
     }
     
 }

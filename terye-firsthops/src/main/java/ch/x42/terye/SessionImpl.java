@@ -36,15 +36,21 @@ import org.xml.sax.SAXException;
 
 public class SessionImpl implements Session {
 
+    private ItemManager itemManager;
     private Node rootNode = null;
     private boolean live = true;
 
     public SessionImpl() {
+        itemManager = new ItemManager(this);
         try {
-            rootNode = ItemManager.getInstance().createNode(new Path(Path.DELIMITER));
+            rootNode = getItemManager().createNode(new Path(Path.DELIMITER));
         } catch (RepositoryException e) {
             e.printStackTrace();
         }
+    }
+    
+    protected ItemManager getItemManager() {
+        return itemManager;
     }
 
     @Override
@@ -288,7 +294,7 @@ public class SessionImpl implements Session {
     @Override
     public void logout() {
         // reset node manager
-        ItemManager.reset();
+        itemManager = null;
         live = false;
     }
 

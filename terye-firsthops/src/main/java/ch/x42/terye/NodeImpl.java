@@ -46,8 +46,8 @@ public class NodeImpl extends ItemImpl implements Node {
     private List<NodeImpl> children = new LinkedList<NodeImpl>();
     private Set<PropertyImpl> properties = new LinkedHashSet<PropertyImpl>();
 
-    public NodeImpl(Path path, NodeImpl parent) {
-        super(path, parent);
+    public NodeImpl(SessionImpl session, Path path, NodeImpl parent) {
+        super(session, path, parent);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class NodeImpl extends ItemImpl implements Node {
             ConstraintViolationException, LockException, RepositoryException {
         // get absolute and canonical path to new node
         Path absPath = path.concat(relPath).getCanonical();
-        return ItemManager.getInstance().createNode(absPath);
+        return session.getItemManager().createNode(absPath);
     }
 
     protected void addChild(NodeImpl child) throws RepositoryException {
@@ -187,7 +187,7 @@ public class NodeImpl extends ItemImpl implements Node {
             RepositoryException {
         // get absolute and canonical path to new node
         Path absPath = path.concat(relPath).getCanonical();
-        return ItemManager.getInstance().getNode(absPath);
+        return session.getItemManager().getNode(absPath);
     }
 
     @Override
@@ -244,7 +244,7 @@ public class NodeImpl extends ItemImpl implements Node {
             RepositoryException {
         // get absolute and canonical path to new node
         Path absPath = path.concat(relPath).getCanonical();
-        return ItemManager.getInstance().getProperty(absPath);
+        return session.getItemManager().getProperty(absPath);
     }
 
     @Override
@@ -297,7 +297,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public boolean hasNode(String relPath) throws RepositoryException {
         // get absolute and canonical path to new node
         Path absPath = path.concat(relPath).getCanonical();
-        return ItemManager.getInstance().nodeExists(absPath);
+        return session.getItemManager().nodeExists(absPath);
     }
 
     @Override
@@ -314,7 +314,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public boolean hasProperty(String relPath) throws RepositoryException {
         // get absolute and canonical path to new node
         Path absPath = path.concat(relPath).getCanonical();
-        return ItemManager.getInstance().propertyExists(absPath);
+        return session.getItemManager().propertyExists(absPath);
     }
 
     @Override
@@ -457,7 +457,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, Value value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        PropertyImpl property = ItemManager.getInstance().createProperty(path.concat(name), value);
+        PropertyImpl property = session.getItemManager().createProperty(path.concat(name), value);
         addProperty(property);
         return property;
     }
