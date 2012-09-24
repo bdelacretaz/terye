@@ -86,6 +86,7 @@ From http://www.day.com/maven/jsr170/javadocs/jcr-2.0/javax/jcr/Session.html
 * itemExists()
 * propertyExists()
 * nodeExists()
+* removeItem(path)
 * move(path, path) (slightly later)
 * save(later: transient space)
 
