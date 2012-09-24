@@ -14,7 +14,7 @@ import javax.jcr.RepositoryException;
 
 import org.junit.Test;
 
-public class NodeTest extends ItemTest {
+public class NodeTest extends BaseTest {
 
     @Test
     public void testAddNode() throws RepositoryException {
@@ -35,6 +35,7 @@ public class NodeTest extends ItemTest {
         assertEquals("/a/b/d", d.getPath());
     }
 
+    // XXX: should throw RepositoryException
     @Test(expected = IllegalArgumentException.class)
     public void testAddINodellegalArgument() throws RepositoryException {
         root.addNode("/not/allowed");

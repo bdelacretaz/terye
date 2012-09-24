@@ -38,12 +38,14 @@ import ch.x42.terye.value.ValueFactoryImpl;
 
 public class SessionImpl implements Session {
 
+    private RepositoryImpl repository;
     private ItemManager itemManager;
     private ValueFactoryImpl valueFactory;
     private Node rootNode = null;
     private boolean live = true;
 
-    public SessionImpl() {
+    public SessionImpl(RepositoryImpl repository) {
+        this.repository = repository;
         itemManager = new ItemManager(this);
         valueFactory = new ValueFactoryImpl();
         try {
@@ -59,8 +61,7 @@ public class SessionImpl implements Session {
 
     @Override
     public Repository getRepository() {
-        // TODO Auto-generated method stub
-        return null;
+        return repository;
     }
 
     @Override
@@ -116,40 +117,49 @@ public class SessionImpl implements Session {
     @Override
     public Item getItem(String absPath) throws PathNotFoundException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        // get absolute and canonical path to item
+        Path path = null;
+        try {
+            path = new Path(absPath).getCanonical();
+        } catch (UnsupportedOperationException e) {
+            throw new RepositoryException("Not an absolute path: " + absPath);
+        }
+        return getItemManager().getItem(path);
     }
 
     @Override
     public Node getNode(String absPath) throws PathNotFoundException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return (Node) getItem(absPath);
     }
 
     @Override
     public Property getProperty(String absPath) throws PathNotFoundException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        // XXX: use ItemManager#getProperty
+        return (Property) getItem(absPath);
     }
 
     @Override
     public boolean itemExists(String absPath) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        // get absolute and canonical path to item
+        Path path = null;
+        try {
+            path = new Path(absPath).getCanonical();
+        } catch (UnsupportedOperationException e) {
+            throw new RepositoryException("Not an absolute path: " + absPath);
+        }
+        return getItemManager().itemExists(path);
     }
 
     @Override
     public boolean nodeExists(String absPath) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        return itemExists(absPath) && getItem(absPath).isNode();
     }
 
     @Override
     public boolean propertyExists(String absPath) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        return itemExists(absPath) && !getItem(absPath).isNode();
     }
 
     @Override

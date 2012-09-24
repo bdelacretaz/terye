@@ -71,7 +71,7 @@ public class Path {
         return concat(new Path(path));
     }
     
-    public Path getCanonical() {
+    public Path getCanonical() throws UnsupportedOperationException {
         // XXX: implement
         return this;
     }

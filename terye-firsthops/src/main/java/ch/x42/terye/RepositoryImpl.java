@@ -69,6 +69,6 @@ public class RepositoryImpl implements Repository
 
     @Override
     public Session login() throws LoginException, RepositoryException {
-        return new SessionImpl();
+        return new SessionImpl(this);
     }
 }

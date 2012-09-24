@@ -13,7 +13,7 @@ import javax.jcr.ValueFormatException;
 
 import org.junit.Test;
 
-public class PropertyTest extends ItemTest {
+public class PropertyTest extends BaseTest {
 
     @Test
     public void testSetAndGetValues() throws RepositoryException {

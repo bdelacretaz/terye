@@ -61,6 +61,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node addNode(String relPath) throws ItemExistsException,
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
+        // XXX: factor out getting canonical path
         // get absolute and canonical path to new node
         Path absPath = path.concat(relPath).getCanonical();
         return session.getItemManager().createNode(absPath);
