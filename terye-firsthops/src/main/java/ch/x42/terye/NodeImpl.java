@@ -67,8 +67,16 @@ public class NodeImpl extends ItemImpl implements Node {
         return session.getItemManager().createNode(absPath);
     }
 
-    protected void addChild(NodeImpl child) throws RepositoryException {
+    protected void addChild(NodeImpl child) {
         children.add(child);
+    }
+    
+    protected void removeChild(ItemImpl child) {
+        if (child.isNode()) {
+            children.remove(child);
+        } else {
+            properties.remove(child);
+        }
     }
     
     protected void addProperty(PropertyImpl property) throws RepositoryException {

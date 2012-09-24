@@ -103,13 +103,27 @@ public class ItemManager {
         return (PropertyImpl) getItem(path);
     }
     
-    public void removeItem(Path path) {
+    public void removeItem(Path path) throws RepositoryException {
+        // XXX: calling API methods on removed items -> InvalidItemStateException
+        
+        // get item
+        ItemImpl item = null;
+        try {
+            item = getItem(path);
+        } catch (PathNotFoundException e) {
+            // if the item doesn't exist, don't do anything
+            return;
+        }
+        
+        // remove reference in parent node
+        ((NodeImpl) item.getParent()).removeChild(item);
         // remove item from map
         String pathStr = path.toString();
         items.remove(pathStr);
         
+        
         // XXX: only do this for nodes
-        // remove all items that are further down the path tree
+        // remove all items from the map that are further down the path tree
         Iterator<String> iterator = items.tailMap(pathStr, true).navigableKeySet().iterator();
         boolean done = false;
         while (iterator.hasNext() && !done) {

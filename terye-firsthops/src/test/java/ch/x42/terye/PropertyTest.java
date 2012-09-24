@@ -2,6 +2,7 @@ package ch.x42.terye;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -46,6 +47,14 @@ public class PropertyTest extends BaseTest {
     public void testGetParent() throws RepositoryException {
         Property p = root.setProperty("p", "string");
         assertEquals(root, p.getParent());
+    }
+    
+    @Test
+    public void testRemove() throws RepositoryException {
+        Property p = root.setProperty("p", "string");
+        assertTrue(root.hasProperty("p"));
+        p.remove();
+        assertFalse(root.hasProperty("p"));
     }
 
     @Test

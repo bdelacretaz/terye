@@ -233,12 +233,27 @@ public class NodeTest extends BaseTest {
     
     @Test
     public void testRemove() throws RepositoryException {
-        // XXX: todo
         Node a = root.addNode("a");
-        Node b1 = root.addNode("a/b1");
+        root.addNode("a/b1");
         Node b2 = root.addNode("a/b2");
         Node b3 = root.addNode("a/b3");
-        Node c = root.addNode("a/b3/c");
+        root.addNode("a/b3/c");
+        root.addNode("a/b3/c/d");
+
+        assertTrue(root.hasNode("a/b2"));
+        assertTrue(a.hasNode("b2"));
+        b2.remove();
+        assertFalse(root.hasNode("a/b2"));
+        assertFalse(a.hasNode("b2"));
+        
+        assertTrue(root.hasNode("a/b3/c"));
+        b3.remove();
+        assertFalse(root.hasNode("a/b3"));
+        assertFalse(root.hasNode("a/b3/c"));
+        
+        assertTrue(root.hasNodes());
+        a.remove();
+        assertFalse(root.hasNodes());
     }
     
     @Test
