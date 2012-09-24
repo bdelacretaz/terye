@@ -175,8 +175,14 @@ public class SessionImpl implements Session {
     public void removeItem(String absPath) throws VersionException,
             LockException, ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        // get absolute and canonical path to item
+        Path path = null;
+        try {
+            path = new Path(absPath).getCanonical();
+        } catch (UnsupportedOperationException e) {
+            throw new RepositoryException("Not an absolute path: " + absPath);
+        }
+        getItemManager().removeItem(path);
     }
 
     @Override

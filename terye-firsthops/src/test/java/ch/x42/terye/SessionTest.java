@@ -125,4 +125,28 @@ public class SessionTest extends BaseTest {
         session.propertyExists("not/allowed");
     }
     
+    @Test
+    public void testRemoveItem() throws RepositoryException {
+        root.addNode("a");
+        root.setProperty("p", "string");
+        
+        assertTrue(root.hasNode("a"));
+        session.removeItem("/a");
+        assertFalse(root.hasNode("a"));
+        
+        assertTrue(root.hasProperty("p"));
+        session.removeItem("/p");
+        assertFalse(root.hasProperty("p"));
+    }
+    
+    @Test(expected = RepositoryException.class)
+    public void testRemoveItemIllegalArgument() throws RepositoryException {
+        session.removeItem("not/allowed");
+    }
+    
+    @Test(expected = PathNotFoundException.class)
+    public void testRemovePathNOtFound() throws RepositoryException {
+        session.removeItem("/leads/to/nowhere");
+    }
+    
 }
