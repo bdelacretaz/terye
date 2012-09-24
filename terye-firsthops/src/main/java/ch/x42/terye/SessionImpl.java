@@ -124,14 +124,15 @@ public class SessionImpl implements Session {
     @Override
     public Node getNode(String absPath) throws PathNotFoundException,
             RepositoryException {
-        return (Node) getItem(absPath);
+        Path path = new Path(absPath).getCanonical();
+        return getItemManager().getNode(path);
     }
 
     @Override
     public Property getProperty(String absPath) throws PathNotFoundException,
             RepositoryException {
-        // XXX: use ItemManager#getProperty
-        return (Property) getItem(absPath);
+        Path path = new Path(absPath).getCanonical();
+        return getItemManager().getProperty(path);
     }
 
     @Override

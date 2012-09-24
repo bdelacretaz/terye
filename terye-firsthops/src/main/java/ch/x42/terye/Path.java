@@ -14,8 +14,6 @@ public class Path {
     private boolean isAbsolute = false;
 
     public Path(String path) {
-        // XXX: check if argument is valid path string
-        
         // check if path is absolute
         if (path.startsWith(Path.DELIMITER)) {
             isAbsolute = true;

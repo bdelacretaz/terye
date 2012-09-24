@@ -104,8 +104,6 @@ public class ItemManager {
     }
     
     public void removeItem(Path path) throws RepositoryException {
-        // XXX: calling API methods on removed items -> InvalidItemStateException
-        
         // get item
         ItemImpl item = getItem(path);        
         // remove reference in parent node
@@ -114,8 +112,6 @@ public class ItemManager {
         String pathStr = path.toString();
         items.remove(pathStr);
         
-        
-        // XXX: only do this for nodes
         // remove all items from the map that are further down the path tree
         Iterator<String> iterator = items.tailMap(pathStr, true).navigableKeySet().iterator();
         boolean done = false;
