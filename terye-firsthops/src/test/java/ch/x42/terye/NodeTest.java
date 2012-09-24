@@ -35,8 +35,7 @@ public class NodeTest extends BaseTest {
         assertEquals("/a/b/d", d.getPath());
     }
 
-    // XXX: should throw RepositoryException
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RepositoryException.class)
     public void testAddINodellegalArgument() throws RepositoryException {
         root.addNode("/not/allowed");
     }
@@ -68,7 +67,7 @@ public class NodeTest extends BaseTest {
         assertEquals("Added and queried nodes are not equal", c1, c2);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RepositoryException.class)
     public void testGetNodeIllegalArgument() throws RepositoryException {
         root.getNode("/not/allowed");
     }
@@ -111,7 +110,7 @@ public class NodeTest extends BaseTest {
         assertFalse(b.hasNode("c3"));
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RepositoryException.class)
     public void testHasNodeIllegalArgument() throws RepositoryException {
         root.hasNode("/not/allowed");
     }
@@ -162,7 +161,7 @@ public class NodeTest extends BaseTest {
         assertEquals(q1, q2);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RepositoryException.class)
     public void testGetPropertyIllegalArgument() throws RepositoryException {
         root.getProperty("/not/allowed");
     }
@@ -211,7 +210,7 @@ public class NodeTest extends BaseTest {
         assertTrue(a.hasProperty("q"));
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RepositoryException.class)
     public void testHasPropertyIllegalArgument() throws RepositoryException {
         root.hasProperty("/not/allowed");
     }

@@ -61,9 +61,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node addNode(String relPath) throws ItemExistsException,
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
-        // XXX: factor out getting canonical path
-        // get absolute and canonical path to new node
-        Path absPath = path.concat(relPath).getCanonical();
+        Path absPath = Path.getCanonical(path, relPath);
         return session.getItemManager().createNode(absPath);
     }
 
@@ -193,8 +191,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Node getNode(String relPath) throws PathNotFoundException,
             RepositoryException {
-        // get absolute and canonical path to new node
-        Path absPath = path.concat(relPath).getCanonical();
+        Path absPath = Path.getCanonical(path, relPath);
         return session.getItemManager().getNode(absPath);
     }
 
@@ -250,8 +247,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Property getProperty(String relPath) throws PathNotFoundException,
             RepositoryException {
-        // get absolute and canonical path to new node
-        Path absPath = path.concat(relPath).getCanonical();
+        Path absPath = Path.getCanonical(path, relPath);
         return session.getItemManager().getProperty(absPath);
     }
 
@@ -303,8 +299,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasNode(String relPath) throws RepositoryException {
-        // get absolute and canonical path to new node
-        Path absPath = path.concat(relPath).getCanonical();
+        Path absPath = Path.getCanonical(path, relPath);
         return session.getItemManager().nodeExists(absPath);
     }
 
@@ -320,8 +315,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasProperty(String relPath) throws RepositoryException {
-        // get absolute and canonical path to new node
-        Path absPath = path.concat(relPath).getCanonical();
+        Path absPath = Path.getCanonical(path, relPath);
         return session.getItemManager().propertyExists(absPath);
     }
 

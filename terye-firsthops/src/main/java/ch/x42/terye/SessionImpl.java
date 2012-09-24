@@ -117,13 +117,7 @@ public class SessionImpl implements Session {
     @Override
     public Item getItem(String absPath) throws PathNotFoundException,
             RepositoryException {
-        // get absolute and canonical path to item
-        Path path = null;
-        try {
-            path = new Path(absPath).getCanonical();
-        } catch (UnsupportedOperationException e) {
-            throw new RepositoryException("Not an absolute path: " + absPath);
-        }
+        Path path = new Path(absPath).getCanonical();
         return getItemManager().getItem(path);
     }
 
@@ -142,13 +136,7 @@ public class SessionImpl implements Session {
 
     @Override
     public boolean itemExists(String absPath) throws RepositoryException {
-        // get absolute and canonical path to item
-        Path path = null;
-        try {
-            path = new Path(absPath).getCanonical();
-        } catch (UnsupportedOperationException e) {
-            throw new RepositoryException("Not an absolute path: " + absPath);
-        }
+        Path path = new Path(absPath).getCanonical();
         return getItemManager().itemExists(path);
     }
 
@@ -175,13 +163,7 @@ public class SessionImpl implements Session {
     public void removeItem(String absPath) throws VersionException,
             LockException, ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        // get absolute and canonical path to item
-        Path path = null;
-        try {
-            path = new Path(absPath).getCanonical();
-        } catch (UnsupportedOperationException e) {
-            throw new RepositoryException("Not an absolute path: " + absPath);
-        }
+        Path path = new Path(absPath).getCanonical();
         getItemManager().removeItem(path);
     }
 

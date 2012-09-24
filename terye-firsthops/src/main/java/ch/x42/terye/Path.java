@@ -2,6 +2,8 @@ package ch.x42.terye;
 
 import java.util.Arrays;
 
+import javax.jcr.RepositoryException;
+
 public class Path {
 
     public static final String DELIMITER = "/";
@@ -38,6 +40,14 @@ public class Path {
         isAbsolute = true;
         this.segments = segments;
     }
+    
+    public static Path getCanonical(Path absBasePath, String relPath) throws RepositoryException {
+        Path relativePath = new Path(relPath);
+        if (!relativePath.isRelative()) {
+            throw new RepositoryException("Not a relative path: " + relPath);
+        }
+        return absBasePath.concat(relPath).getCanonical();
+    }
 
     public boolean isAbsolute() {
         return isAbsolute;
@@ -71,8 +81,11 @@ public class Path {
         return concat(new Path(path));
     }
     
-    public Path getCanonical() throws UnsupportedOperationException {
+    public Path getCanonical() throws RepositoryException {
         // XXX: implement
+        if (!isAbsolute()) {
+            throw new RepositoryException("Not an absolute path: " + toString());
+        }
         return this;
     }
     

@@ -42,7 +42,7 @@ public class SessionTest extends BaseTest {
     
     @Test(expected = PathNotFoundException.class)
     public void testGetItemPathNotFound() throws RepositoryException {
-        session.getItem("leads/to/nowhere");
+        session.getItem("/leads/to/nowhere");
     }
     
     @Test
@@ -58,7 +58,7 @@ public class SessionTest extends BaseTest {
     
     @Test(expected = PathNotFoundException.class)
     public void testGetNodePathNotFound() throws RepositoryException {
-        session.getNode("leads/to/nowhere");
+        session.getNode("/leads/to/nowhere");
     }
     
     @Test
@@ -74,7 +74,7 @@ public class SessionTest extends BaseTest {
     
     @Test(expected = PathNotFoundException.class)
     public void testGetPropertyPathNotFound() throws RepositoryException {
-        session.getNode("leads/to/nowhere");
+        session.getNode("/leads/to/nowhere");
     }
     
     @Test
@@ -102,7 +102,7 @@ public class SessionTest extends BaseTest {
         root.addNode("a/b");
         assertTrue(session.nodeExists("/a"));
         assertTrue(session.nodeExists("/a/b"));
-        assertFalse(session.nodeExists("c"));
+        assertFalse(session.nodeExists("/c"));
     }
     
     @Test(expected = RepositoryException.class)

@@ -107,14 +107,7 @@ public class ItemManager {
         // XXX: calling API methods on removed items -> InvalidItemStateException
         
         // get item
-        ItemImpl item = null;
-        try {
-            item = getItem(path);
-        } catch (PathNotFoundException e) {
-            // if the item doesn't exist, don't do anything
-            return;
-        }
-        
+        ItemImpl item = getItem(path);        
         // remove reference in parent node
         ((NodeImpl) item.getParent()).removeChild(item);
         // remove item from map
