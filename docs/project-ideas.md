@@ -48,6 +48,8 @@ Here's a rough list of APIs that we want to tackle first.
 
 From Repository and Session: initially a minimum subset that allows us to get the root Node.
 
+## Storage and tree management
+
 From http://www.day.com/maven/jsr170/javadocs/jcr-2.0/index.html?javax/jcr/Node.html
 * addNode (node types == later)
 * getNode(path)
@@ -87,9 +89,34 @@ From http://www.day.com/maven/jsr170/javadocs/jcr-2.0/javax/jcr/Session.html
 * move(path, path) (slightly later)
 * save(later: transient space)
 
+## Later
+Observation
 From http://www.day.com/maven/jsr170/javadocs/jcr-2.0/javax/jcr/observation/ObservationManager.html
-* later: observation events
 
-Later: node types (mostly mixins), locks, queries, versioning, security, maybe orderable nodes
+Indexing and search
+
+Locking
+
+## Maybe...
+Node types (mostly mixins), 
+
+Versioning
+
+Security
+
+Orderable nodes
+
+## Probably not...
+Workspaces
+
+Retention
+
+Shareable nodes
+
+Lifecycle management
+
+Transactions
+
+Same-name siblings
  
  
