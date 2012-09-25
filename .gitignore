@@ -10,3 +10,4 @@ target
 *.iws
 .vlt
 .DS_Store
+.vagrant
