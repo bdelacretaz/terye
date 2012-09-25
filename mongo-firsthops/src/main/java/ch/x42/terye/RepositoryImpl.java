@@ -1,4 +1,4 @@
-package ch.x42;
+package ch.x42.terye;
 
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
@@ -9,6 +9,20 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 
 public class RepositoryImpl implements Repository {
+
+    private final String name;
+
+    public RepositoryImpl(final String name) {
+        this.name = name;
+    }
+
+    public RepositoryImpl() {
+        this("repository_" + System.currentTimeMillis());
+    }
+
+    protected String getName() {
+        return name;
+    }
 
     @Override
     public String getDescriptor(String key) {
@@ -48,8 +62,7 @@ public class RepositoryImpl implements Repository {
 
     @Override
     public Session login() throws LoginException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new SessionImpl(this);
     }
 
     @Override

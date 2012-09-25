@@ -8,13 +8,13 @@
   <packaging>jar</packaging>
 
   <name>mongo-firsthops</name>
-  <url>http://maven.apache.org</url>
+  <url>https://github.com/bdelacretaz/terye</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
- <dependencies>
+  <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
