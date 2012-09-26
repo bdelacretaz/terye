@@ -17,10 +17,16 @@ import javax.jcr.version.VersionException;
 
 public abstract class ItemImpl implements Item {
 
+    private ItemManager itemManager;
     private String path;
 
-    protected ItemImpl(String path) {
+    protected ItemImpl(ItemManager itemManager, String path) {
+        this.itemManager = itemManager;
         this.path = path;
+    }
+
+    protected ItemManager getItemManager() {
+        return itemManager;
     }
 
     @Override

@@ -39,12 +39,12 @@ public class NodeImpl extends ItemImpl implements Node {
 
     private String parent;
 
-    protected NodeImpl(String path, String parent) {
-        super(path);
+    protected NodeImpl(ItemManager itemManager, String path, String parent) {
+        super(itemManager, path);
         this.parent = parent;
     }
 
-    protected NodeState getState() throws RepositoryException {
+    public NodeState getState() throws RepositoryException {
         NodeState ns = new NodeState();
         ns.put("path", getPath());
         ns.put("parent", parent);
@@ -72,8 +72,9 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node addNode(String relPath) throws ItemExistsException,
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        String absPath = getPath().equals("/") ? "/" + relPath : getPath()
+                + "/" + relPath;
+        return getItemManager().createNode(absPath, getPath());
     }
 
     @Override

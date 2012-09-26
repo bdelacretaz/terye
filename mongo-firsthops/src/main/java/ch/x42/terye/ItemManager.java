@@ -31,7 +31,7 @@ public class ItemManager {
         if (ns == null) {
             return null;
         }
-        NodeImpl node = new NodeImpl(ns.getPath(), ns.getParent());
+        NodeImpl node = new NodeImpl(this, ns.getPath(), ns.getParent());
         cache.put(path, node);
         return node;
     }
@@ -41,7 +41,7 @@ public class ItemManager {
      * @param parent canonical path to parent
      */
     public NodeImpl createNode(String path, String parent) {
-        NodeImpl node = new NodeImpl(path, parent);
+        NodeImpl node = new NodeImpl(this, path, parent);
         cache.put(path, node);
         log.nodeAdded(node);
         return node;
@@ -57,6 +57,10 @@ public class ItemManager {
             return node;
         }
         return createNode(path, parent);
+    }
+
+    public void save() throws RepositoryException {
+        pm.persist(log);
     }
 
 }

@@ -18,8 +18,8 @@ import javax.jcr.version.VersionException;
 
 public class PropertyImpl extends ItemImpl implements Property {
 
-    protected PropertyImpl(String path) {
-        super(path);
+    protected PropertyImpl(ItemManager itemManager, String path) {
+        super(itemManager, path);
     }
 
     @Override
