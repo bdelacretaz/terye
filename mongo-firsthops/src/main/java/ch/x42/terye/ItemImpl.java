@@ -30,7 +30,7 @@ public abstract class ItemImpl implements Item {
     protected ItemManager getItemManager() {
         return itemManager;
     }
-    
+
     protected ItemState getState() {
         return state;
     }
@@ -63,8 +63,10 @@ public abstract class ItemImpl implements Item {
     @Override
     public Node getParent() throws ItemNotFoundException,
             AccessDeniedException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        if (state.getParent() == null) {
+            throw new ItemNotFoundException("The root node has no parent.");
+        }
+        return getItemManager().getNode(state.getParent());
     }
 
     @Override

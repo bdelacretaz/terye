@@ -42,14 +42,6 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
-    public Node getParent() throws ItemNotFoundException,
-            AccessDeniedException, RepositoryException {
-
-        // TODO Auto-generated method stub
-        return super.getParent();
-    }
-
-    @Override
     public NodeState getState() {
         return (NodeState) super.getState();
     }
