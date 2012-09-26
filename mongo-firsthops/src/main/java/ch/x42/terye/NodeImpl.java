@@ -33,6 +33,8 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
+import ch.x42.terye.persistence.NodeState;
+
 public class NodeImpl extends ItemImpl implements Node {
 
     private String parent;
@@ -40,6 +42,13 @@ public class NodeImpl extends ItemImpl implements Node {
     protected NodeImpl(String path, String parent) {
         super(path);
         this.parent = parent;
+    }
+
+    protected NodeState getState() throws RepositoryException {
+        NodeState ns = new NodeState();
+        ns.put("path", getPath());
+        ns.put("parent", parent);
+        return ns;
     }
 
     @Override

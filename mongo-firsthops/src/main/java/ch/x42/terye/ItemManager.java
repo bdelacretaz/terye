@@ -5,16 +5,19 @@ import java.util.Map;
 
 import javax.jcr.RepositoryException;
 
+import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
 
 public class ItemManager {
 
     private PersistenceManager pm;
+    private ChangeLog log;
     private Map<String, ItemImpl> cache = new HashMap<String, ItemImpl>();
 
     protected ItemManager() throws RepositoryException {
         pm = PersistenceManager.getInstance();
+        log = new ChangeLog();
     }
 
     /**
@@ -40,6 +43,7 @@ public class ItemManager {
     public NodeImpl createNode(String path, String parent) {
         NodeImpl node = new NodeImpl(path, parent);
         cache.put(path, node);
+        log.nodeAdded(node);
         return node;
     }
 
