@@ -37,18 +37,21 @@ import ch.x42.terye.persistence.NodeState;
 
 public class NodeImpl extends ItemImpl implements Node {
 
-    private String parent;
-
-    protected NodeImpl(ItemManager itemManager, String path, String parent) {
-        super(itemManager, path);
-        this.parent = parent;
+    protected NodeImpl(ItemManager itemManager, NodeState state) {
+        super(itemManager, state);
     }
 
-    public NodeState getState() throws RepositoryException {
-        NodeState ns = new NodeState();
-        ns.put("path", getPath());
-        ns.put("parent", parent);
-        return ns;
+    @Override
+    public Node getParent() throws ItemNotFoundException,
+            AccessDeniedException, RepositoryException {
+
+        // TODO Auto-generated method stub
+        return super.getParent();
+    }
+
+    @Override
+    public NodeState getState() {
+        return (NodeState) super.getState();
     }
 
     @Override

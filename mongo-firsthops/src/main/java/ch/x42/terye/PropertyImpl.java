@@ -16,10 +16,12 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
+import ch.x42.terye.persistence.ItemState;
+
 public class PropertyImpl extends ItemImpl implements Property {
 
-    protected PropertyImpl(ItemManager itemManager, String path) {
-        super(itemManager, path);
+    protected PropertyImpl(ItemManager itemManager, ItemState state) {
+        super(itemManager, state);
     }
 
     @Override

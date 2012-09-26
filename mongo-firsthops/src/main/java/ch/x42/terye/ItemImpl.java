@@ -15,18 +15,24 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.version.VersionException;
 
+import ch.x42.terye.persistence.ItemState;
+
 public abstract class ItemImpl implements Item {
 
     private ItemManager itemManager;
-    private String path;
+    private ItemState state;
 
-    protected ItemImpl(ItemManager itemManager, String path) {
+    protected ItemImpl(ItemManager itemManager, ItemState state) {
         this.itemManager = itemManager;
-        this.path = path;
+        this.state = state;
     }
 
     protected ItemManager getItemManager() {
         return itemManager;
+    }
+    
+    protected ItemState getState() {
+        return state;
     }
 
     @Override
@@ -63,7 +69,7 @@ public abstract class ItemImpl implements Item {
 
     @Override
     public String getPath() throws RepositoryException {
-        return path;
+        return getState().getPath();
     }
 
     @Override

@@ -31,11 +31,11 @@ public class ItemManager {
         if (isCached(path)) {
             return (NodeImpl) cache.get(path);
         }
-        NodeState ns = pm.load(path);
-        if (ns == null) {
+        NodeState state = pm.load(path);
+        if (state == null) {
             return null;
         }
-        NodeImpl node = new NodeImpl(this, ns.getPath(), ns.getParent());
+        NodeImpl node = new NodeImpl(this, state);
         cache.put(path, node);
         return node;
     }
@@ -45,7 +45,8 @@ public class ItemManager {
      * @param parent canonical path to parent
      */
     public NodeImpl createNode(String path, String parent) {
-        NodeImpl node = new NodeImpl(this, path, parent);
+        NodeState state = new NodeState(path, parent);
+        NodeImpl node = new NodeImpl(this, state);
         cache.put(path, node);
         log.nodeAdded(node);
         return node;
