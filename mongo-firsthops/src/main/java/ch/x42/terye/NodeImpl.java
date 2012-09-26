@@ -179,8 +179,9 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Node getNode(String relPath) throws PathNotFoundException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        String absPath = getPath().equals("/") ? "/" + relPath : getPath()
+                + "/" + relPath;
+        return getItemManager().getNode(absPath);
     }
 
     @Override
