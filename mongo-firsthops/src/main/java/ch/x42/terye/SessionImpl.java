@@ -282,8 +282,7 @@ public class SessionImpl implements Session {
 
     @Override
     public boolean nodeExists(String absPath) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        return getItemManager().nodeExists(absPath);
     }
 
     @Override

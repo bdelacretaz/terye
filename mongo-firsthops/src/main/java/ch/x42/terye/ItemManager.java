@@ -19,12 +19,16 @@ public class ItemManager {
         pm = PersistenceManager.getInstance();
         log = new ChangeLog();
     }
+    
+    private boolean isCached(String path) {
+        return cache.containsKey(path);
+    }
 
     /**
      * @param path canonical path
      */
     public NodeImpl getNode(String path) {
-        if (cache.containsKey(path)) {
+        if (isCached(path)) {
             return (NodeImpl) cache.get(path);
         }
         NodeState ns = pm.load(path);
@@ -57,6 +61,16 @@ public class ItemManager {
             return node;
         }
         return createNode(path, parent);
+    }
+    
+    /**
+     * @param path canonical path
+     */
+    public boolean nodeExists(String path) {
+        if (isCached(path)) {
+            return true;
+        }
+        return getNode(path) != null;
     }
 
     public void save() throws RepositoryException {
