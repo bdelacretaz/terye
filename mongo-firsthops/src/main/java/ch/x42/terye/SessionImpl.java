@@ -36,10 +36,10 @@ import org.xml.sax.SAXException;
 
 public class SessionImpl implements Session {
 
-    private Repository repository;
+    private RepositoryImpl repository;
     private boolean live = true;
 
-    protected SessionImpl(Repository repository) {
+    protected SessionImpl(RepositoryImpl repository) {
         this.repository = repository;
     }
 
@@ -191,8 +191,7 @@ public class SessionImpl implements Session {
 
     @Override
     public Node getRootNode() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return repository.getRootNode();
     }
 
     @Override

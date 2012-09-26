@@ -11,17 +11,23 @@ import javax.jcr.Value;
 public class RepositoryImpl implements Repository {
 
     private final String name;
+    private final NodeImpl rootNode;
 
-    public RepositoryImpl(final String name) {
+    private RepositoryImpl(final String name) throws RepositoryException {
         this.name = name;
+        rootNode = PersistenceManager.getInstance().createNode("/");
     }
 
-    public RepositoryImpl() {
-        this("repository_" + System.currentTimeMillis());
+    public RepositoryImpl() throws RepositoryException {
+        this("repo");
     }
 
     protected String getName() {
         return name;
+    }
+    
+    protected NodeImpl getRootNode() {
+        return rootNode;
     }
 
     @Override
