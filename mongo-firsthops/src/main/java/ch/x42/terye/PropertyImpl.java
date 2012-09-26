@@ -18,6 +18,10 @@ import javax.jcr.version.VersionException;
 
 public class PropertyImpl extends ItemImpl implements Property {
 
+    protected PropertyImpl(String path) {
+        super(path);
+    }
+
     @Override
     public Binary getBinary() throws ValueFormatException, RepositoryException {
         // TODO Auto-generated method stub

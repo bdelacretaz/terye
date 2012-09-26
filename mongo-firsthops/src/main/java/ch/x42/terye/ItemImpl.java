@@ -15,7 +15,13 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.version.VersionException;
 
-public class ItemImpl implements Item {
+public abstract class ItemImpl implements Item {
+
+    private String path;
+
+    protected ItemImpl(String path) {
+        this.path = path;
+    }
 
     @Override
     public void accept(ItemVisitor visitor) throws RepositoryException {
@@ -51,8 +57,7 @@ public class ItemImpl implements Item {
 
     @Override
     public String getPath() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return path;
     }
 
     @Override

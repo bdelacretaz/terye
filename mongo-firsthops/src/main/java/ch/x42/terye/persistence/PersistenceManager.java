@@ -1,14 +1,11 @@
-package ch.x42.terye;
+package ch.x42.terye.persistence;
 
 import java.net.UnknownHostException;
 
 import javax.jcr.RepositoryException;
 
-import org.bson.types.ObjectId;
-
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
@@ -37,20 +34,9 @@ public class PersistenceManager {
         return instance;
     }
 
-    public NodeImpl createNode(String path) {
+    public NodeState load(String path) {
         BasicDBObject dbo = new BasicDBObject();
         dbo.put("path", path);
-        collection.insert(dbo);
-        return new NodeImpl(dbo.getObjectId("_id"));
-    }
-
-    public NodeImpl getNode(String path) {
-        BasicDBObject dbo = new BasicDBObject();
-        dbo.put("path", path);
-        DBObject res = collection.findOne(dbo);
-        if(res == null){
-            return null;
-        }
-        return new NodeImpl((ObjectId) res.get("_id"));
+        return (NodeState) collection.findOne(dbo);
     }
 }

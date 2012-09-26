@@ -33,16 +33,15 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
-import org.bson.types.ObjectId;
-
 public class NodeImpl extends ItemImpl implements Node {
 
-    private ObjectId id;
-    
-    protected NodeImpl(ObjectId id) {
-        this.id = id;
+    private String parent;
+
+    protected NodeImpl(String path, String parent) {
+        super(path);
+        this.parent = parent;
     }
-    
+
     @Override
     public void addMixin(String mixinName) throws NoSuchNodeTypeException,
             VersionException, ConstraintViolationException, LockException,
@@ -64,7 +63,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node addNode(String relPath) throws ItemExistsException,
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
-        return PersistenceManager.getInstance().createNode(relPath);
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
@@ -143,7 +143,8 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public String getIdentifier() throws RepositoryException {
-        return id.toString();
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
@@ -168,7 +169,8 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Node getNode(String relPath) throws PathNotFoundException,
             RepositoryException {
-        return PersistenceManager.getInstance().getNode(relPath);
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override

@@ -11,11 +11,11 @@ import javax.jcr.Value;
 public class RepositoryImpl implements Repository {
 
     private final String name;
-    private final NodeImpl rootNode;
+    private SessionImpl session;
+    private NodeImpl rootNode;
 
     private RepositoryImpl(final String name) throws RepositoryException {
         this.name = name;
-        rootNode = PersistenceManager.getInstance().createNode("/");
     }
 
     public RepositoryImpl() throws RepositoryException {
@@ -25,7 +25,7 @@ public class RepositoryImpl implements Repository {
     protected String getName() {
         return name;
     }
-    
+
     protected NodeImpl getRootNode() {
         return rootNode;
     }
@@ -68,7 +68,9 @@ public class RepositoryImpl implements Repository {
 
     @Override
     public Session login() throws LoginException, RepositoryException {
-        return new SessionImpl(this);
+        session = new SessionImpl(this);
+        rootNode = session.getItemManager().getOrCreateNode("/", null);
+        return session;
     }
 
     @Override

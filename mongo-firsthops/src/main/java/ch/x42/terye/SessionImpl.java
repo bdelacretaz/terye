@@ -37,10 +37,16 @@ import org.xml.sax.SAXException;
 public class SessionImpl implements Session {
 
     private RepositoryImpl repository;
-    private boolean live = true;
+    private ItemManager itemManager;
+    private boolean live = false;
 
-    protected SessionImpl(RepositoryImpl repository) {
+    protected SessionImpl(RepositoryImpl repository) throws RepositoryException {
         this.repository = repository;
+        this.itemManager = new ItemManager();
+    }
+
+    protected ItemManager getItemManager() {
+        return itemManager;
     }
 
     @Override
@@ -152,8 +158,7 @@ public class SessionImpl implements Session {
     @Override
     public Node getNode(String absPath) throws PathNotFoundException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return itemManager.getNode(absPath);
     }
 
     @Override
