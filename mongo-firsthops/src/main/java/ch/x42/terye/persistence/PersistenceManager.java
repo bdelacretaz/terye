@@ -10,6 +10,7 @@ import ch.x42.terye.persistence.ChangeLog.Operation;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
@@ -22,7 +23,6 @@ public class PersistenceManager {
         try {
             collection = new Mongo("localhost", 27018).getDB("test")
                     .getCollection("repo");
-            collection.setObjectClass(NodeState.class);
             // XXX: temporary
             // collection.drop();
         } catch (UnknownHostException e) {
@@ -41,9 +41,12 @@ public class PersistenceManager {
 
     public NodeState load(String path) {
         System.out.println("load node: " + path);
-        BasicDBObject dbo = new BasicDBObject();
-        dbo.put("path", path);
-        return (NodeState) collection.findOne(dbo);
+        BasicDBObject query = new BasicDBObject();
+        query.put("path", path);
+        DBObject res = collection.findOne(query);
+        NodeState ns = new NodeState();
+        ns.putAll(res.toMap());
+        return ns;
     }
 
     private void store(NodeState ns) {
