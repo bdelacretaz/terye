@@ -11,3 +11,4 @@ target
 .vlt
 .DS_Store
 .vagrant
+mongo-firsthops/src/main/java/ch/x42/terye/MongoFirsthopsTest.java
