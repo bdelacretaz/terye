@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.jcr.RepositoryException;
 
 import ch.x42.terye.persistence.ChangeLog;
+import ch.x42.terye.persistence.ItemState.ItemType;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
 
@@ -19,7 +20,7 @@ public class ItemManager {
         pm = PersistenceManager.getInstance();
         log = new ChangeLog();
     }
-    
+
     private boolean isCached(String path) {
         return cache.containsKey(path);
     }
@@ -63,7 +64,7 @@ public class ItemManager {
         }
         return createNode(path, parent);
     }
-    
+
     /**
      * @param path canonical path
      */
@@ -72,6 +73,13 @@ public class ItemManager {
             return true;
         }
         return getNode(path) != null;
+    }
+
+    /**
+     * @param path canonical slash-terminated prefix path
+     */
+    public boolean nodesExist(String pathPrefix) {
+        return pm.count(pathPrefix, ItemType.NODE) > 0;
     }
 
     public void save() throws RepositoryException {

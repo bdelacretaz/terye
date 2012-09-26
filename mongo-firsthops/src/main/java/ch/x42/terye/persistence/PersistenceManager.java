@@ -2,11 +2,13 @@ package ch.x42.terye.persistence;
 
 import java.net.UnknownHostException;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 import javax.jcr.RepositoryException;
 
 import ch.x42.terye.persistence.ChangeLog.AddOperation;
 import ch.x42.terye.persistence.ChangeLog.Operation;
+import ch.x42.terye.persistence.ItemState.ItemType;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -57,6 +59,13 @@ public class PersistenceManager {
         BasicDBObject dbo = new BasicDBObject();
         dbo.put("path", ns.getPath());
         collection.update(dbo, ns, true, false);
+    }
+
+    public int count(String pathPrefix, ItemType type) {
+        Pattern pattern = Pattern.compile("^" + pathPrefix);
+        BasicDBObject query = new BasicDBObject("path", pattern);
+        query.put("type", type.ordinal());
+        return collection.find(query).count();
     }
 
     public void persist(ChangeLog log) throws RepositoryException {

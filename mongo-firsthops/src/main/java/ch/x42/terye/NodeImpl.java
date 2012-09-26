@@ -292,8 +292,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasNodes() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        return getItemManager().nodesExist(getPath() + "/");
     }
 
     @Override
