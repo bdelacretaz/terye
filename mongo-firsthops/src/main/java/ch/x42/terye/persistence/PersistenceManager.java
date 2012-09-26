@@ -44,6 +44,9 @@ public class PersistenceManager {
         BasicDBObject query = new BasicDBObject();
         query.put("path", path);
         DBObject res = collection.findOne(query);
+        if (res == null) {
+            return null;
+        }
         NodeState ns = new NodeState();
         ns.putAll(res.toMap());
         return ns;

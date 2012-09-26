@@ -1,5 +1,6 @@
 package ch.x42.terye.persistence;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,7 +12,7 @@ import com.mongodb.DBObject;
 
 public abstract class ItemState implements DBObject {
 
-    public static enum ItemType {
+    public static enum ItemType implements Serializable {
         NODE, PROPERTY
     }
 
@@ -47,7 +48,7 @@ public abstract class ItemState implements DBObject {
     public Object get(String key) {
         Object value = null;
         if (key.equals("type")) {
-            value = type;
+            value = type.ordinal();
         } else if (key.equals("path")) {
             value = path;
         } else if (key.equals("parent")) {
