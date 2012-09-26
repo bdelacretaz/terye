@@ -16,6 +16,7 @@ import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.version.VersionException;
 
 import ch.x42.terye.persistence.ItemState;
+import ch.x42.terye.persistence.ItemState.ItemType;
 
 public abstract class ItemImpl implements Item {
 
@@ -94,8 +95,7 @@ public abstract class ItemImpl implements Item {
 
     @Override
     public boolean isNode() {
-        // TODO Auto-generated method stub
-        return false;
+        return getState().getType().equals(ItemType.NODE);
     }
 
     @Override

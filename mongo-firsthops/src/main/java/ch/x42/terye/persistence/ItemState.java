@@ -18,6 +18,7 @@ public abstract class ItemState implements DBObject {
 
     private ItemType type;
     private String path;
+    // XXX: field might not be necessary (deduce parent from path)
     private String parent;
     private boolean isPartial;
 
@@ -134,6 +135,10 @@ public abstract class ItemState implements DBObject {
 
     public String getParent() {
         return parent;
+    }
+
+    public ItemType getType() {
+        return type;
     }
 
 }
