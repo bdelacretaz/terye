@@ -35,4 +35,8 @@ public class ChangeLog {
         operations.add(new AddOperation(node));
     }
 
+    public Iterable<Operation> getOperations() {
+        return operations;
+    }
+
 }

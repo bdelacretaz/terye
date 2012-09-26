@@ -1,8 +1,12 @@
 package ch.x42.terye.persistence;
 
 import java.net.UnknownHostException;
+import java.util.Iterator;
 
 import javax.jcr.RepositoryException;
+
+import ch.x42.terye.persistence.ChangeLog.AddOperation;
+import ch.x42.terye.persistence.ChangeLog.Operation;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -18,8 +22,9 @@ public class PersistenceManager {
         try {
             collection = new Mongo("localhost", 27018).getDB("test")
                     .getCollection("repo");
+            collection.setObjectClass(NodeState.class);
             // XXX: temporary
-            collection.drop();
+            // collection.drop();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (MongoException e) {
@@ -35,8 +40,28 @@ public class PersistenceManager {
     }
 
     public NodeState load(String path) {
+        System.out.println("load node: " + path);
         BasicDBObject dbo = new BasicDBObject();
         dbo.put("path", path);
         return (NodeState) collection.findOne(dbo);
     }
+
+    private void store(NodeState ns) {
+        System.out.println("store node: " + ns.getPath());
+        BasicDBObject dbo = new BasicDBObject();
+        dbo.put("path", ns.getPath());
+        collection.update(dbo, ns, true, false);
+    }
+
+    public void persist(ChangeLog log) throws RepositoryException {
+        Iterable<Operation> operations = log.getOperations();
+        Iterator<Operation> iterator = operations.iterator();
+        while (iterator.hasNext()) {
+            Operation op = iterator.next();
+            if (op instanceof AddOperation) {
+                store(op.getNode().getState());
+            }
+        }
+    }
+
 }

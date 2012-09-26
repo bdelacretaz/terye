@@ -158,7 +158,7 @@ public class SessionImpl implements Session {
     @Override
     public Node getNode(String absPath) throws PathNotFoundException,
             RepositoryException {
-        return itemManager.getNode(absPath);
+        return getItemManager().getNode(absPath);
     }
 
     @Override
@@ -317,8 +317,7 @@ public class SessionImpl implements Session {
             ReferentialIntegrityException, ConstraintViolationException,
             InvalidItemStateException, VersionException, LockException,
             NoSuchNodeTypeException, RepositoryException {
-        // TODO Auto-generated method stub
-
+        getItemManager().save();
     }
 
     @Override
