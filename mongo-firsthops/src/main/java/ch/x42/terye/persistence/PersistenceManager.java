@@ -10,7 +10,6 @@ import ch.x42.terye.persistence.ChangeLog.AddOperation;
 import ch.x42.terye.persistence.ChangeLog.ModifyOperation;
 import ch.x42.terye.persistence.ChangeLog.Operation;
 import ch.x42.terye.persistence.ChangeLog.RemoveOperation;
-import ch.x42.terye.persistence.ItemState.ItemType;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -67,13 +66,6 @@ public class PersistenceManager {
         BasicDBObject dbo = new BasicDBObject();
         dbo.put("path", pattern);
         collection.remove(dbo);
-    }
-
-    public int count(String pathPrefix, ItemType type) {
-        Pattern pattern = Pattern.compile("^" + pathPrefix);
-        BasicDBObject query = new BasicDBObject("path", pattern);
-        query.put("type", type.ordinal());
-        return collection.find(query).count();
     }
 
     public void persist(ChangeLog log) throws RepositoryException {

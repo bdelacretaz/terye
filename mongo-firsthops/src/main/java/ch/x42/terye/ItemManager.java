@@ -10,7 +10,6 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import ch.x42.terye.persistence.ChangeLog;
-import ch.x42.terye.persistence.ItemState.ItemType;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
 import ch.x42.terye.persistence.PropertyState;
@@ -127,13 +126,6 @@ public class ItemManager {
             return false;
         }
         return true;
-    }
-
-    /**
-     * @param path canonical slash-terminated prefix path
-     */
-    public boolean nodesExist(String pathPrefix) {
-        return pm.count(pathPrefix, ItemType.NODE) > 0;
     }
 
     public void save() throws RepositoryException {
