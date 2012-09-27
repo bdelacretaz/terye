@@ -27,8 +27,6 @@ public class PersistenceManager {
         try {
             collection = new Mongo("localhost", 27018).getDB("test")
                     .getCollection("repo");
-            // XXX: temporary
-            // collection.drop();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (MongoException e) {
