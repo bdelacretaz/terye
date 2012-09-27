@@ -45,11 +45,17 @@ public class ItemManager {
      * @param path canonical path
      * @param parent canonical path to parent
      */
-    public NodeImpl createNode(String path, String parent) {
-        NodeState state = new NodeState(path, parent);
+    public NodeImpl createNode(String path, String parentPath) {
+        NodeState state = new NodeState(path, parentPath);
         NodeImpl node = new NodeImpl(this, state);
         cache.put(path, node);
         log.nodeAdded(node);
+        if (parentPath == null) {
+            return node;
+        }
+        NodeImpl parent = getNode(parentPath);
+        parent.getState().getChildren().add(path);
+        log.nodeModified(parent);
         return node;
     }
 

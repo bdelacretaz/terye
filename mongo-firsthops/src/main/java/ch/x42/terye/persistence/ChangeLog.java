@@ -29,10 +29,22 @@ public class ChangeLog {
 
     }
 
+    public static class ModifyOperation extends ChangeLog.Operation {
+
+        public ModifyOperation(NodeImpl node) {
+            super(node);
+        }
+
+    }
+
     private List<Operation> operations = new LinkedList<Operation>();
 
     public void nodeAdded(NodeImpl node) {
         operations.add(new AddOperation(node));
+    }
+
+    public void nodeModified(NodeImpl node) {
+        operations.add(new ModifyOperation(node));
     }
 
     public Iterable<Operation> getOperations() {

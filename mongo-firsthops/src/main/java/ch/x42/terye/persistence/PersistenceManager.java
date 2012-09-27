@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import javax.jcr.RepositoryException;
 
 import ch.x42.terye.persistence.ChangeLog.AddOperation;
+import ch.x42.terye.persistence.ChangeLog.ModifyOperation;
 import ch.x42.terye.persistence.ChangeLog.Operation;
 import ch.x42.terye.persistence.ItemState.ItemType;
 
@@ -74,6 +75,8 @@ public class PersistenceManager {
         while (iterator.hasNext()) {
             Operation op = iterator.next();
             if (op instanceof AddOperation) {
+                store(op.getNode().getState());
+            } else if (op instanceof ModifyOperation) {
                 store(op.getNode().getState());
             }
         }
