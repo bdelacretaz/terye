@@ -293,7 +293,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasNodes() throws RepositoryException {
-        return getItemManager().nodesExist(getPath() + "/");
+        return !getState().getChildren().isEmpty();
     }
 
     @Override
