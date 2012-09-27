@@ -16,7 +16,7 @@ import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.version.VersionException;
 
 import ch.x42.terye.persistence.ItemState;
-import ch.x42.terye.persistence.ItemState.ItemType;
+import ch.x42.terye.persistence.ItemType;
 
 public abstract class ItemImpl implements Item {
 

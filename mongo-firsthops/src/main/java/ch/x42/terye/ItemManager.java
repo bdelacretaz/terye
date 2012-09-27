@@ -11,6 +11,8 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import ch.x42.terye.persistence.ChangeLog;
+import ch.x42.terye.persistence.ItemState;
+import ch.x42.terye.persistence.ItemType;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
 import ch.x42.terye.persistence.PropertyState;
@@ -27,30 +29,49 @@ public class ItemManager {
         log = new ChangeLog();
     }
 
-    private boolean isCached(String path) {
-        return cache.containsKey(path);
-    }
-
     /**
+     * Returns an item by looking up the cache and if not present fetching the
+     * item from the database.
+     * 
      * @param path canonical path
+     * @param type item type
+     * @return the item
+     * @throws PathNotFoundException when no item at that path exists or the
+     *             types don't match
      */
-    public NodeImpl getNode(String path) throws PathNotFoundException {
-        // check if the node existed and has been removed in this session
+    public ItemImpl getItem(String path, ItemType type)
+            throws PathNotFoundException {
+        // check if the item has been loaded and removed in this session
         if (removed.contains(path)) {
             throw new PathNotFoundException();
         }
-        // check if the node is cached
-        if (isCached(path)) {
-            return (NodeImpl) cache.get(path);
+        // check if the item is cached
+        ItemImpl item = cache.get(path);
+        if (item != null) {
+            if (item.getState().getType().equals(type)) {
+                return item;
+            }
+            throw new PathNotFoundException();
         }
-        // load node from db
-        NodeState state = pm.load(path);
+        // load item state from db
+        ItemState state = pm.load(path, type);
         if (state == null) {
             throw new PathNotFoundException();
         }
-        NodeImpl node = new NodeImpl(this, state);
-        cache.put(path, node);
-        return node;
+        // instantiate item
+        if (type.equals(ItemType.NODE)) {
+            return new NodeImpl(this, (NodeState) state);
+        } else {
+            return new PropertyImpl(this, (PropertyState) state);
+        }
+    }
+
+    public NodeImpl getNode(String path) throws PathNotFoundException {
+        return (NodeImpl) getItem(path, ItemType.NODE);
+    }
+
+    public PropertyImpl getProperty(String path) throws PathNotFoundException {
+        return (PropertyImpl) getItem(path, ItemType.PROPERTY);
     }
 
     /**

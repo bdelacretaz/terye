@@ -1,6 +1,5 @@
 package ch.x42.terye.persistence;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,10 +10,6 @@ import org.bson.BSONObject;
 import com.mongodb.DBObject;
 
 public abstract class ItemState implements DBObject {
-
-    public static enum ItemType implements Serializable {
-        NODE, PROPERTY
-    }
 
     private ItemType type;
     private String path;

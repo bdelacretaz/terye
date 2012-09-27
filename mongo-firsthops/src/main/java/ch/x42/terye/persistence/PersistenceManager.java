@@ -13,7 +13,6 @@ import ch.x42.terye.persistence.ChangeLog.RemoveOperation;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
@@ -40,17 +39,13 @@ public class PersistenceManager {
         return instance;
     }
 
-    public NodeState load(String path) {
+    public ItemState load(String path, ItemType type) {
         System.out.println("load node: " + path);
         BasicDBObject query = new BasicDBObject();
         query.put("path", path);
-        DBObject res = collection.findOne(query);
-        if (res == null) {
-            return null;
-        }
-        NodeState ns = new NodeState();
-        ns.putAll(res.toMap());
-        return ns;
+        query.put("type", type.ordinal());
+        collection.setObjectClass(type.getStateClass());
+        return (ItemState) collection.findOne(query);
     }
 
     private void store(ItemState state) {
