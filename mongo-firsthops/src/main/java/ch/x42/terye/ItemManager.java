@@ -58,12 +58,14 @@ public class ItemManager {
         if (state == null) {
             throw new PathNotFoundException();
         }
-        // instantiate item
+        // instantiate, cache and return item
         if (type.equals(ItemType.NODE)) {
-            return new NodeImpl(this, (NodeState) state);
+            item = new NodeImpl(this, (NodeState) state);
         } else {
-            return new PropertyImpl(this, (PropertyState) state);
+            item = new PropertyImpl(this, (PropertyState) state);
         }
+        cache.put(path, item);
+        return item;
     }
 
     public NodeImpl getNode(String path) throws PathNotFoundException {
