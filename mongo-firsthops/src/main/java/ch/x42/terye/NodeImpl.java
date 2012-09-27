@@ -1,5 +1,7 @@
 package ch.x42.terye;
 
+import iterator.NodeIteratorImpl;
+
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -181,8 +183,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public NodeIterator getNodes() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new NodeIteratorImpl(getItemManager(), getState().getChildren());
     }
 
     @Override
