@@ -89,14 +89,14 @@ public class ItemManager {
         NodeImpl node = new NodeImpl(this, state);
         cache.put(path, node);
         removed.remove(path);
-        log.nodeAdded(node);
+        log.itemAdded(node);
         if (parentPath == null) {
             // only the case for the root node
             return node;
         }
         NodeImpl parent = getNode(parentPath);
         parent.getState().getChildren().add(path);
-        log.nodeModified(parent);
+        log.itemModified(parent);
         return node;
     }
 
@@ -111,27 +111,40 @@ public class ItemManager {
         PropertyImpl property = new PropertyImpl(this, state);
         cache.put(path, property);
         removed.remove(path);
-        log.propertyAdded(property);
+        log.itemAdded(property);
         NodeImpl parent = getNode(parentPath);
         parent.getState().getProperties().add(path);
-        log.nodeModified(parent);
+        log.itemModified(parent);
         return property;
     }
 
     /**
+     * Removes an item from cache and the database (on persist). All descendents
+     * are automatically being removed from the database.
+     * 
      * @param path canonical path
      */
-    public void removeNode(String path) throws RepositoryException {
-        NodeImpl node = getNode(path);
+    public void removeItem(String path) throws RepositoryException {
+        // item must be in cache, since we're being called from it
+        ItemImpl item = cache.get(path);
+        cache.remove(path);
         removed.add(path);
         // takes care of removing descendents from db
-        log.nodeRemoved(node);
-        // remove entry from parent's children
-        NodeImpl parent = (NodeImpl) node.getParent();
-        parent.getState().getChildren().remove(path);
-        log.nodeModified(parent);
+        log.itemRemoved(item);
 
-        // remove node and descendents from cache
+        // remove reference in parent
+        NodeImpl parent = (NodeImpl) item.getParent();
+        if (item.isNode()) {
+            parent.getState().getChildren().remove(path);
+        } else {
+            parent.getState().getProperties().remove(path);
+        }
+        log.itemModified(parent);
+
+        // only for nodes: remove descendents from cache
+        if (!item.isNode()) {
+            return;
+        }
         Iterator<String> iterator = cache.tailMap(path, true).navigableKeySet()
                 .iterator();
         boolean done = false;

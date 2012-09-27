@@ -115,8 +115,7 @@ public abstract class ItemImpl implements Item {
     public void remove() throws VersionException, LockException,
             ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        getItemManager().removeItem(getPath());
     }
 
     @Override

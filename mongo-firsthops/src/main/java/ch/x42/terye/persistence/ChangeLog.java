@@ -4,8 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.x42.terye.ItemImpl;
-import ch.x42.terye.NodeImpl;
-import ch.x42.terye.PropertyImpl;
 
 public class ChangeLog {
 
@@ -33,36 +31,32 @@ public class ChangeLog {
 
     public static class ModifyOperation extends ChangeLog.Operation {
 
-        public ModifyOperation(NodeImpl node) {
-            super(node);
+        public ModifyOperation(ItemImpl item) {
+            super(item);
         }
 
     }
 
     public static class RemoveOperation extends ChangeLog.Operation {
 
-        public RemoveOperation(NodeImpl node) {
-            super(node);
+        public RemoveOperation(ItemImpl item) {
+            super(item);
         }
 
     }
 
     private List<Operation> operations = new LinkedList<Operation>();
 
-    public void nodeAdded(NodeImpl node) {
-        operations.add(new AddOperation(node));
+    public void itemAdded(ItemImpl item) {
+        operations.add(new AddOperation(item));
     }
 
-    public void propertyAdded(PropertyImpl property) {
-        operations.add(new AddOperation(property));
+    public void itemModified(ItemImpl item) {
+        operations.add(new ModifyOperation(item));
     }
 
-    public void nodeModified(NodeImpl node) {
-        operations.add(new ModifyOperation(node));
-    }
-
-    public void nodeRemoved(NodeImpl node) {
-        operations.add(new RemoveOperation(node));
+    public void itemRemoved(ItemImpl item) {
+        operations.add(new RemoveOperation(item));
     }
 
     public Iterable<Operation> getOperations() {
