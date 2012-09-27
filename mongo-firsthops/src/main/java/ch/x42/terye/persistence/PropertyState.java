@@ -56,9 +56,10 @@ public class PropertyState extends ItemState {
         if (key.equals("value")) {
             ret = value;
             value = null;
-            return ret;
+        } else {
+            return super.removeField(key);
         }
-        return super.removeField(key);
+        return ret;
     }
 
     @Override

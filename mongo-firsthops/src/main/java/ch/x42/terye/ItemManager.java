@@ -83,12 +83,15 @@ public class ItemManager {
      * @param parentPath canonical path to parent
      */
     public PropertyImpl createProperty(String path, String parentPath,
-            Object value) {
+            Object value) throws PathNotFoundException {
         PropertyState state = new PropertyState(path, parentPath, value);
         PropertyImpl property = new PropertyImpl(this, state);
         cache.put(path, property);
         removed.remove(path);
         log.propertyAdded(property);
+        NodeImpl parent = getNode(parentPath);
+        parent.getState().getProperties().add(path);
+        log.nodeModified(parent);
         return property;
     }
 
