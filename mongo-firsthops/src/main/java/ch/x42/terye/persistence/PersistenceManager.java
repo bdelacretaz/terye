@@ -54,15 +54,15 @@ public class PersistenceManager {
         return ns;
     }
 
-    private void store(NodeState ns) {
-        System.out.println("upsert node: " + ns.getPath());
+    private void store(ItemState state) {
+        System.out.println("upsert item: " + state.getPath());
         BasicDBObject dbo = new BasicDBObject();
-        dbo.put("path", ns.getPath());
-        collection.update(dbo, ns, true, false);
+        dbo.put("path", state.getPath());
+        collection.update(dbo, state, true, false);
     }
 
     private void delete(String pathPrefix) {
-        System.out.println("delete node starting with: " + pathPrefix);
+        System.out.println("delete items starting with: " + pathPrefix);
         Pattern pattern = Pattern.compile("^" + pathPrefix);
         BasicDBObject dbo = new BasicDBObject();
         dbo.put("path", pattern);
@@ -82,11 +82,11 @@ public class PersistenceManager {
         while (iterator.hasNext()) {
             Operation op = iterator.next();
             if (op instanceof AddOperation) {
-                store(op.getNode().getState());
+                store(op.getItem().getState());
             } else if (op instanceof ModifyOperation) {
-                store(op.getNode().getState());
+                store(op.getItem().getState());
             } else if (op instanceof RemoveOperation) {
-                delete(op.getNode().getPath());
+                delete(op.getItem().getPath());
             }
         }
     }

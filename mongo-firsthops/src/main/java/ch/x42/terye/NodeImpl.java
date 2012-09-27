@@ -512,8 +512,9 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, String value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        String absPath = getPath().equals("/") ? "/" + name : getPath() + "/"
+                + name;
+        return getItemManager().createProperty(absPath, getPath(), value);
     }
 
     @Override

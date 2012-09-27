@@ -13,6 +13,7 @@ import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ItemState.ItemType;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
+import ch.x42.terye.persistence.PropertyState;
 
 public class ItemManager {
 
@@ -64,12 +65,27 @@ public class ItemManager {
         removed.remove(path);
         log.nodeAdded(node);
         if (parentPath == null) {
+            // only the case for the root node
             return node;
         }
         NodeImpl parent = getNode(parentPath);
         parent.getState().getChildren().add(path);
         log.nodeModified(parent);
         return node;
+    }
+
+    /**
+     * 
+     * @param path canonical path
+     * @param parentPath canonical path to parent
+     */
+    public PropertyImpl createProperty(String path, String parentPath, Object value) {
+        PropertyState state = new PropertyState(path, parentPath, value);
+        PropertyImpl property = new PropertyImpl(this, state);
+        cache.put(path, property);
+        removed.remove(path);
+        log.propertyAdded(property);
+        return property;
     }
 
     /**

@@ -32,7 +32,7 @@ public abstract class ItemImpl implements Item {
         return itemManager;
     }
 
-    protected ItemState getState() {
+    public ItemState getState() {
         return state;
     }
 
