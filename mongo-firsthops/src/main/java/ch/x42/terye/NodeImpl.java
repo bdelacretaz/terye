@@ -1,6 +1,5 @@
 package ch.x42.terye;
 
-
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -35,6 +34,7 @@ import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
 import ch.x42.terye.iterator.NodeIteratorImpl;
+import ch.x42.terye.iterator.PropertyIteratorImpl;
 import ch.x42.terye.persistence.NodeState;
 
 public class NodeImpl extends ItemImpl implements Node {
@@ -223,8 +223,8 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public PropertyIterator getProperties() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new PropertyIteratorImpl(getItemManager(), getState()
+                .getProperties());
     }
 
     @Override

@@ -7,17 +7,21 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RangeIterator;
 
 import ch.x42.terye.ItemManager;
+import ch.x42.terye.persistence.ItemType;
 
-public class RangeIteratorImpl implements RangeIterator {
+public abstract class RangeIteratorImpl implements RangeIterator {
 
     private ItemManager itemManager;
     private Iterator<String> iterator;
+    private ItemType type;
     private long size = -1L;
     private long position = 0L;
 
-    public RangeIteratorImpl(ItemManager itemManager, Iterable<String> items) {
+    public RangeIteratorImpl(ItemManager itemManager, Iterable<String> items,
+            ItemType type) {
         this.itemManager = itemManager;
-        iterator = items.iterator();
+        this.iterator = items.iterator();
+        this.type = type;
         if (items instanceof Collection) {
             size = ((Collection<String>) items).size();
         }
@@ -33,7 +37,7 @@ public class RangeIteratorImpl implements RangeIterator {
         position++;
         String item = iterator.next();
         try {
-            return itemManager.getNode(item);
+            return itemManager.getItem(item, type);
         } catch (PathNotFoundException e) {
             return null;
         }
