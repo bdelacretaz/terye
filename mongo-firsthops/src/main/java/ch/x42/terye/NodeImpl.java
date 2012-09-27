@@ -304,8 +304,9 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasProperty(String relPath) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        String absPath = getPath().equals("/") ? "/" + relPath : getPath()
+                + "/" + relPath;
+        return getItemManager().propertyExists(absPath);
     }
 
     @Override

@@ -170,6 +170,18 @@ public class ItemManager {
         return true;
     }
 
+    /**
+     * @param path canonical path
+     */
+    public boolean propertyExists(String path) {
+        try {
+            getProperty(path);
+        } catch (PathNotFoundException e) {
+            return false;
+        }
+        return true;
+    }
+
     public void save() throws RepositoryException {
         pm.persist(log);
     }
