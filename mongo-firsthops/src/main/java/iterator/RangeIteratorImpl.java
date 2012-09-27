@@ -3,6 +3,7 @@ package iterator;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RangeIterator;
 
 import ch.x42.terye.ItemManager;
@@ -31,7 +32,11 @@ public class RangeIteratorImpl implements RangeIterator {
     public Object next() {
         position++;
         String item = iterator.next();
-        return itemManager.getNode(item);
+        try {
+            return itemManager.getNode(item);
+        } catch (PathNotFoundException e) {
+            return null;
+        }
     }
 
     @Override

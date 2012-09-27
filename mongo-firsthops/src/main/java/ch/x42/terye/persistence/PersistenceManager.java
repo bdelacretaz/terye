@@ -9,6 +9,7 @@ import javax.jcr.RepositoryException;
 import ch.x42.terye.persistence.ChangeLog.AddOperation;
 import ch.x42.terye.persistence.ChangeLog.ModifyOperation;
 import ch.x42.terye.persistence.ChangeLog.Operation;
+import ch.x42.terye.persistence.ChangeLog.RemoveOperation;
 import ch.x42.terye.persistence.ItemState.ItemType;
 
 import com.mongodb.BasicDBObject;
@@ -56,10 +57,18 @@ public class PersistenceManager {
     }
 
     private void store(NodeState ns) {
-        System.out.println("store node: " + ns.getPath());
+        System.out.println("upsert node: " + ns.getPath());
         BasicDBObject dbo = new BasicDBObject();
         dbo.put("path", ns.getPath());
         collection.update(dbo, ns, true, false);
+    }
+
+    private void delete(String pathPrefix) {
+        System.out.println("delete node starting with: " + pathPrefix);
+        Pattern pattern = Pattern.compile("^" + pathPrefix);
+        BasicDBObject dbo = new BasicDBObject();
+        dbo.put("path", pattern);
+        collection.remove(dbo);
     }
 
     public int count(String pathPrefix, ItemType type) {
@@ -78,6 +87,8 @@ public class PersistenceManager {
                 store(op.getNode().getState());
             } else if (op instanceof ModifyOperation) {
                 store(op.getNode().getState());
+            } else if (op instanceof RemoveOperation) {
+                delete(op.getNode().getPath());
             }
         }
     }
