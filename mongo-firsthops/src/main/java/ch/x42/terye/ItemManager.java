@@ -74,19 +74,6 @@ public class ItemManager {
 
     /**
      * @param path canonical path
-     * @param parent canonical path to parent
-     */
-    public NodeImpl getOrCreateNode(String path, String parent)
-            throws PathNotFoundException {
-        NodeImpl node = getNode(path);
-        if (node != null) {
-            return node;
-        }
-        return createNode(path, parent);
-    }
-
-    /**
-     * @param path canonical path
      */
     public void removeNode(String path) throws RepositoryException {
         NodeImpl node = getNode(path);

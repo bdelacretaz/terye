@@ -3,6 +3,7 @@ package ch.x42.terye;
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -69,7 +70,11 @@ public class RepositoryImpl implements Repository {
     @Override
     public Session login() throws LoginException, RepositoryException {
         session = new SessionImpl(this);
-        rootNode = session.getItemManager().getOrCreateNode("/", null);
+        try {
+            rootNode = session.getItemManager().getNode("/");
+        } catch (PathNotFoundException e) {
+            rootNode = session.getItemManager().createNode("/", null);
+        }
         return session;
     }
 
