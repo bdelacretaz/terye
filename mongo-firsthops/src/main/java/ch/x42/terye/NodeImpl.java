@@ -1,6 +1,5 @@
 package ch.x42.terye;
 
-import iterator.NodeIteratorImpl;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -35,6 +34,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
+import ch.x42.terye.iterator.NodeIteratorImpl;
 import ch.x42.terye.persistence.NodeState;
 
 public class NodeImpl extends ItemImpl implements Node {

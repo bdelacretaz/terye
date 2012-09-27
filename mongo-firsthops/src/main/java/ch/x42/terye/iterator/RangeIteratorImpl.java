@@ -1,4 +1,4 @@
-package iterator;
+package ch.x42.terye.iterator;
 
 import java.util.Collection;
 import java.util.Iterator;

@@ -1,4 +1,4 @@
-package iterator;
+package ch.x42.terye.iterator;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
