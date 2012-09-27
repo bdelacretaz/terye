@@ -6,6 +6,7 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.jcr.ItemExistsException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
@@ -57,8 +58,10 @@ public class ItemManager {
      * @param parent canonical path to parent
      */
     public NodeImpl createNode(String path, String parentPath)
-            throws PathNotFoundException {
-
+            throws PathNotFoundException, ItemExistsException {
+        if (nodeExists(path)) {
+            throw new ItemExistsException();
+        }
         NodeState state = new NodeState(path, parentPath);
         NodeImpl node = new NodeImpl(this, state);
         cache.put(path, node);
