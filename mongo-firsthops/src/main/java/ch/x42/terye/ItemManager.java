@@ -59,6 +59,7 @@ public class ItemManager {
      */
     public NodeImpl createNode(String path, String parentPath)
             throws PathNotFoundException {
+
         NodeState state = new NodeState(path, parentPath);
         NodeImpl node = new NodeImpl(this, state);
         cache.put(path, node);
@@ -79,7 +80,8 @@ public class ItemManager {
      * @param path canonical path
      * @param parentPath canonical path to parent
      */
-    public PropertyImpl createProperty(String path, String parentPath, Object value) {
+    public PropertyImpl createProperty(String path, String parentPath,
+            Object value) {
         PropertyState state = new PropertyState(path, parentPath, value);
         PropertyImpl property = new PropertyImpl(this, state);
         cache.put(path, property);
@@ -118,11 +120,13 @@ public class ItemManager {
     /**
      * @param path canonical path
      */
-    public boolean nodeExists(String path) throws PathNotFoundException {
-        if (isCached(path)) {
-            return true;
+    public boolean nodeExists(String path) {
+        try {
+            getNode(path);
+        } catch (PathNotFoundException e) {
+            return false;
         }
-        return getNode(path) != null;
+        return true;
     }
 
     /**
