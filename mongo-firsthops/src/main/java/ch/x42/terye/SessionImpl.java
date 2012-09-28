@@ -181,8 +181,7 @@ public class SessionImpl implements Session {
     @Override
     public Property getProperty(String absPath) throws PathNotFoundException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return getItemManager().getProperty(absPath);
     }
 
     @Override
