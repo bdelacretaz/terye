@@ -37,7 +37,7 @@ public class ItemManager {
      * item from the database.
      * 
      * @param path canonical path
-     * @param type item type
+     * @param type item type wanted or null if it doesn't matter
      * @return the item
      * @throws PathNotFoundException when no item at that path exists or the
      *             types don't match
@@ -51,7 +51,8 @@ public class ItemManager {
         // check if the item is cached
         ItemImpl item = cache.get(path);
         if (item != null) {
-            if (item.getState().getType().equals(type)) {
+            // if type matters, then both types must match
+            if (type == null || item.getState().getType().equals(type)) {
                 return item;
             }
             throw new PathNotFoundException();
@@ -62,13 +63,17 @@ public class ItemManager {
             throw new PathNotFoundException();
         }
         // instantiate, cache and return item
-        if (type.equals(ItemType.NODE)) {
+        if (state.getType().equals(ItemType.NODE)) {
             item = new NodeImpl(session, (NodeState) state);
         } else {
             item = new PropertyImpl(session, (PropertyState) state);
         }
         cache.put(path, item);
         return item;
+    }
+
+    public ItemImpl getItem(String path) throws PathNotFoundException {
+        return getItem(path, null);
     }
 
     public NodeImpl getNode(String path) throws PathNotFoundException {

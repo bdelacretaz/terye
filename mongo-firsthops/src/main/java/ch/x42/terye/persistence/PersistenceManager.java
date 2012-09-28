@@ -13,6 +13,7 @@ import ch.x42.terye.persistence.ChangeLog.RemoveOperation;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
@@ -39,13 +40,31 @@ public class PersistenceManager {
         return instance;
     }
 
+    /**
+     * Fetches the state of an item from the database.
+     * 
+     * @param path canonical item path
+     * @param type item type wanted or null if it doesn't matter
+     */
     public ItemState load(String path, ItemType type) {
         System.out.println("load node: " + path);
         BasicDBObject query = new BasicDBObject();
         query.put("path", path);
-        query.put("type", type.ordinal());
-        collection.setObjectClass(type.getStateClass());
-        return (ItemState) collection.findOne(query);
+        if (type != null) {
+            query.put("type", type.ordinal());
+        }
+        DBObject result = collection.findOne(query);
+        if (result == null) {
+            return null;
+        }
+        ItemState state;
+        if (result.get("type").equals(ItemType.NODE.ordinal())) {
+            state = new NodeState();
+        } else {
+            state = new PropertyState();
+        }
+        state.putAll(result.toMap());
+        return state;
     }
 
     private void store(ItemState state) {

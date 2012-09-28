@@ -129,8 +129,7 @@ public class SessionImpl implements Session {
     @Override
     public Item getItem(String absPath) throws PathNotFoundException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return getItemManager().getItem(absPath);
     }
 
     @Override
