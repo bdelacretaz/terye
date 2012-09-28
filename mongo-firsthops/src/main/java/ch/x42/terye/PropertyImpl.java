@@ -20,8 +20,8 @@ import ch.x42.terye.persistence.PropertyState;
 
 public class PropertyImpl extends ItemImpl implements Property {
 
-    protected PropertyImpl(ItemManager itemManager, PropertyState state) {
-        super(itemManager, state);
+    protected PropertyImpl(SessionImpl session, PropertyState state) {
+        super(session, state);
     }
 
     @Override
@@ -95,6 +95,11 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     @Override
+    public PropertyState getState() {
+        return (PropertyState) super.getState();
+    }
+
+    @Override
     public InputStream getStream() throws ValueFormatException,
             RepositoryException {
         // TODO Auto-generated method stub
@@ -115,8 +120,7 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     @Override
     public Value getValue() throws ValueFormatException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return getState().getValue();
     }
 
     @Override

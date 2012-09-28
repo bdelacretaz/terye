@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import javax.jcr.ItemExistsException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 
 import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ItemState;
@@ -19,12 +20,14 @@ import ch.x42.terye.persistence.PropertyState;
 
 public class ItemManager {
 
+    private SessionImpl session;
     private PersistenceManager pm;
     private ChangeLog log;
     private NavigableMap<String, ItemImpl> cache = new TreeMap<String, ItemImpl>();
     private Set<String> removed = new HashSet<String>();
 
-    protected ItemManager() throws RepositoryException {
+    protected ItemManager(SessionImpl session) throws RepositoryException {
+        this.session = session;
         pm = PersistenceManager.getInstance();
         log = new ChangeLog();
     }
@@ -60,9 +63,9 @@ public class ItemManager {
         }
         // instantiate, cache and return item
         if (type.equals(ItemType.NODE)) {
-            item = new NodeImpl(this, (NodeState) state);
+            item = new NodeImpl(session, (NodeState) state);
         } else {
-            item = new PropertyImpl(this, (PropertyState) state);
+            item = new PropertyImpl(session, (PropertyState) state);
         }
         cache.put(path, item);
         return item;
@@ -86,7 +89,7 @@ public class ItemManager {
             throw new ItemExistsException();
         }
         NodeState state = new NodeState(path, parentPath);
-        NodeImpl node = new NodeImpl(this, state);
+        NodeImpl node = new NodeImpl(session, state);
         cache.put(path, node);
         removed.remove(path);
         log.itemAdded(node);
@@ -106,14 +109,20 @@ public class ItemManager {
      * @param parentPath canonical path to parent
      */
     public PropertyImpl createProperty(String path, String parentPath,
-            Object value) throws PathNotFoundException {
+            Value value) throws PathNotFoundException, ItemExistsException {
+        // disallow nodes and properties having the same path
+        if (nodeExists(path)) {
+            throw new ItemExistsException();
+        }
         PropertyState state = new PropertyState(path, parentPath, value);
-        PropertyImpl property = new PropertyImpl(this, state);
+        PropertyImpl property = new PropertyImpl(session, state);
         cache.put(path, property);
         removed.remove(path);
         log.itemAdded(property);
         NodeImpl parent = getNode(parentPath);
-        parent.getState().getProperties().add(path);
+        if (!parent.getState().getProperties().contains(path)) {
+            parent.getState().getProperties().add(path);
+        }
         log.itemModified(parent);
         return property;
     }

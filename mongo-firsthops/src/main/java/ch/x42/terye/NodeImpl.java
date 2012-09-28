@@ -39,13 +39,8 @@ import ch.x42.terye.persistence.NodeState;
 
 public class NodeImpl extends ItemImpl implements Node {
 
-    protected NodeImpl(ItemManager itemManager, NodeState state) {
-        super(itemManager, state);
-    }
-
-    @Override
-    public NodeState getState() {
-        return (NodeState) super.getState();
+    protected NodeImpl(SessionImpl session, NodeState state) {
+        super(session, state);
     }
 
     @Override
@@ -253,6 +248,11 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     @Override
+    public NodeState getState() {
+        return (NodeState) super.getState();
+    }
+
+    @Override
     public NodeIterator getSharedSet() throws RepositoryException {
         // TODO Auto-generated method stub
         return null;
@@ -441,40 +441,40 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, BigDecimal value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        Value val = getSession().getValueFactory().createValue(value);
+        return setProperty(name, val);
     }
 
     @Override
     public Property setProperty(String name, Binary value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        Value val = getSession().getValueFactory().createValue(value);
+        return setProperty(name, val);
     }
 
     @Override
     public Property setProperty(String name, boolean value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        Value val = getSession().getValueFactory().createValue(value);
+        return setProperty(name, val);
     }
 
     @Override
     public Property setProperty(String name, Calendar value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        Value val = getSession().getValueFactory().createValue(value);
+        return setProperty(name, val);
     }
 
     @Override
     public Property setProperty(String name, double value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        Value val = getSession().getValueFactory().createValue(value);
+        return setProperty(name, val);
     }
 
     @Override
@@ -489,8 +489,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, long value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        Value val = getSession().getValueFactory().createValue(value);
+        return setProperty(name, val);
     }
 
     @Override
@@ -513,9 +513,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, String value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        String absPath = getPath().equals("/") ? "/" + name : getPath() + "/"
-                + name;
-        return getItemManager().createProperty(absPath, getPath(), value);
+        Value val = getSession().getValueFactory().createValue(value);
+        return setProperty(name, val);
     }
 
     @Override
@@ -546,8 +545,9 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, Value value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        String absPath = getPath().equals("/") ? "/" + name : getPath() + "/"
+                + name;
+        return getItemManager().createProperty(absPath, getPath(), value);
     }
 
     @Override

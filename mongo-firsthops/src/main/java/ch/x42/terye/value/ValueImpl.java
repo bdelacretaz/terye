@@ -3,6 +3,7 @@ package ch.x42.terye.value;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.jcr.Binary;
 import javax.jcr.PropertyType;
@@ -15,7 +16,7 @@ public class ValueImpl implements Value {
     private Object value;
     private int type;
 
-    protected ValueImpl(Object value, int type) {
+    public ValueImpl(Object value, int type) {
         this.value = value;
         this.type = type;
     }
@@ -44,14 +45,27 @@ public class ValueImpl implements Value {
     @Override
     public Calendar getDate() throws ValueFormatException, RepositoryException {
         validate(PropertyType.DATE);
-        return (Calendar) value;
+        if (value instanceof Calendar) {
+            return (Calendar) value;
+        } else if (value instanceof Date) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime((Date) value);
+            return cal;
+        }
+        throw new ValueFormatException();
     }
 
     @Override
     public BigDecimal getDecimal() throws ValueFormatException,
             RepositoryException {
         validate(PropertyType.DECIMAL);
-        return (BigDecimal) value;
+        if (value instanceof BigDecimal) {
+            return (BigDecimal) value;
+        } else if (value instanceof String) {
+            return new BigDecimal((String) value);
+        }
+
+        throw new ValueFormatException();
     }
 
     @Override
@@ -82,5 +96,9 @@ public class ValueImpl implements Value {
     @Override
     public int getType() {
         return type;
+    }
+
+    public Object getObject() {
+        return value;
     }
 }

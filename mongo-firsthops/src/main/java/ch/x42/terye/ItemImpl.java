@@ -20,16 +20,16 @@ import ch.x42.terye.persistence.ItemType;
 
 public abstract class ItemImpl implements Item {
 
-    private ItemManager itemManager;
+    private SessionImpl session;
     private ItemState state;
 
-    protected ItemImpl(ItemManager itemManager, ItemState state) {
-        this.itemManager = itemManager;
+    protected ItemImpl(SessionImpl session, ItemState state) {
+        this.session = session;
         this.state = state;
     }
 
     protected ItemManager getItemManager() {
-        return itemManager;
+        return session.getItemManager();
     }
 
     public ItemState getState() {
@@ -77,8 +77,7 @@ public abstract class ItemImpl implements Item {
 
     @Override
     public Session getSession() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return session;
     }
 
     @Override
