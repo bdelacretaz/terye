@@ -228,8 +228,7 @@ public class SessionImpl implements Session {
 
     @Override
     public boolean hasPendingChanges() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        return getItemManager().hasPendingChanges();
     }
 
     @Override

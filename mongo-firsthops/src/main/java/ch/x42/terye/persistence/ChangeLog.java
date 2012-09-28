@@ -63,4 +63,8 @@ public class ChangeLog {
         return operations;
     }
 
+    public boolean isEmpty() {
+        return operations.isEmpty();
+    }
+
 }

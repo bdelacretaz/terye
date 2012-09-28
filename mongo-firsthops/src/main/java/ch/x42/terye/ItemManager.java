@@ -208,4 +208,8 @@ public class ItemManager {
         pm.persist(log);
     }
 
+    public boolean hasPendingChanges() {
+        return !log.isEmpty();
+    }
+
 }
