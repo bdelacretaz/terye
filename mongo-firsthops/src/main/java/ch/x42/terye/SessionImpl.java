@@ -290,8 +290,7 @@ public class SessionImpl implements Session {
 
     @Override
     public boolean propertyExists(String absPath) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        return getItemManager().propertyExists(absPath);
     }
 
     @Override
