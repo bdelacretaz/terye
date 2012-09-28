@@ -299,8 +299,7 @@ public class SessionImpl implements Session {
     public void removeItem(String absPath) throws VersionException,
             LockException, ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        getItemManager().removeItem(absPath);
     }
 
     @Override
