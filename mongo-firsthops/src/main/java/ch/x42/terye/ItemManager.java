@@ -191,6 +191,14 @@ public class ItemManager {
         return true;
     }
 
+    /**
+     * @param path canonical path
+     */
+    public boolean itemExists(String path) {
+        // XXX: not optimal
+        return nodeExists(path) || propertyExists(path);
+    }
+
     public void save() throws RepositoryException {
         pm.persist(log);
     }
