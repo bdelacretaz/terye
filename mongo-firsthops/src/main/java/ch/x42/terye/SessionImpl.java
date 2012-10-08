@@ -42,12 +42,19 @@ public class SessionImpl implements Session {
     private ItemManager itemManager;
     private ValueFactoryImpl valueFactory;
     private boolean live = false;
+    private NodeImpl rootNode;
 
     protected SessionImpl(RepositoryImpl repository) throws RepositoryException {
         this.repository = repository;
         this.itemManager = new ItemManager(this);
         this.valueFactory = new ValueFactoryImpl();
         live = true;
+
+        try {
+            rootNode = getItemManager().getNode(new Path("/"));
+        } catch (PathNotFoundException e) {
+            rootNode = getItemManager().createNode(new Path("/"));
+        }
     }
 
     protected ItemManager getItemManager() {
@@ -207,7 +214,7 @@ public class SessionImpl implements Session {
 
     @Override
     public Node getRootNode() throws RepositoryException {
-        return repository.getRootNode();
+        return rootNode;
     }
 
     @Override
