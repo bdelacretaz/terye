@@ -64,9 +64,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node addNode(String relPath) throws ItemExistsException,
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
-        String absPath = getPath().equals("/") ? "/" + relPath : getPath()
-                + "/" + relPath;
-        return getItemManager().createNode(absPath, getPath());
+        Path absPath = path.concat(relPath).getCanonical();
+        return getItemManager().createNode(absPath);
     }
 
     @Override
@@ -171,8 +170,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Node getNode(String relPath) throws PathNotFoundException,
             RepositoryException {
-        String absPath = getPath().equals("/") ? "/" + relPath : getPath()
-                + "/" + relPath;
+        Path absPath = path.concat(relPath).getCanonical();
         return getItemManager().getNode(absPath);
     }
 
@@ -229,8 +227,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Property getProperty(String relPath) throws PathNotFoundException,
             RepositoryException {
-        String absPath = getPath().equals("/") ? "/" + relPath : getPath()
-                + "/" + relPath;
+        Path absPath = path.concat(relPath).getCanonical();
         return getItemManager().getProperty(absPath);
     }
 
@@ -287,8 +284,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasNode(String relPath) throws RepositoryException {
-        String absPath = getPath().equals("/") ? "/" + relPath : getPath()
-                + "/" + relPath;
+        Path absPath = path.concat(relPath).getCanonical();
         return getItemManager().nodeExists(absPath);
     }
 
@@ -304,8 +300,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasProperty(String relPath) throws RepositoryException {
-        String absPath = getPath().equals("/") ? "/" + relPath : getPath()
-                + "/" + relPath;
+        Path absPath = path.concat(relPath).getCanonical();
         return getItemManager().propertyExists(absPath);
     }
 
@@ -545,9 +540,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, Value value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        String absPath = getPath().equals("/") ? "/" + name : getPath() + "/"
-                + name;
-        return getItemManager().createProperty(absPath, getPath(), value);
+        Path absPath = path.concat(name).getCanonical();
+        return getItemManager().createProperty(absPath, value);
     }
 
     @Override

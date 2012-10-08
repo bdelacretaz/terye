@@ -13,8 +13,6 @@ public abstract class ItemState implements DBObject {
 
     private ItemType type;
     private String path;
-    // XXX: field might not be necessary (deduce parent from path)
-    private String parent;
     private boolean isPartial;
 
     public ItemState(ItemType type) {
@@ -27,8 +25,6 @@ public abstract class ItemState implements DBObject {
         if (s.equals("type") && type != null) {
             ret = true;
         } else if (s.equals("path") && path != null) {
-            ret = true;
-        } else if (s.equals("parent") && parent != null) {
             ret = true;
         }
         return ret;
@@ -47,8 +43,6 @@ public abstract class ItemState implements DBObject {
             value = type.ordinal();
         } else if (key.equals("path")) {
             value = path;
-        } else if (key.equals("parent")) {
-            value = parent;
         }
         return value;
     }
@@ -58,7 +52,6 @@ public abstract class ItemState implements DBObject {
         Set<String> set = new HashSet<String>();
         set.add("type");
         set.add("path");
-        set.add("parent");
         return set;
     }
 
@@ -68,8 +61,6 @@ public abstract class ItemState implements DBObject {
             type = ItemType.values()[(Integer) v];
         } else if (key.equals("path")) {
             path = (String) v;
-        } else if (key.equals("parent")) {
-            parent = (String) v;
         }
         return v;
     }
@@ -97,9 +88,6 @@ public abstract class ItemState implements DBObject {
         } else if (key.equals("path")) {
             ret = path;
             path = null;
-        } else if (key.equals("parent")) {
-            ret = parent;
-            parent = null;
         }
         return ret;
     }
@@ -110,7 +98,6 @@ public abstract class ItemState implements DBObject {
         Map<String, Object> ret = new HashMap<String, Object>();
         ret.put("type", type);
         ret.put("path", path);
-        ret.put("parent", parent);
         return ret;
     }
 
@@ -126,10 +113,6 @@ public abstract class ItemState implements DBObject {
 
     public String getPath() {
         return path;
-    }
-
-    public String getParent() {
-        return parent;
     }
 
     public ItemType getType() {

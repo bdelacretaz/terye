@@ -14,10 +14,9 @@ public class NodeState extends ItemState {
         super(ItemType.NODE);
     }
 
-    public NodeState(String path, String parent) {
+    public NodeState(String path) {
         this();
         put("path", path);
-        put("parent", parent);
     }
 
     @Override

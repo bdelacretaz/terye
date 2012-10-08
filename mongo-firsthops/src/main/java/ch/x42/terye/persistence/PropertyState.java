@@ -18,10 +18,9 @@ public class PropertyState extends ItemState {
         super(ItemType.PROPERTY);
     }
 
-    public PropertyState(String path, String parent, Value value) {
+    public PropertyState(String path, Value value) {
         this();
         put("path", path);
-        put("parent", parent);
         putValue(value);
         put("propertyType", value.getType());
     }

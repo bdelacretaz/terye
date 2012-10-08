@@ -71,9 +71,9 @@ public class RepositoryImpl implements Repository {
     public Session login() throws LoginException, RepositoryException {
         session = new SessionImpl(this);
         try {
-            rootNode = session.getItemManager().getNode("/");
+            rootNode = session.getItemManager().getNode(new Path("/"));
         } catch (PathNotFoundException e) {
-            rootNode = session.getItemManager().createNode("/", null);
+            rootNode = session.getItemManager().createNode(new Path("/"));
         }
         return session;
     }

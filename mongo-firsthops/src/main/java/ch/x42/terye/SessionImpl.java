@@ -53,6 +53,14 @@ public class SessionImpl implements Session {
         return itemManager;
     }
 
+    private Path makeAbsolutePath(String absPath) throws RepositoryException {
+        Path path = new Path(absPath);
+        if (!path.isAbsolute()) {
+            throw new RepositoryException("Not an absolute path: " + absPath);
+        }
+        return path;
+    }
+
     @Override
     public void addLockToken(String lt) {
         // TODO Auto-generated method stub
@@ -129,7 +137,7 @@ public class SessionImpl implements Session {
     @Override
     public Item getItem(String absPath) throws PathNotFoundException,
             RepositoryException {
-        return getItemManager().getItem(absPath);
+        return getItemManager().getItem(makeAbsolutePath(absPath));
     }
 
     @Override
@@ -161,7 +169,7 @@ public class SessionImpl implements Session {
     @Override
     public Node getNode(String absPath) throws PathNotFoundException,
             RepositoryException {
-        return getItemManager().getNode(absPath);
+        return getItemManager().getNode(makeAbsolutePath(absPath));
     }
 
     @Override
@@ -181,7 +189,7 @@ public class SessionImpl implements Session {
     @Override
     public Property getProperty(String absPath) throws PathNotFoundException,
             RepositoryException {
-        return getItemManager().getProperty(absPath);
+        return getItemManager().getProperty(makeAbsolutePath(absPath));
     }
 
     @Override
@@ -261,7 +269,7 @@ public class SessionImpl implements Session {
 
     @Override
     public boolean itemExists(String absPath) throws RepositoryException {
-        return getItemManager().itemExists(absPath);
+        return getItemManager().itemExists(makeAbsolutePath(absPath));
     }
 
     @Override
@@ -281,12 +289,12 @@ public class SessionImpl implements Session {
 
     @Override
     public boolean nodeExists(String absPath) throws RepositoryException {
-        return getItemManager().nodeExists(absPath);
+        return getItemManager().nodeExists(makeAbsolutePath(absPath));
     }
 
     @Override
     public boolean propertyExists(String absPath) throws RepositoryException {
-        return getItemManager().propertyExists(absPath);
+        return getItemManager().propertyExists(makeAbsolutePath(absPath));
     }
 
     @Override
@@ -299,7 +307,7 @@ public class SessionImpl implements Session {
     public void removeItem(String absPath) throws VersionException,
             LockException, ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        getItemManager().removeItem(absPath);
+        getItemManager().removeItem(makeAbsolutePath(absPath));
     }
 
     @Override

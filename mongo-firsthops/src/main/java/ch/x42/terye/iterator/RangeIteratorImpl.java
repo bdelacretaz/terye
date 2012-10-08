@@ -7,6 +7,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RangeIterator;
 
 import ch.x42.terye.ItemManager;
+import ch.x42.terye.Path;
 import ch.x42.terye.persistence.ItemType;
 
 public abstract class RangeIteratorImpl implements RangeIterator {
@@ -37,7 +38,7 @@ public abstract class RangeIteratorImpl implements RangeIterator {
         position++;
         String item = iterator.next();
         try {
-            return itemManager.getItem(item, type);
+            return itemManager.getItem(new Path(item), type);
         } catch (PathNotFoundException e) {
             return null;
         }

@@ -22,10 +22,12 @@ public abstract class ItemImpl implements Item {
 
     private SessionImpl session;
     private ItemState state;
+    protected Path path;
 
     protected ItemImpl(SessionImpl session, ItemState state) {
         this.session = session;
         this.state = state;
+        this.path = new Path(state.getPath());
     }
 
     protected ItemManager getItemManager() {
@@ -64,10 +66,10 @@ public abstract class ItemImpl implements Item {
     @Override
     public Node getParent() throws ItemNotFoundException,
             AccessDeniedException, RepositoryException {
-        if (state.getParent() == null) {
+        if (path.getParent() == null) {
             throw new ItemNotFoundException("The root node has no parent.");
         }
-        return getItemManager().getNode(state.getParent());
+        return getItemManager().getNode(path.getParent());
     }
 
     @Override
@@ -114,7 +116,7 @@ public abstract class ItemImpl implements Item {
     public void remove() throws VersionException, LockException,
             ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        getItemManager().removeItem(getPath());
+        getItemManager().removeItem(path);
     }
 
     @Override
