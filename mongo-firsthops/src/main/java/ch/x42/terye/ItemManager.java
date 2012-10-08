@@ -132,6 +132,17 @@ public class ItemManager {
     }
 
     /**
+     * @param path canonical path
+     * @param value the new value
+     */
+    public void updateProperty(Path path, Value value)
+            throws PathNotFoundException {
+        PropertyImpl property = getProperty(path);
+        property.getState().setValue(value);
+        log.itemModified(property);
+    }
+
+    /**
      * Removes an item from cache and the database (on persist). All descendants
      * are automatically being removed from the database.
      * 

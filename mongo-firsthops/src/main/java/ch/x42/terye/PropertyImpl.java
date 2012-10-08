@@ -139,8 +139,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValue(BigDecimal value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        setValue(getSession().getValueFactory().createValue(value));
     }
 
     @Override
@@ -155,24 +154,21 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValue(boolean value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        setValue(getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public void setValue(Calendar value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        setValue(getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public void setValue(double value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        setValue(getSession().getValueFactory().createValue(value));
     }
 
     @Override
@@ -187,8 +183,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValue(long value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        setValue(getSession().getValueFactory().createValue(value));
     }
 
     @Override
@@ -203,8 +198,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValue(String value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        setValue(getSession().getValueFactory().createValue(value));
     }
 
     @Override
@@ -219,8 +213,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValue(Value value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        getItemManager().updateProperty(path, value);
     }
 
     @Override

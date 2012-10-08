@@ -132,5 +132,10 @@ public class PropertyState extends ItemState {
     public Value getValue() {
         return new ValueImpl(value, propertyType);
     }
+    
+    public void setValue(Value value) {
+        putValue(value);
+        put("propertyType", value.getType());
+    }
 
 }

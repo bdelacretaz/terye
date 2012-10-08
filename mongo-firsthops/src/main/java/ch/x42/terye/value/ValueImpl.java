@@ -24,7 +24,7 @@ public class ValueImpl implements Value {
     private void validate(int expectedType) throws ValueFormatException {
         if (getType() != expectedType) {
             throw new ValueFormatException("Expected a "
-                    + PropertyType.nameFromValue(expectedType) + "but found a "
+                    + PropertyType.nameFromValue(expectedType) + " but found a "
                     + PropertyType.nameFromValue(getType()));
         }
     }
