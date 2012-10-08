@@ -150,7 +150,7 @@ public class ItemManager {
      */
     public void removeItem(Path path) throws RepositoryException {
         // item must be in cache, since we're being called from it
-        ItemImpl item = cache.get(path.toString());
+        ItemImpl item = getItem(path);
         cache.remove(path.toString());
         removed.add(path.toString());
         // takes care of removing descendants from db
