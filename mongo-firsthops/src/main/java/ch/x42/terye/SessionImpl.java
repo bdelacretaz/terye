@@ -47,6 +47,7 @@ public class SessionImpl implements Session {
         this.repository = repository;
         this.itemManager = new ItemManager(this);
         this.valueFactory = new ValueFactoryImpl();
+        live = true;
     }
 
     protected ItemManager getItemManager() {
@@ -274,8 +275,7 @@ public class SessionImpl implements Session {
 
     @Override
     public void logout() {
-        // TODO Auto-generated method stub
-
+        live = false;
     }
 
     @Override
