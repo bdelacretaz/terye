@@ -33,21 +33,18 @@ public class PropertyImpl extends ItemImpl implements Property {
     @Override
     public boolean getBoolean() throws ValueFormatException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        return getState().getValue().getBoolean();
     }
 
     @Override
     public Calendar getDate() throws ValueFormatException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return getState().getValue().getDate();
     }
 
     @Override
     public BigDecimal getDecimal() throws ValueFormatException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return getState().getValue().getDecimal();
     }
 
     @Override
@@ -58,8 +55,7 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     @Override
     public double getDouble() throws ValueFormatException, RepositoryException {
-        // TODO Auto-generated method stub
-        return 0;
+        return getState().getValue().getDouble();
     }
 
     @Override
@@ -76,8 +72,7 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     @Override
     public long getLong() throws ValueFormatException, RepositoryException {
-        // TODO Auto-generated method stub
-        return 0;
+        return getState().getValue().getLong();
     }
 
     @Override
@@ -108,14 +103,12 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     @Override
     public String getString() throws ValueFormatException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return getState().getValue().getString();
     }
 
     @Override
     public int getType() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return 0;
+        return getState().getValue().getType();
     }
 
     @Override
