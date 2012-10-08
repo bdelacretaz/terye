@@ -59,8 +59,7 @@ public abstract class ItemImpl implements Item {
 
     @Override
     public String getName() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return path.getLastSegment();
     }
 
     @Override

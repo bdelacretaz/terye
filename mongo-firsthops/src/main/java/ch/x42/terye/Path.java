@@ -132,6 +132,9 @@ public class Path {
 
     public String getLastSegment() {
         String seg = segments.getLast();
+        if (seg.equals(ROOT)) {
+            seg = "";
+        }
         return seg;
     }
 
