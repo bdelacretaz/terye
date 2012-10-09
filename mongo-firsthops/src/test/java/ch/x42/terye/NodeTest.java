@@ -194,7 +194,6 @@ public class NodeTest extends BaseTest {
         assertEquals(root.getPath(), parent.getPath());
     }
 
-    @Ignore("fix")
     @Test(expected = PathNotFoundException.class)
     public void testRemove() throws RepositoryException {
         node1.remove();
@@ -204,7 +203,7 @@ public class NodeTest extends BaseTest {
         assertFalse(session.itemExists("/node1/property2"));
         assertFalse(session.itemExists("/node1/property3"));
         assertFalse(root.hasNodes());
-        root.getNode("/node1");
+        root.getNode("node1");
     }
 
     @Test

@@ -24,6 +24,7 @@ public class ItemManager {
     private PersistenceManager pm;
     private ChangeLog log;
     private NavigableMap<String, ItemImpl> cache = new TreeMap<String, ItemImpl>();
+    // stores paths of items that have been removed
     private Set<String> removed = new HashSet<String>();
 
     protected ItemManager(SessionImpl session) throws RepositoryException {
@@ -44,9 +45,14 @@ public class ItemManager {
      */
     public ItemImpl getItem(Path path, ItemType type)
             throws PathNotFoundException {
-        // check if the item has been loaded and removed in this session
-        if (removed.contains(path.toString())) {
-            throw new PathNotFoundException(path.toString());
+        // check if the item or one of its ancestors has 
+        // been removed in this session
+        Iterator<String> iterator = removed.iterator();
+        while(iterator.hasNext()) {
+            String prefix = iterator.next();
+            if(path.toString().startsWith(prefix)) {
+                throw new PathNotFoundException(path.toString());
+            }
         }
         // check if the item is cached
         ItemImpl item = cache.get(path.toString());
@@ -149,7 +155,6 @@ public class ItemManager {
      * @param path canonical path
      */
     public void removeItem(Path path) throws RepositoryException {
-        // item must be in cache, since we're being called from it
         ItemImpl item = getItem(path);
         cache.remove(path.toString());
         removed.add(path.toString());
