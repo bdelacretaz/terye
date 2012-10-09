@@ -213,11 +213,11 @@ public class NodeTest extends BaseTest {
         session.save();
 
         Session session2 = repository.login();
-        assertFalse(session.itemExists("/node1"));
-        assertFalse(session.itemExists("/node1/node2"));
-        assertFalse(session.itemExists("/node1/node3"));
-        assertFalse(session.itemExists("/node1/property2"));
-        assertFalse(session.itemExists("/node1/property3"));
+        assertFalse(session2.itemExists("/node1"));
+        assertFalse(session2.itemExists("/node1/node2"));
+        assertFalse(session2.itemExists("/node1/node3"));
+        assertFalse(session2.itemExists("/node1/property2"));
+        assertFalse(session2.itemExists("/node1/property3"));
         assertFalse(session2.getRootNode().hasNodes());
         session2.logout();
     }
