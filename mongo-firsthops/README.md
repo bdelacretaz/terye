@@ -13,3 +13,5 @@
   * vagrant halt
 * In order to destroy the VM (freeing about 1GB of disk space) type:
   * vagrant destroy
+
+The MongoDB Vagrant module has been copied from: https://github.com/bobthecow/vagrant-mongobox
