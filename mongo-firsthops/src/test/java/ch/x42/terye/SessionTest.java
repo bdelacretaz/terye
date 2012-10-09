@@ -9,6 +9,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 import org.junit.Test;
 
@@ -128,11 +129,30 @@ public class SessionTest extends BaseTest {
         session.getNode("/node1/node2");
     }
 
+    @Test
+    public void testRemoveItemNodeSave() throws RepositoryException {
+        session.removeItem("/node1/node2");
+        session.save();
+
+        Session session2 = repository.login();
+        assertFalse(session2.itemExists("/node1/node2"));
+        session2.logout();
+    }
+
     @Test(expected = PathNotFoundException.class)
     public void testRemoveItemProperty() throws RepositoryException {
         session.removeItem("/node1/property2");
         assertFalse(session.itemExists("/node1/property2"));
         session.getNode("/node1/property2");
+    }
+
+    public void testRemoveItemPropertySave() throws RepositoryException {
+        session.removeItem("/node1/property2");
+        session.save();
+
+        Session session2 = repository.login();
+        assertFalse(session2.itemExists("/node1/property2"));
+        session2.logout();
     }
 
     @Test(expected = RepositoryException.class)
