@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import javax.jcr.ItemExistsException;
-import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -193,12 +192,6 @@ public class NodeTest extends BaseTest {
         Node parent = node1.getParent();
         assertEquals(root.getName(), parent.getName());
         assertEquals(root.getPath(), parent.getPath());
-    }
-
-    @Ignore("move to root test")
-    @Test(expected = ItemNotFoundException.class)
-    public void testGetParentRoot() throws RepositoryException {
-
     }
 
     @Ignore("fix")
