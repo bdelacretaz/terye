@@ -14,10 +14,8 @@ that might be useful to implement JCR indexing and observation.
 http://couchdb.apache.org/ - document-oriented database.
 
 ### Apache Blur
-Search server on top of Hadoop and Lucene.
-
-No website yet? http://www.nearinfinity.com/blogs/aaron_mccurry/an_introduction_to_blur.html
-has some info.
+http://www.blur.io/ - search server on top of Hadoop and Lucene.
+Introduction at http://www.nearinfinity.com/blogs/aaron_mccurry/an_introduction_to_blur.html
 
 ### MongoDB
 http://www.mongodb.org/ - scalable, high performance NoSQL database.
