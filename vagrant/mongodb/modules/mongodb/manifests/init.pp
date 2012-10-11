@@ -19,8 +19,14 @@ class mongodb {
 	
 	package { "python-software-properties":
 		ensure => installed,
+		require => Exec["update-apt-1"],
 	}
 	
+	exec { "update-apt-1":
+		path => "/bin:/usr/bin",
+		command => "apt-get update",
+	}
+
 	exec { "10gen-apt-repo":
 		path => "/bin:/usr/bin",
 		command => "add-apt-repository '${mongodb::params::repository}'",
