@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import javax.jcr.RepositoryException;
 
+import ch.x42.terye.ConfiguredMongo;
 import ch.x42.terye.persistence.ChangeLog.AddOperation;
 import ch.x42.terye.persistence.ChangeLog.ModifyOperation;
 import ch.x42.terye.persistence.ChangeLog.Operation;
@@ -14,17 +15,17 @@ import ch.x42.terye.persistence.ChangeLog.RemoveOperation;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 import com.mongodb.MongoException;
 
 public class PersistenceManager {
 
     private static PersistenceManager instance;
-    private DBCollection collection;
+    private final DBCollection collection;
 
     private PersistenceManager() throws RepositoryException, UnknownHostException, MongoException {
-        collection = new Mongo("localhost", 27018).getDB("test")
-                    .getCollection("repo");
+        collection = new ConfiguredMongo()
+        .getDB(ConfiguredMongo.MONGO_DB_NAME)
+        .getCollection(ConfiguredMongo.TERYE_MONGO_COLLECTION);
     }
 
     public static PersistenceManager getInstance() throws RepositoryException, UnknownHostException, MongoException {
