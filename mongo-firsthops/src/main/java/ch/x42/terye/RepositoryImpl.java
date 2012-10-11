@@ -1,5 +1,7 @@
 package ch.x42.terye;
 
+import java.net.UnknownHostException;
+
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
@@ -7,6 +9,8 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
+
+import com.mongodb.MongoException;
 
 public class RepositoryImpl implements Repository {
 
@@ -62,7 +66,13 @@ public class RepositoryImpl implements Repository {
 
     @Override
     public Session login() throws LoginException, RepositoryException {
-        return new SessionImpl(this);
+        try {
+            return new SessionImpl(this);
+        } catch (UnknownHostException e) {
+            throw new RepositoryException(e.getClass().getSimpleName() + " in login()", e);
+        } catch (MongoException e) {
+            throw new RepositoryException(e.getClass().getSimpleName() + " in login()", e);
+        }
     }
 
     @Override

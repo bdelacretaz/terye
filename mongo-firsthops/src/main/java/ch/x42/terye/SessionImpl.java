@@ -3,6 +3,7 @@ package ch.x42.terye;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.UnknownHostException;
 import java.security.AccessControlException;
 
 import javax.jcr.AccessDeniedException;
@@ -34,6 +35,8 @@ import javax.jcr.version.VersionException;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import com.mongodb.MongoException;
+
 import ch.x42.terye.value.ValueFactoryImpl;
 
 public class SessionImpl implements Session {
@@ -44,7 +47,7 @@ public class SessionImpl implements Session {
     private boolean live = false;
     private NodeImpl rootNode;
 
-    protected SessionImpl(RepositoryImpl repository) throws RepositoryException {
+    protected SessionImpl(RepositoryImpl repository) throws RepositoryException, UnknownHostException, MongoException {
         this.repository = repository;
         this.itemManager = new ItemManager(this);
         this.valueFactory = new ValueFactoryImpl();

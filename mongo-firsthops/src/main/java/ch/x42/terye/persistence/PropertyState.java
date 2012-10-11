@@ -18,7 +18,7 @@ public class PropertyState extends ItemState {
         super(ItemType.PROPERTY);
     }
 
-    public PropertyState(String path, Value value) {
+    public PropertyState(String path, Value value) throws RepositoryException {
         this();
         put("path", path);
         putValue(value);
@@ -28,39 +28,35 @@ public class PropertyState extends ItemState {
     /**
      * Since there is no way to directly get to the underlying data object..
      */
-    private void putValue(Value value) {
+    private void putValue(Value value) throws RepositoryException {
         Object v = null;
-        try {
-            switch (value.getType()) {
-                case PropertyType.STRING:
-                    v = value.getString();
-                    break;
-                case PropertyType.LONG:
-                    v = value.getLong();
-                    break;
-                case PropertyType.DOUBLE:
-                    v = value.getDouble();
-                    break;
-                case PropertyType.DECIMAL:
-                    v = value.getDecimal().toString();
-                    break;
-                case PropertyType.DATE:
-                    v = value.getDate().getTime();
-                    break;
-                case PropertyType.BOOLEAN:
-                    v = value.getBoolean();
-                    break;
-                case PropertyType.BINARY:
-                case PropertyType.NAME:
-                case PropertyType.PATH:
-                case PropertyType.REFERENCE:
-                case PropertyType.WEAKREFERENCE:
-                case PropertyType.URI:
-                    throw new UnsupportedOperationException(
-                            "Value type not suppored");
-            }
-        } catch (RepositoryException e) {
-            e.printStackTrace();
+        switch (value.getType()) {
+            case PropertyType.STRING:
+                v = value.getString();
+                break;
+            case PropertyType.LONG:
+                v = value.getLong();
+                break;
+            case PropertyType.DOUBLE:
+                v = value.getDouble();
+                break;
+            case PropertyType.DECIMAL:
+                v = value.getDecimal().toString();
+                break;
+            case PropertyType.DATE:
+                v = value.getDate().getTime();
+                break;
+            case PropertyType.BOOLEAN:
+                v = value.getBoolean();
+                break;
+            case PropertyType.BINARY:
+            case PropertyType.NAME:
+            case PropertyType.PATH:
+            case PropertyType.REFERENCE:
+            case PropertyType.WEAKREFERENCE:
+            case PropertyType.URI:
+                throw new UnsupportedOperationException(
+                        "Value type not suppored");
         }
         put("value", v);
     }
@@ -133,7 +129,7 @@ public class PropertyState extends ItemState {
         return new ValueImpl(value, propertyType);
     }
     
-    public void setValue(Value value) {
+    public void setValue(Value value) throws RepositoryException {
         putValue(value);
         put("propertyType", value.getType());
     }
