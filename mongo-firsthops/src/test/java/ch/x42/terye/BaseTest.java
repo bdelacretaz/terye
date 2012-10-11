@@ -1,5 +1,7 @@
 package ch.x42.terye;
 
+import java.net.UnknownHostException;
+
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -21,7 +23,7 @@ public class BaseTest {
     protected Node root;
 
     @Before
-    public void setUp() throws RepositoryException {
+    public void setUp() throws Exception {
         initDB();
         repository = new RepositoryImpl();
         session = repository.login();
@@ -31,14 +33,10 @@ public class BaseTest {
     /**
      * Populates the db with some test nodes and properties.
      */
-    private void initDB() {
-        try {
-            collection = new Mongo("localhost", 27018).getDB("test")
+    private void initDB() throws UnknownHostException {
+        collection = new Mongo("localhost", 27018).getDB("test")
                     .getCollection("repo");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        String[] items = {
+        final String[] items = {
                 "{ 'path' : '/', 'children' : ['/node1'], 'properties' : ['/property1'], 'type' : 0 }",
                 "{ 'path' : '/node1', 'children' : ['/node1/node2', '/node1/node3'], 'properties' : ['/node1/property2', '/node1/property3'], 'type' : 0 }",
                 "{ 'path' : '/node1/node2', 'children' : [], 'properties' : [], 'type' : 0 }",

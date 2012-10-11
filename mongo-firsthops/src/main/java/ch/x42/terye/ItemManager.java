@@ -1,5 +1,6 @@
 package ch.x42.terye;
 
+import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NavigableMap;
@@ -18,6 +19,8 @@ import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
 import ch.x42.terye.persistence.PropertyState;
 
+import com.mongodb.MongoException;
+
 public class ItemManager {
 
     private SessionImpl session;
@@ -27,7 +30,7 @@ public class ItemManager {
     // stores paths of items that have been removed
     private Set<String> removed = new HashSet<String>();
 
-    protected ItemManager(SessionImpl session) throws RepositoryException {
+    protected ItemManager(SessionImpl session) throws RepositoryException, UnknownHostException, MongoException {
         this.session = session;
         pm = PersistenceManager.getInstance();
         log = new ChangeLog();
@@ -119,7 +122,7 @@ public class ItemManager {
      * @param path canonical path
      */
     public PropertyImpl createProperty(Path path, Value value)
-            throws PathNotFoundException, ItemExistsException {
+            throws RepositoryException {
         // disallow nodes and properties having the same path
         if (nodeExists(path)) {
             throw new ItemExistsException();
@@ -142,7 +145,7 @@ public class ItemManager {
      * @param value the new value
      */
     public void updateProperty(Path path, Value value)
-            throws PathNotFoundException {
+            throws RepositoryException {
         PropertyImpl property = getProperty(path);
         property.getState().setValue(value);
         log.itemModified(property);
