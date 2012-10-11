@@ -23,7 +23,7 @@ public class PropertyTest extends BaseTest {
 
     @Override
     @Before
-    public void setUp() throws RepositoryException {
+    public void setUp() throws Exception {
         super.setUp();
         property1 = session.getProperty("/property1");
     }

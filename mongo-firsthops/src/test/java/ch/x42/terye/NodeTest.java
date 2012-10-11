@@ -23,7 +23,7 @@ public class NodeTest extends BaseTest {
 
     @Override
     @Before
-    public void setUp() throws RepositoryException {
+    public void setUp() throws Exception {
         super.setUp();
         node1 = session.getNode("/node1");
     }
