@@ -1,0 +1,11 @@
+Vagrant::Config.run do |config|
+
+  config.vm.host_name = 'solr'
+  config.vm.box = "lucid64"
+  config.vm.box_url = "http://files.vagrantup.com/lucid64.box"
+  config.vm.share_folder "files", "/files", "files"
+  config.vm.forward_port 8080, 1234
+  config.vm.forward_port 8983, 1235
+  config.vm.provision :shell, :path => "init.sh"
+
+end
