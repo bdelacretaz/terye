@@ -15,7 +15,7 @@
 #  include mongodb
 #
 class mongodb {
-	include mongodb::params
+#	include mongodb::params
 	
 	package { "python-software-properties":
 		ensure => installed,
@@ -29,7 +29,8 @@ class mongodb {
 
 	exec { "10gen-apt-repo":
 		path => "/bin:/usr/bin",
-		command => "add-apt-repository '${mongodb::params::repository}'",
+#		command => "add-apt-repository '${mongodb::params::repository}'",
+		command => "add-apt-repository 'deb http://downloads.mongodb.org/distros/ubuntu 10.4 10gen'",
 		unless => "cat /etc/apt/sources.list | grep 10gen",
 		require => Package["python-software-properties"],
 	}
