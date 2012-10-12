@@ -16,53 +16,9 @@ class solr::bootstrap {
 
 class solr::install {
 
-  package { 'tomcat6':
-    ensure => present,
-  }
-
-  package { 'tomcat6-user':
-    ensure => present,
-    require => Package['tomcat6'],
-  }
- 
-  package { 'tomcat6-admin':
-    ensure => present,
-    require => Package['tomcat6-user'],
-  }
-
-  file { "/etc/tomcat6/tomcat-users.xml":
-    owner => 'root',
-    group => 'root',
-    mode => '755',
-    source => '/shared/tomcat-users.xml',
-    require => Package['tomcat6-admin'],
-  }
-
-  file { "/var/lib/tomcat6/webapps/solr.war":
-    owner => 'root',
-    group => 'root',
-    mode => '755',
-    source => '/shared/apache-solr-3.6.1.war',
-    require => File['/etc/tomcat6/tomcat-users.xml'],
-  }
-
-  file { "/opt/solr/example.zip":
-    owner => 'root',
-    group => 'root',
-    mode => '755',
-    source => '/shared/example.zip',
-    require => File['/var/lib/tomcat6/webapps/solr.war'],
-  }
-
-#  service { 'tomcat6':
-#    ensure => running,
-#    require => File["/var/lib/tomcat6/webapps/soler.war"],
-#  }
-
-# export JAVA_OPTS="$JAVA_OPTS -Dsolr.solr.home=/opt/solr/examplesssss"
-  exec { "start":
-    command => 'service tomcat6 restart',
-    require => File["/opt/solr/example.zip"],
+  exec { "install-tomcat-solr":
+    command => '/files/install_tomcat_solr.sh',
+    require => Package["mongodb-stable"]
   }
 
 }
@@ -75,4 +31,4 @@ class solr::go {
 }
 
 include solr::go
-#include mongodb
+include mongodb
