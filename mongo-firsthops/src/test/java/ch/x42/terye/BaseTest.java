@@ -12,7 +12,6 @@ import org.junit.Before;
 
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
 
 public class BaseTest {
@@ -34,8 +33,10 @@ public class BaseTest {
      * Populates the db with some test nodes and properties.
      */
     private void initDB() throws UnknownHostException {
-        collection = new Mongo("localhost", 27018).getDB("test")
-                    .getCollection("repo");
+        collection = new ConfiguredMongo()
+            .getDB(ConfiguredMongo.MONGO_DB_NAME)
+            .getCollection(ConfiguredMongo.TERYE_MONGO_COLLECTION);
+        
         final String[] items = {
                 "{ 'path' : '/', 'children' : ['/node1'], 'properties' : ['/property1'], 'type' : 0 }",
                 "{ 'path' : '/node1', 'children' : ['/node1/node2', '/node1/node3'], 'properties' : ['/node1/property2', '/node1/property3'], 'type' : 0 }",
