@@ -81,7 +81,7 @@
        RESTRICTION: the glob-like pattern in the name attribute must have
        a "*" only at the start or the end.  -->
 
-    <dynamicField name="*_String" type="int" indexed="true" stored="true"/>
+    <dynamicField name="*_String" type="string" indexed="true" stored="true"/>
     <dynamicField name="*_Long" type="long" indexed="true" stored="true"/>
     <dynamicField name="*_Double" type="double" indexed="true" stored="true"/>
     <!-- <dynamicField name="*_Decimal" type="string" indexed="true" stored="true"/> -->
