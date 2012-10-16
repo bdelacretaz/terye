@@ -26,7 +26,11 @@ elif [ $1 == "init" ]; then
 		echo "missing 2nd parameter (project name)"
 	fi
 elif [ $1 == "up" ]; then
-	vagrant up --no-provision
+	if [ -f .vagrant ]; then
+		vagrant up --no-provision
+	else
+		echo "vm doesn't exist... call 'solr.sh init ...' first"
+	fi
 elif [ $1 == "halt" ]; then
 	vagrant halt
 elif [ $1 == "destroy" ]; then
