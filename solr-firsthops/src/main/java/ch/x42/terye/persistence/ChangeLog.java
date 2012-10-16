@@ -1,5 +1,6 @@
 package ch.x42.terye.persistence;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -65,6 +66,14 @@ public class ChangeLog {
 
     public boolean isEmpty() {
         return operations.isEmpty();
+    }
+
+    public int size() {
+        return operations.size();
+    }
+
+    public Iterator<Operation> iterator() {
+        return operations.iterator();
     }
 
 }

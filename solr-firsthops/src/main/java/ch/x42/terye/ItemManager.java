@@ -25,14 +25,17 @@ public class ItemManager {
 
     private SessionImpl session;
     private PersistenceManager pm;
+    private Indexer indexer;
     private ChangeLog log;
     private NavigableMap<String, ItemImpl> cache = new TreeMap<String, ItemImpl>();
     // stores paths of items that have been removed
     private Set<String> removed = new HashSet<String>();
 
-    protected ItemManager(SessionImpl session) throws RepositoryException, UnknownHostException, MongoException {
+    protected ItemManager(SessionImpl session) throws RepositoryException,
+            UnknownHostException, MongoException {
         this.session = session;
         pm = PersistenceManager.getInstance();
+        indexer = Indexer.getInstance();
         log = new ChangeLog();
     }
 
@@ -48,12 +51,12 @@ public class ItemManager {
      */
     public ItemImpl getItem(Path path, ItemType type)
             throws PathNotFoundException {
-        // check if the item or one of its ancestors has 
+        // check if the item or one of its ancestors has
         // been removed in this session
         Iterator<String> iterator = removed.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             String prefix = iterator.next();
-            if(path.toString().startsWith(prefix)) {
+            if (path.toString().startsWith(prefix)) {
                 throw new PathNotFoundException(path.toString());
             }
         }
@@ -218,12 +221,14 @@ public class ItemManager {
      * @param path canonical path
      */
     public boolean itemExists(Path path) {
-        // XXX: not optimal
         return nodeExists(path) || propertyExists(path);
     }
 
     public void save() throws RepositoryException {
+        // atomically {
         pm.persist(log);
+        indexer.index(log);
+        // }
     }
 
     public boolean hasPendingChanges() {
