@@ -224,6 +224,7 @@ public class ItemManager {
 
     public void save() throws RepositoryException {
         pm.persist(log);
+        log.purge();
     }
 
     public boolean hasPendingChanges() {

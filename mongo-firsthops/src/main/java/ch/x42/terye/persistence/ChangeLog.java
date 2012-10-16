@@ -67,4 +67,8 @@ public class ChangeLog {
         return operations.isEmpty();
     }
 
+    public void purge() {
+        operations = new LinkedList<Operation>();
+    }
+
 }
