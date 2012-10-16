@@ -20,6 +20,9 @@ if [ -d /files/solr-conf ]; then
 	cp -rf /files/solr-conf/* /opt/solr/example/solr/conf/
 fi
 
+# change file owner
+sudo chown -R tomcat6:tomcat6 /opt/solr
+
 # copy context file for tomcat to pick up
 cp /files/solr-example.xml /etc/tomcat6/Catalina/localhost/solr-example.xml
 

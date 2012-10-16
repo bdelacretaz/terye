@@ -34,7 +34,7 @@ elif [ $1 == "up" ]; then
 elif [ $1 == "halt" ]; then
 	vagrant halt
 elif [ $1 == "destroy" ]; then
-	vagrant destroy
+	vagrant destroy -f
 else
 	echo "invalid argument"
 fi
