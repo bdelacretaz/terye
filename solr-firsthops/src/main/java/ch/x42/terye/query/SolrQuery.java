@@ -14,7 +14,7 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.version.VersionException;
 
-public class SolarQuery implements Query {
+public class SolrQuery implements Query {
 
     @Override
     public QueryResult execute() throws InvalidQueryException,
