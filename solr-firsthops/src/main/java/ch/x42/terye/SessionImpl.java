@@ -35,20 +35,24 @@ import javax.jcr.version.VersionException;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import com.mongodb.MongoException;
-
 import ch.x42.terye.value.ValueFactoryImpl;
+
+import com.mongodb.MongoException;
 
 public class SessionImpl implements Session {
 
     private RepositoryImpl repository;
+    private WorkspaceImpl workspace;
     private ItemManager itemManager;
     private ValueFactoryImpl valueFactory;
     private boolean live = false;
     private NodeImpl rootNode;
 
-    protected SessionImpl(RepositoryImpl repository) throws RepositoryException, UnknownHostException, MongoException {
+    protected SessionImpl(RepositoryImpl repository, WorkspaceImpl workspace)
+            throws RepositoryException, UnknownHostException, MongoException {
         this.repository = repository;
+        this.workspace = workspace;
+        workspace.setSession(this);
         this.itemManager = new ItemManager(this);
         this.valueFactory = new ValueFactoryImpl();
         live = true;
@@ -234,8 +238,7 @@ public class SessionImpl implements Session {
 
     @Override
     public Workspace getWorkspace() {
-        // TODO Auto-generated method stub
-        return null;
+        return workspace;
     }
 
     @Override

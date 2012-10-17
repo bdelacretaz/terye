@@ -67,11 +67,14 @@ public class RepositoryImpl implements Repository {
     @Override
     public Session login() throws LoginException, RepositoryException {
         try {
-            return new SessionImpl(this);
+            WorkspaceImpl workspace = new WorkspaceImpl("default");
+            return new SessionImpl(this, workspace);
         } catch (UnknownHostException e) {
-            throw new RepositoryException(e.getClass().getSimpleName() + " in login()", e);
+            throw new RepositoryException(e.getClass().getSimpleName()
+                    + " in login()", e);
         } catch (MongoException e) {
-            throw new RepositoryException(e.getClass().getSimpleName() + " in login()", e);
+            throw new RepositoryException(e.getClass().getSimpleName()
+                    + " in login()", e);
         }
     }
 
