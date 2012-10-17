@@ -7,7 +7,15 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.qom.QueryObjectModelFactory;
 
+import ch.x42.terye.ItemManager;
+
 public class QueryManagerImpl implements QueryManager {
+
+    private final ItemManager itemManager;
+
+    public QueryManagerImpl(ItemManager itemManager) {
+        this.itemManager = itemManager;
+    }
 
     @Override
     public Query createQuery(String statement, String language)

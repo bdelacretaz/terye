@@ -10,7 +10,9 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
 import ch.x42.terye.persistence.ChangeLog;
@@ -20,21 +22,17 @@ import ch.x42.terye.persistence.ChangeLog.Operation;
 import ch.x42.terye.persistence.ChangeLog.RemoveOperation;
 import ch.x42.terye.value.ValueImpl;
 
-public class Indexer {
+public class Index {
 
-    private static Indexer instance;
+    public static final String SOLR_URL = "http://localhost:1234/solr-example/";
 
-    private Indexer() {
+    private static SolrServer server;
+
+    protected Index() {
+        server = new HttpSolrServer(Index.SOLR_URL);
     }
 
-    public static Indexer getInstance() {
-        if (instance == null) {
-            instance = new Indexer();
-        }
-        return instance;
-    }
-
-    public void index(ChangeLog log) throws RepositoryException {
+    public void update(ChangeLog log) throws RepositoryException {
         Iterator<Operation> iterator = log.iterator();
         try {
             while (iterator.hasNext()) {
@@ -45,7 +43,7 @@ public class Indexer {
                     remove(op.getItem());
                 }
             }
-            Solr.getServer().commit();
+            server.commit();
         } catch (Exception e) {
             throw new RepositoryException("Could not update index", e);
         }
@@ -71,7 +69,7 @@ public class Indexer {
             Object value = ((ValueImpl) property.getValue()).getObject();
             doc.addField(name, value);
         }
-        Solr.getServer().add(doc);
+        server.add(doc);
     }
 
     private void remove(Item item) throws SolrServerException, IOException,
@@ -82,7 +80,7 @@ public class Indexer {
         if (!item.isNode()) {
             return;
         }
-        Solr.getServer().deleteById(item.getPath());
+        server.deleteById(item.getPath());
     }
 
 }

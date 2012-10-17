@@ -67,8 +67,7 @@ public class RepositoryImpl implements Repository {
     @Override
     public Session login() throws LoginException, RepositoryException {
         try {
-            WorkspaceImpl workspace = new WorkspaceImpl("default");
-            return new SessionImpl(this, workspace);
+            return new SessionImpl(this, "default");
         } catch (UnknownHostException e) {
             throw new RepositoryException(e.getClass().getSimpleName()
                     + " in login()", e);

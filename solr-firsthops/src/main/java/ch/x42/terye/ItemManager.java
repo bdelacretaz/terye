@@ -24,8 +24,8 @@ import com.mongodb.MongoException;
 public class ItemManager {
 
     private SessionImpl session;
-    private PersistenceManager pm;
-    private Indexer indexer;
+    private PersistenceManager persistenceManager;
+    private Index index;
     private ChangeLog log;
     private NavigableMap<String, ItemImpl> cache = new TreeMap<String, ItemImpl>();
     // stores paths of items that have been removed
@@ -34,8 +34,8 @@ public class ItemManager {
     protected ItemManager(SessionImpl session) throws RepositoryException,
             UnknownHostException, MongoException {
         this.session = session;
-        pm = PersistenceManager.getInstance();
-        indexer = Indexer.getInstance();
+        persistenceManager = new PersistenceManager();
+        index = new Index();
         log = new ChangeLog();
     }
 
@@ -70,7 +70,7 @@ public class ItemManager {
             throw new PathNotFoundException(path.toString());
         }
         // load item state from db
-        ItemState state = pm.load(path.toString(), type);
+        ItemState state = persistenceManager.load(path.toString(), type);
         if (state == null) {
             throw new PathNotFoundException(path.toString());
         }
@@ -226,8 +226,8 @@ public class ItemManager {
 
     public void save() throws RepositoryException {
         // atomically {
-        pm.persist(log);
-        indexer.index(log);
+        persistenceManager.persist(log);
+        index.update(log);
         log.purge();
         // }
     }

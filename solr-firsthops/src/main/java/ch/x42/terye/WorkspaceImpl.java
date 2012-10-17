@@ -2,6 +2,7 @@ package ch.x42.terye;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.UnknownHostException;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.InvalidItemStateException;
@@ -28,19 +29,25 @@ import org.xml.sax.ContentHandler;
 
 import ch.x42.terye.query.QueryManagerImpl;
 
+import com.mongodb.MongoException;
+
 public class WorkspaceImpl implements Workspace {
 
     private final String name;
-    private SessionImpl session;
-    private QueryManagerImpl queryManager;
+    private final SessionImpl session;
+    private final ItemManager itemManager;
+    private final QueryManagerImpl queryManager;
 
-    public WorkspaceImpl(String name) {
+    public WorkspaceImpl(String name, SessionImpl session)
+            throws UnknownHostException, MongoException, RepositoryException {
         this.name = name;
-        this.queryManager = new QueryManagerImpl();
+        this.session = session;
+        itemManager = new ItemManager(session);
+        queryManager = new QueryManagerImpl(itemManager);
     }
 
-    protected void setSession(SessionImpl session) {
-        this.session = session;
+    protected ItemManager getItemManager() {
+        return itemManager;
     }
 
     @Override

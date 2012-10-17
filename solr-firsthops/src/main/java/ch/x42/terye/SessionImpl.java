@@ -43,29 +43,23 @@ public class SessionImpl implements Session {
 
     private RepositoryImpl repository;
     private WorkspaceImpl workspace;
-    private ItemManager itemManager;
     private ValueFactoryImpl valueFactory;
     private boolean live = false;
-    private NodeImpl rootNode;
 
-    protected SessionImpl(RepositoryImpl repository, WorkspaceImpl workspace)
+    protected SessionImpl(RepositoryImpl repository, String workspaceName)
             throws RepositoryException, UnknownHostException, MongoException {
         this.repository = repository;
-        this.workspace = workspace;
-        workspace.setSession(this);
-        this.itemManager = new ItemManager(this);
+        this.workspace = new WorkspaceImpl(workspaceName, this);
         this.valueFactory = new ValueFactoryImpl();
         live = true;
+    }
 
-        try {
-            rootNode = getItemManager().getNode(new Path("/"));
-        } catch (PathNotFoundException e) {
-            rootNode = getItemManager().createNode(new Path("/"));
-        }
+    protected void setWorkspace(WorkspaceImpl workspace) {
+        this.workspace = workspace;
     }
 
     protected ItemManager getItemManager() {
-        return itemManager;
+        return workspace.getItemManager();
     }
 
     private Path makeAbsolutePath(String absPath) throws RepositoryException {
@@ -221,7 +215,11 @@ public class SessionImpl implements Session {
 
     @Override
     public Node getRootNode() throws RepositoryException {
-        return rootNode;
+        try {
+            return getItemManager().getNode(new Path("/"));
+        } catch (PathNotFoundException e) {
+            return getItemManager().createNode(new Path("/"));
+        }
     }
 
     @Override

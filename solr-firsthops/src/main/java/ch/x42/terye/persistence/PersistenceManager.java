@@ -22,22 +22,13 @@ import com.mongodb.MongoException;
 
 public class PersistenceManager {
 
-    private static PersistenceManager instance;
     private final DBCollection collection;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private PersistenceManager() throws RepositoryException,
+    public PersistenceManager() throws RepositoryException,
             UnknownHostException, MongoException {
         collection = new ConfiguredMongo().getDB(ConfiguredMongo.MONGO_DB_NAME)
                 .getCollection(ConfiguredMongo.TERYE_MONGO_COLLECTION);
-    }
-
-    public static PersistenceManager getInstance() throws RepositoryException,
-            UnknownHostException, MongoException {
-        if (instance == null) {
-            instance = new PersistenceManager();
-        }
-        return instance;
     }
 
     /**
