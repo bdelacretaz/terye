@@ -6,6 +6,9 @@ import java.util.regex.Pattern;
 
 import javax.jcr.RepositoryException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.x42.terye.ConfiguredMongo;
 import ch.x42.terye.persistence.ChangeLog.AddOperation;
 import ch.x42.terye.persistence.ChangeLog.ModifyOperation;
@@ -21,14 +24,16 @@ public class PersistenceManager {
 
     private static PersistenceManager instance;
     private final DBCollection collection;
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private PersistenceManager() throws RepositoryException, UnknownHostException, MongoException {
-        collection = new ConfiguredMongo()
-        .getDB(ConfiguredMongo.MONGO_DB_NAME)
-        .getCollection(ConfiguredMongo.TERYE_MONGO_COLLECTION);
+    private PersistenceManager() throws RepositoryException,
+            UnknownHostException, MongoException {
+        collection = new ConfiguredMongo().getDB(ConfiguredMongo.MONGO_DB_NAME)
+                .getCollection(ConfiguredMongo.TERYE_MONGO_COLLECTION);
     }
 
-    public static PersistenceManager getInstance() throws RepositoryException, UnknownHostException, MongoException {
+    public static PersistenceManager getInstance() throws RepositoryException,
+            UnknownHostException, MongoException {
         if (instance == null) {
             instance = new PersistenceManager();
         }
@@ -42,7 +47,7 @@ public class PersistenceManager {
      * @param type item type wanted or null if it doesn't matter
      */
     public ItemState load(String path, ItemType type) {
-        System.out.println("load node: " + path);
+        logger.debug("Load item from MongoDB: {}", path);
         BasicDBObject query = new BasicDBObject();
         query.put("path", path);
         if (type != null) {
@@ -63,14 +68,14 @@ public class PersistenceManager {
     }
 
     private void store(ItemState state) {
-        System.out.println("upsert item: " + state.getPath());
+        logger.debug("Persist item to MongoDB: {}", state.getPath());
         BasicDBObject dbo = new BasicDBObject();
         dbo.put("path", state.getPath());
         collection.update(dbo, state, true, false);
     }
 
     private void delete(String pathPrefix) {
-        System.out.println("delete items starting with: " + pathPrefix);
+        logger.debug("Remove item from MongoDB: {}", pathPrefix);
         Pattern pattern = Pattern.compile("^" + pathPrefix);
         BasicDBObject dbo = new BasicDBObject();
         dbo.put("path", pattern);
