@@ -26,13 +26,17 @@ import javax.jcr.version.VersionManager;
 
 import org.xml.sax.ContentHandler;
 
+import ch.x42.terye.query.QueryManagerImpl;
+
 public class WorkspaceImpl implements Workspace {
 
     private final String name;
     private SessionImpl session;
+    private QueryManagerImpl queryManager;
 
     public WorkspaceImpl(String name) {
         this.name = name;
+        this.queryManager = new QueryManagerImpl();
     }
 
     protected void setSession(SessionImpl session) {
@@ -104,8 +108,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public QueryManager getQueryManager() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return queryManager;
     }
 
     @Override
