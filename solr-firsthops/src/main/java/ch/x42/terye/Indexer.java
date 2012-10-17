@@ -10,9 +10,7 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
 import ch.x42.terye.persistence.ChangeLog;
@@ -24,13 +22,9 @@ import ch.x42.terye.value.ValueImpl;
 
 public class Indexer {
 
-    public static final String SOLR_URL = "http://localhost:1234/solr-example/";
-
     private static Indexer instance;
-    private SolrServer server;
 
     private Indexer() {
-        server = new HttpSolrServer(Indexer.SOLR_URL);
     }
 
     public static Indexer getInstance() {
@@ -51,7 +45,7 @@ public class Indexer {
                     remove(op.getItem());
                 }
             }
-            server.commit();
+            Solr.getServer().commit();
         } catch (Exception e) {
             throw new RepositoryException("Could not update index", e);
         }
@@ -60,8 +54,8 @@ public class Indexer {
     private void addOrUpdate(Item item) throws RepositoryException,
             SolrServerException, IOException {
         // only add nodes to index:
-        //   since creating a property modifies its parent node, we are
-        //   sure that we don't forget to index properties
+        // since creating a property modifies its parent node, we are
+        // sure that we don't forget to index properties
         if (!item.isNode()) {
             return;
         }
@@ -77,18 +71,18 @@ public class Indexer {
             Object value = ((ValueImpl) property.getValue()).getObject();
             doc.addField(name, value);
         }
-        server.add(doc);
+        Solr.getServer().add(doc);
     }
 
     private void remove(Item item) throws SolrServerException, IOException,
             RepositoryException {
         // index docs correspond to nodes, so we skip properties here:
-        //   if a property is removed, then its parent node is modified,
-        //   which is handled in addOrUpdate
+        // if a property is removed, then its parent node is modified,
+        // which is handled in addOrUpdate
         if (!item.isNode()) {
             return;
         }
-        server.deleteById(item.getPath());
+        Solr.getServer().deleteById(item.getPath());
     }
 
 }
