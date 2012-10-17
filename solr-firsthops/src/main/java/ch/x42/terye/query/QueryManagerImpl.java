@@ -7,21 +7,23 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.qom.QueryObjectModelFactory;
 
+import ch.x42.terye.Index;
 import ch.x42.terye.ItemManager;
 
 public class QueryManagerImpl implements QueryManager {
 
     private final ItemManager itemManager;
+    private final Index index;
 
-    public QueryManagerImpl(ItemManager itemManager) {
+    public QueryManagerImpl(ItemManager itemManager, Index index) {
         this.itemManager = itemManager;
+        this.index = index;
     }
 
     @Override
     public Query createQuery(String statement, String language)
             throws InvalidQueryException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new SolrQuery(itemManager, index, statement);
     }
 
     @Override

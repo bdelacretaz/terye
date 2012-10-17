@@ -35,6 +35,7 @@ public class WorkspaceImpl implements Workspace {
 
     private final String name;
     private final SessionImpl session;
+    private final Index index;
     private final ItemManager itemManager;
     private final QueryManagerImpl queryManager;
 
@@ -42,8 +43,9 @@ public class WorkspaceImpl implements Workspace {
             throws UnknownHostException, MongoException, RepositoryException {
         this.name = name;
         this.session = session;
-        itemManager = new ItemManager(session);
-        queryManager = new QueryManagerImpl(itemManager);
+        index = new Index();
+        itemManager = new ItemManager(session, index);
+        queryManager = new QueryManagerImpl(itemManager, index);
     }
 
     protected ItemManager getItemManager() {

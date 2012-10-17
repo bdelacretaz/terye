@@ -24,18 +24,18 @@ import com.mongodb.MongoException;
 public class ItemManager {
 
     private SessionImpl session;
-    private PersistenceManager persistenceManager;
     private Index index;
+    private PersistenceManager persistenceManager;
     private ChangeLog log;
     private NavigableMap<String, ItemImpl> cache = new TreeMap<String, ItemImpl>();
     // stores paths of items that have been removed
     private Set<String> removed = new HashSet<String>();
 
-    protected ItemManager(SessionImpl session) throws RepositoryException,
-            UnknownHostException, MongoException {
+    protected ItemManager(SessionImpl session, Index index)
+            throws RepositoryException, UnknownHostException, MongoException {
         this.session = session;
+        this.index = index;
         persistenceManager = new PersistenceManager();
-        index = new Index();
         log = new ChangeLog();
     }
 

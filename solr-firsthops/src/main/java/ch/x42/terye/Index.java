@@ -2,6 +2,8 @@ package ch.x42.terye;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
@@ -10,9 +12,12 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 
 import ch.x42.terye.persistence.ChangeLog;
@@ -25,6 +30,8 @@ import ch.x42.terye.value.ValueImpl;
 public class Index {
 
     public static final String SOLR_URL = "http://localhost:1234/solr-example/";
+    public static final String ID_FIELD = "id";
+    public static final String NAME_FIELD = "name";
 
     private static SolrServer server;
 
@@ -59,8 +66,8 @@ public class Index {
         }
         Node node = (Node) item;
         SolrInputDocument doc = new SolrInputDocument();
-        doc.addField("id", node.getPath());
-        doc.addField("name", node.getName());
+        doc.addField(Index.ID_FIELD, node.getPath());
+        doc.addField(Index.NAME_FIELD, node.getName());
         PropertyIterator iterator = node.getProperties();
         while (iterator.hasNext()) {
             Property property = iterator.nextProperty();
@@ -81,6 +88,17 @@ public class Index {
             return;
         }
         server.deleteById(item.getPath());
+    }
+
+    public List<String> query(String statement) throws SolrServerException {
+        List<String> nodes = new LinkedList<String>();
+        SolrQuery query = new SolrQuery(statement);
+        SolrDocumentList results = server.query(query).getResults();
+        Iterator<SolrDocument> iterator = results.iterator();
+        while (iterator.hasNext()) {
+            nodes.add((String) iterator.next().get(Index.ID_FIELD));
+        }
+        return nodes;
     }
 
 }
