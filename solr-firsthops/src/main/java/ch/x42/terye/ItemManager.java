@@ -228,6 +228,7 @@ public class ItemManager {
         // atomically {
         pm.persist(log);
         indexer.index(log);
+        log.purge();
         // }
     }
 
