@@ -59,11 +59,10 @@
 
   <fields>
 
-    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
-    <field name="name" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
+    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 
     <!-- catchall field, containing all other searchable text fields (implemented via copyField further on in this schema  -->
-    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+    <field name="any" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
  
 
@@ -81,7 +80,7 @@
        RESTRICTION: the glob-like pattern in the name attribute must have
        a "*" only at the start or the end.  -->
 
-    <dynamicField name="*_String" type="string" indexed="true" stored="true"/>
+    <dynamicField name="*_String" type="text_general" indexed="true" stored="true"/>
     <dynamicField name="*_Long" type="long" indexed="true" stored="true"/>
     <dynamicField name="*_Double" type="double" indexed="true" stored="true"/>
     <!-- <dynamicField name="*_Decimal" type="string" indexed="true" stored="true"/> -->
@@ -93,11 +92,7 @@
 
   <uniqueKey>id</uniqueKey>
 
-  <!--
-  <copyField source="name" dest="text"/>
-  <copyField source="content" dest="text"/>
-  <copyField source="*_t" dest="text" />
-  -->
+  <copyField source="*_String" dest="any" />
 
   <types>
     <!-- field type definitions. The "name" attribute is
