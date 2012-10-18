@@ -19,6 +19,8 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ChangeLog.AddOperation;
@@ -33,6 +35,7 @@ public class Index {
     public static final String ID_FIELD = "id";
     public static final String NAME_FIELD = "name";
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
     private static SolrServer server;
 
     protected Index() {
@@ -90,10 +93,17 @@ public class Index {
         server.deleteById(item.getPath());
     }
 
-    public List<String> query(String statement) throws SolrServerException {
+    public List<String> query(String statement) throws RepositoryException {
         List<String> nodes = new LinkedList<String>();
         SolrQuery query = new SolrQuery(statement);
-        SolrDocumentList results = server.query(query).getResults();
+        SolrDocumentList results;
+        try {
+            logger.debug("Solr query: " + statement);
+            results = server.query(query).getResults();
+        } catch (SolrServerException e) {
+            throw new RepositoryException("Query execution failed: "
+                    + statement, e);
+        }
         Iterator<SolrDocument> iterator = results.iterator();
         while (iterator.hasNext()) {
             nodes.add((String) iterator.next().get(Index.ID_FIELD));

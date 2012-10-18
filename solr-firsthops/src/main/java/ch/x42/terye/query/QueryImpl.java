@@ -16,32 +16,27 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.version.VersionException;
 
-import org.apache.solr.client.solrj.SolrServerException;
-
 import ch.x42.terye.Index;
 import ch.x42.terye.ItemManager;
 
-public class SolrQuery implements Query {
+public class QueryImpl implements Query {
 
     private final ItemManager itemManager;
     private final Index index;
     private final String statement;
 
-    public SolrQuery(ItemManager itemManager, Index index, String statement) {
+    public QueryImpl(ItemManager itemManager, Index index, String statement) {
         this.itemManager = itemManager;
-        this.statement = statement;
         this.index = index;
+        this.statement = statement;
     }
 
     @Override
     public QueryResult execute() throws InvalidQueryException,
             RepositoryException {
-        try {
-            List<String> nodes = index.query(statement);
-            return new QueryResultImpl(itemManager, nodes);
-        } catch (SolrServerException e) {
-            throw new RepositoryException("Could not execute the query", e);
-        }
+        QueryTerm term = new QueryTerm(statement);
+        List<String> nodes = index.query(term.toSolrString());
+        return new QueryResultImpl(itemManager, nodes);
     }
 
     @Override

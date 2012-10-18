@@ -23,7 +23,7 @@ public class QueryManagerImpl implements QueryManager {
     @Override
     public Query createQuery(String statement, String language)
             throws InvalidQueryException, RepositoryException {
-        return new SolrQuery(itemManager, index, statement);
+        return new QueryImpl(itemManager, index, statement);
     }
 
     @Override
