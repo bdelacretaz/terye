@@ -32,8 +32,7 @@ public class QueryResultImpl implements QueryResult {
 
     @Override
     public NodeIterator getNodes() throws RepositoryException {
-        new NodeIteratorImpl(itemManager, nodes);
-        return null;
+        return new NodeIteratorImpl(itemManager, nodes);
     }
 
     @Override
