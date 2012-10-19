@@ -2,6 +2,7 @@ package ch.x42.terye;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -80,6 +81,8 @@ public class Index {
             if (value instanceof BigDecimal) {
                 // store big decimals as their string representation
                 value = value.toString();
+            } else if (value instanceof Calendar) {
+                value = ((Calendar) value).getTime();
             }
             doc.addField(name, value);
         }
