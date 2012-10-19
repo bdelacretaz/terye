@@ -26,4 +26,9 @@ public class RootNodeTest extends BaseTest {
         root.getParent();
     }
 
+    @Test(expected = RepositoryException.class)
+    public void testRemove() throws RepositoryException {
+        root.remove();
+    }
+
 }
