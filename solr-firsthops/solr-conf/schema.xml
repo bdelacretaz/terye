@@ -62,7 +62,7 @@
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 
     <!-- catchall field, containing all other searchable text fields (implemented via copyField further on in this schema  -->
-    <field name="any" type="text_general" indexed="true" stored="false" multiValued="true"/>
+    <field name="any_String" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
  
 
@@ -92,7 +92,7 @@
 
   <uniqueKey>id</uniqueKey>
 
-  <copyField source="*_String" dest="any" />
+  <copyField source="*_String" dest="any_String" />
 
   <types>
     <!-- field type definitions. The "name" attribute is
