@@ -540,6 +540,10 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, Value value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
+        if (name.contains(Path.DELIMITER)) {
+            throw new IllegalArgumentException("'" + Path.DELIMITER
+                    + "' not allowed in name");
+        }
         Path absPath = path.concat(name).getCanonical();
         return getItemManager().createProperty(absPath, value);
     }
