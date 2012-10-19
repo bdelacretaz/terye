@@ -8,8 +8,13 @@ import java.util.regex.Pattern;
 
 import javax.jcr.query.InvalidQueryException;
 
+/**
+ * This class represents one query term (e.g. 'msg:hello' that will be
+ * translated into a Solr query statement.
+ */
 public class QueryTerm {
 
+    // a regex defining the format of allowed query terms
     private static final Pattern pattern = Pattern
             .compile("([-])?([a-zA-Z]*):(.*)");
 
@@ -20,6 +25,7 @@ public class QueryTerm {
     public QueryTerm(String statement) throws InvalidQueryException {
         Matcher matcher = pattern.matcher(statement);
         if (!matcher.matches()) {
+            // statement doesn't match the allowed format
             throw new InvalidQueryException("Invalid query: " + statement);
         }
         negated = matcher.group(1) == null ? false : true;
@@ -27,37 +33,66 @@ public class QueryTerm {
         expression = matcher.group(3);
     }
 
-    public String toSolrString() {
-        List<String> clauses = new LinkedList<String>();
+    /**
+     * This method translates this term into and returns a Solr query string.
+     * Query terms represent a condition on a property name and since properties
+     * are stored as dynamic fields in Solr, the corresponding field name
+     * consists of the property name and a type suffix (e.g. "msg_String" for
+     * strings). Since we don't know the type of the property in advance (we
+     * cannot deduce it from the query), we must create a disjunctive Solr query
+     * listing all possible types like this:
+     * 
+     * msg_String:hello OR msg_Boolean:hello OR msg_Long:hello OR ...
+     * 
+     * Since some expressions cannot be converted to specific types (i.e. above
+     * 'hello' can not be converted to a long), we must anticipate and not
+     * include those types into the query (otherwise Solr throws an exception).
+     * 
+     * XXX: this is hacky... better solution?
+     */
+    public String toSolrQuery() {
+        List<String> terms = new LinkedList<String>();
 
-        clauses.add(makeClause("_String"));
-        clauses.add(makeClause("_Boolean"));
+        // expressions are treated as strings by default
+        terms.add(makeTerm("_String"));
+        // all strings can be converted to booleans
+        terms.add(makeTerm("_Boolean"));
+        // check if expression can be converted to long
         try {
             Long.parseLong(expression);
-            clauses.add(makeClause("_Long"));
+            terms.add(makeTerm("_Long"));
         } catch (NumberFormatException e) {
         }
+        // check if expression can be converted to double
         try {
             Double.parseDouble(expression);
-            clauses.add(makeClause("_Double"));
+            terms.add(makeTerm("_Double"));
         } catch (NumberFormatException e) {
         }
+        // XXX: date
 
-        String s = "";
-        Iterator<String> i = clauses.iterator();
-        while (i.hasNext()) {
-            s += i.next();
-            if (i.hasNext()) {
-                s += " OR ";
+        // assemble disjunctive query
+        String query = "";
+        Iterator<String> iterator = terms.iterator();
+        while (iterator.hasNext()) {
+            query += iterator.next();
+            if (iterator.hasNext()) {
+                query += " OR ";
             }
         }
-        return s;
+        return query;
     }
 
-    private String makeClause(String suffix) {
+    private String makeTerm(String suffix) {
         String field = property + suffix;
-        return "(" + field + ":[* TO *] AND " + (negated ? "-" : "") + field
-                + ":" + expression + ")";
+        if (negated) {
+            // for a negated query we only want the docs that contain
+            // the queried field but with a value other than 'expression'
+            // (we don't want the docs that don't even contain 'field')
+            return "(" + field + ":[* TO *] AND " + field + ":" + expression
+                    + ")";
+        }
+        return field + ":" + expression;
     }
 
 }

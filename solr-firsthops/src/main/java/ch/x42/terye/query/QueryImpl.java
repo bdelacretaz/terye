@@ -35,7 +35,7 @@ public class QueryImpl implements Query {
     public QueryResult execute() throws InvalidQueryException,
             RepositoryException {
         QueryTerm term = new QueryTerm(statement);
-        List<String> nodes = index.query(term.toSolrString());
+        List<String> nodes = index.query(term.toSolrQuery());
         return new QueryResultImpl(itemManager, nodes);
     }
 
