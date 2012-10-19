@@ -1,6 +1,7 @@
 package ch.x42.terye;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -75,6 +76,11 @@ public class Index {
             String name = property.getName() + "_"
                     + PropertyType.nameFromValue(property.getType());
             Object value = ((ValueImpl) property.getValue()).getObject();
+            // XXX: Solr cannot handle BigDecimal
+            if (value instanceof BigDecimal) {
+                // store big decimals as their string representation
+                value = value.toString();
+            }
             doc.addField(name, value);
         }
         server.add(doc);
