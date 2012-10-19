@@ -7,7 +7,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
         PathTest.class, SessionTest.class, RootNodeTest.class, NodeTest.class,
-        PropertyTest.class
+        PropertyTest.class, QueryTest.class
 })
 public class JCRTests {
 
