@@ -33,7 +33,6 @@ public class Index {
 
     public static final String SOLR_URL = "http://localhost:1234/solr-example/";
     public static final String ID_FIELD = "id";
-    public static final String NAME_FIELD = "name";
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private static SolrServer server;
@@ -70,7 +69,6 @@ public class Index {
         Node node = (Node) item;
         SolrInputDocument doc = new SolrInputDocument();
         doc.addField(Index.ID_FIELD, node.getPath());
-        doc.addField(Index.NAME_FIELD, node.getName());
         PropertyIterator iterator = node.getProperties();
         while (iterator.hasNext()) {
             Property property = iterator.nextProperty();
