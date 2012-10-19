@@ -19,13 +19,23 @@ public class ValueImpl implements Value {
     public ValueImpl(Object value, int type) {
         this.value = value;
         this.type = type;
+
+        // when called from PropertyState, convert back to...
+        if (type == PropertyType.DATE && value instanceof Date) {
+            // ... Calendar
+            this.value = Calendar.getInstance();
+            ((Calendar) this.value).setTime((Date) value);
+        } else if (type == PropertyType.DECIMAL && value instanceof String) {
+            // ... BigDecimal
+            this.value = new BigDecimal((String) value);
+        }
     }
 
     private void validate(int expectedType) throws ValueFormatException {
         if (getType() != expectedType) {
             throw new ValueFormatException("Expected a "
-                    + PropertyType.nameFromValue(expectedType) + " but found a "
-                    + PropertyType.nameFromValue(getType()));
+                    + PropertyType.nameFromValue(expectedType)
+                    + " but found a " + PropertyType.nameFromValue(getType()));
         }
     }
 
@@ -45,27 +55,14 @@ public class ValueImpl implements Value {
     @Override
     public Calendar getDate() throws ValueFormatException, RepositoryException {
         validate(PropertyType.DATE);
-        if (value instanceof Calendar) {
-            return (Calendar) value;
-        } else if (value instanceof Date) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime((Date) value);
-            return cal;
-        }
-        throw new ValueFormatException();
+        return (Calendar) value;
     }
 
     @Override
     public BigDecimal getDecimal() throws ValueFormatException,
             RepositoryException {
         validate(PropertyType.DECIMAL);
-        if (value instanceof BigDecimal) {
-            return (BigDecimal) value;
-        } else if (value instanceof String) {
-            return new BigDecimal((String) value);
-        }
-
-        throw new ValueFormatException();
+        return (BigDecimal) value;
     }
 
     @Override
