@@ -100,7 +100,7 @@ public class QueryTerm {
             // for a negated query we only want the docs that contain
             // the queried field but with a value other than 'expression'
             // (we don't want the docs that don't even contain 'field')
-            return "(" + field + ":[* TO *] AND " + field + ":" + expression
+            return "(" + field + ":[* TO *] AND -" + field + ":" + expression
                     + ")";
         }
         return field + ":" + expression;
