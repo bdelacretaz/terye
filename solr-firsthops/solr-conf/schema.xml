@@ -83,7 +83,7 @@
     <dynamicField name="*_String" type="text_general" indexed="true" stored="true"/>
     <dynamicField name="*_Long" type="long" indexed="true" stored="true"/>
     <dynamicField name="*_Double" type="double" indexed="true" stored="true"/>
-    <!-- <dynamicField name="*_Decimal" type="string" indexed="true" stored="true"/> -->
+    <dynamicField name="*_Decimal" type="string" indexed="true" stored="true"/>
     <dynamicField name="*_Date" type="date" indexed="true" stored="true"/>
     <dynamicField name="*_Boolean" type="boolean" indexed="true" stored="true"/>
 
