@@ -1,5 +1,8 @@
 package ch.x42.terye.query;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.jcr.query.InvalidQueryException;
+
+import ch.x42.terye.utils.DateUtils;
 
 /**
  * This class represents one query term (e.g. 'msg:hello' that will be
@@ -57,19 +62,25 @@ public class QueryTerm {
         terms.add(makeTerm("_String"));
         // all strings can be converted to booleans
         terms.add(makeTerm("_Boolean"));
-        // check if expression can be converted to long
+        // check if expression can be parsed to a long
         try {
             Long.parseLong(expression);
             terms.add(makeTerm("_Long"));
         } catch (NumberFormatException e) {
         }
-        // check if expression can be converted to double
+        // check if expression can be parsed to a double
         try {
             Double.parseDouble(expression);
             terms.add(makeTerm("_Double"));
         } catch (NumberFormatException e) {
         }
-        // XXX: date
+        // check if expression can be parsed to a date
+        try {
+            DateFormat formatter = new SimpleDateFormat(DateUtils.FORMAT);
+            formatter.parse(expression.replaceAll("\"", ""));
+            terms.add(makeTerm("_Date"));
+        } catch (ParseException e) {
+        }
 
         // assemble disjunctive query
         String query = "";
