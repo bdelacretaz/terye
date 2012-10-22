@@ -11,3 +11,13 @@ Example usage for the 'solr-firsthops' project:
 * ./solr.sh up
 * ...
 * ./solr.sh destroy
+
+# Server URLs
+
+MongoDB:
+
+    localhost:27018
+
+Solr
+
+    localhost:1234/solr/
