@@ -3,7 +3,7 @@
 Minimal (and very incomplete in terms of API coverage) implementation 
 of a JCR content repository using MongoDB as its backend and integrating Solr for basic indexing and querying.
 
-The JUnit tests of this module require a MongoDB server at localhost/127.0.0.1:27018 and a Solr server at localhost/127.0.0.1:1234/solr-example/,
+The JUnit tests of this module require a MongoDB server at localhost/127.0.0.1:27018 and a Solr server at localhost/127.0.0.1:1234/solr/,
 by default. Furthermore, the Solr server must be configured to use solr-conf/schema.xml as the schema file.
 
 # Setup
