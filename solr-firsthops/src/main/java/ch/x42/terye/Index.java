@@ -33,7 +33,7 @@ import ch.x42.terye.value.ValueImpl;
 
 public class Index {
 
-    public static final String SOLR_URL = "http://localhost:1234/solr-example/";
+    public static final String SOLR_URL = "http://localhost:1234/solr/";
     public static final String ID_FIELD = "id";
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
