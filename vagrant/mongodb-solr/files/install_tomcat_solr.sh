@@ -24,7 +24,7 @@ fi
 sudo chown -R tomcat6:tomcat6 /opt/solr
 
 # copy context file for tomcat to pick up
-cp /files/solr-example.xml /etc/tomcat6/Catalina/localhost/solr-example.xml
+cp /files/solr.xml /etc/tomcat6/Catalina/localhost/solr.xml
 
 # restart tomcat
 service tomcat6 restart
