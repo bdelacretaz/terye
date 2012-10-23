@@ -3,6 +3,9 @@
 if [ $# -eq 0 ]; then
     echo "Usage: ./test [terye_artifact]"
 else
+	# make sure we're in the script's folder
+	cd $(dirname $0)
+	# install the artifact
 	mvn -f "../$1/pom.xml" install
 	# add all jar files in current folder
 	classpath="./*"
