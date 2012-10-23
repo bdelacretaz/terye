@@ -81,22 +81,19 @@ public class RepositoryImpl implements Repository {
     public Session login(Credentials credentials, String workspaceName)
             throws LoginException, NoSuchWorkspaceException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return login();
     }
 
     @Override
     public Session login(Credentials credentials) throws LoginException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return login();
     }
 
     @Override
     public Session login(String workspaceName) throws LoginException,
             NoSuchWorkspaceException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return login();
     }
 
 }
