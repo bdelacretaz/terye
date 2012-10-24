@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.SortedSet;
+import java.util.Set;
 import java.util.TreeSet;
 
 import junit.framework.TestCase;
@@ -17,20 +17,13 @@ import org.apache.jackrabbit.test.JCRTestSuite;
 
 public class FilteredTestSuite {
 
-    private static SortedSet<String> excludedPrefixes = new TreeSet<String>();
+    private static Set<String> excludesPrefixes = new TreeSet<String>();
+    private static Set<String> exceptionsPrefixes = new TreeSet<String>();
 
     public static TestSuite suite() throws IOException {
         // read file of excluded prefixes
-        InputStream is = FilteredTestSuite.class
-                .getResourceAsStream("/exclude.txt");
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String line;
-        while ((line = br.readLine()) != null) {
-            String prefix = line.trim();
-            if (!prefix.isEmpty()) {
-                excludedPrefixes.add(prefix);
-            }
-        }
+        readPrefixes("/excludes.txt", excludesPrefixes);
+        readPrefixes("/exceptions.txt", exceptionsPrefixes);
 
         // create original test suite containing all tests
         TestSuite suite = new JCRTestSuite();
@@ -70,8 +63,31 @@ public class FilteredTestSuite {
         return filteredSuite;
     }
 
+    private static void readPrefixes(String path, Set<String> set)
+            throws IOException {
+        InputStream is = FilteredTestSuite.class.getResourceAsStream(path);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String line;
+        while ((line = br.readLine()) != null) {
+            String prefix = line.trim();
+            if (!prefix.isEmpty()) {
+                set.add(prefix);
+            }
+        }
+        is.close();
+        br.close();
+    }
+
     private static boolean isExcluded(String name) {
-        Iterator<String> iterator = excludedPrefixes.iterator();
+        Iterator<String> iterator = exceptionsPrefixes.iterator();
+        while (iterator.hasNext()) {
+            String prefix = iterator.next();
+            if (name.startsWith(prefix)) {
+                return false;
+            }
+        }
+
+        iterator = excludesPrefixes.iterator();
         while (iterator.hasNext()) {
             String prefix = iterator.next();
             if (name.startsWith(prefix)) {
