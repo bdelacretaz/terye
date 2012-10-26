@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
+<!--
     <parent>
         <groupId>org.apache.sling</groupId>
         <artifactId>sling</artifactId>
         <version>13</version>
     </parent>
-
+-->
   <groupId>ch.x42.terye</groupId>
   <artifactId>sling-firsthops</artifactId>
   <version>1.0-SNAPSHOT</version>
@@ -58,86 +58,32 @@
                 </execution>
               </executions>
           </plugin>
-
           <plugin>
               <groupId>org.apache.felix</groupId>
               <artifactId>maven-bundle-plugin</artifactId>
               <extensions>true</extensions>
               <configuration>
                   <instructions>
-                      <Bundle-Category>
-                          sling,jcr,jackrabbit
-                      </Bundle-Category>
                       <Bundle-Activator>
-                          org.apache.sling.jcr.jackrabbit.server.impl.Activator
+                          ch.x42.terye.Activator
                       </Bundle-Activator>
                       <Export-Package>
-                           org.apache.sling.jcr.jackrabbit.server;version=2.1.0,
-                           org.apache.sling.jcr.jackrabbit.server.security;version=2.0.4-incubator,
-                           org.apache.sling.jcr.jackrabbit.server.security.accessmanager;version=2.1.0,
-                           org.apache.jackrabbit.core.security.principal;version=2.2.5
+                           ch.x42.terye.*
                       </Export-Package>
                       <Private-Package>
-                          org.apache.sling.jcr.jackrabbit.server.impl.*,
-                          org.apache.commons.*
+                           ch.x42.terye.*
                       </Private-Package>
                       <Import-Package>
-                          <!-- Sling and OSGi -->
-                          org.apache.sling.*, org.osgi.*,
-                          <!-- JNDI, Security, Transactions -->
-                          javax.naming.*,
-                          javax.security.*,
-                          javax.sql.*,
-                          javax.transaction.xa,
-                          <!--  Helpers -->
-                          org.apache.commons.io.*,
-                          org.apache.commons.collections.*,
-                          <!-- JCR and Jackrabbit API -->
-                          javax.jcr.*, org.apache.jackrabbit.api.*,
-                          org.apache.jackrabbit.spi.*,
+                            <!-- Sling and OSGi -->
+                            org.apache.sling.*, org.osgi.*,
 
-                          <!-- Logging -->
-                          org.slf4j,
-                          <!-- XML stuff -->
-                          javax.xml.*, org.xml.sax.*, org.w3c.dom.*,
-                          <!-- JAR Service Registry for Query -->
-                          javax.imageio.spi,
+                            <!-- XML stuff -->
+                            org.xml.sax.*,
 
-                          <!-- Exclude package, see JCR-2412 -->
-                          !org.apache.jackrabbit.test,
-
-                          <!-- playground imports -->
-                          org.apache.tika.*,
-
-                          <!-- Jackrabbit internals -->
-                          org.apache.jackrabbit.util,
-                          org.apache.jackrabbit.value,
-                          org.apache.jackrabbit.commons.*,
-                          org.apache.jackrabbit.spi.commons.*,
-
-                          <!-- optional JDBC driver import -->
-                          com.microsoft.sqlserver.jdbc;
-                          oracle.jdbc;
-                          org.apache.derby.jdbc;
-                          org.gjt.mm.mysql;
-                          org.h2;
-                          org.postgresql;
-                              resolution:=optional,
-
-                          <!-- Required by concurrent lib SynchronizationTimer class -->
-                          javax.swing.*;resolution:=optional
+                            javax.jcr.*,
+                            <!-- Logging -->
+                            org.slf4j,
                       </Import-Package>
-                      <DynamicImport-Package>*</DynamicImport-Package>
-
-                      <!-- Embedd some libraries -->
-                      <Embed-Transitive>true</Embed-Transitive>
-                      <Embed-Dependency>
-                          jackrabbit-core,
-                          lucene-core,
-                          concurrent,
-                          commons-dbcp,
-                          commons-pool
-                      </Embed-Dependency>
                       <_removeheaders>
                           Embed-Dependency,
                           Embed-Transitive,
@@ -181,14 +127,17 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
+            <version>4.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
+            <version>4.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <version>1.6.0</version>
         </dependency>
 
   </dependencies>
