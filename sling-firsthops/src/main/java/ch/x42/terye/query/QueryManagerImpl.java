@@ -7,6 +7,8 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.qom.QueryObjectModelFactory;
 
+import ch.x42.terye.query.qom.QueryObjectModelFactoryImpl;
+
 public class QueryManagerImpl implements QueryManager {
 
     @Override
@@ -17,8 +19,7 @@ public class QueryManagerImpl implements QueryManager {
 
     @Override
     public QueryObjectModelFactory getQOMFactory() {
-        // TODO Auto-generated method stub
-        return null;
+        return new QueryObjectModelFactoryImpl();
     }
 
     @Override
