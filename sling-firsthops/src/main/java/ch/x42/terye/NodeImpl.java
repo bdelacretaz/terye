@@ -61,7 +61,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node addNode(String relPath) throws ItemExistsException,
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
-        Path absPath = Path.getCanonical(path, relPath);
+        Path absPath = path.concat(relPath).getCanonical();
         return session.getItemManager().createNode(absPath);
     }
 
@@ -191,7 +191,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Node getNode(String relPath) throws PathNotFoundException,
             RepositoryException {
-        Path absPath = Path.getCanonical(path, relPath);
+        Path absPath = path.concat(relPath).getCanonical();
         return session.getItemManager().getNode(absPath);
     }
 
@@ -247,7 +247,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Property getProperty(String relPath) throws PathNotFoundException,
             RepositoryException {
-        Path absPath = Path.getCanonical(path, relPath);
+        Path absPath = path.concat(relPath).getCanonical();
         return session.getItemManager().getProperty(absPath);
     }
 
@@ -299,7 +299,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasNode(String relPath) throws RepositoryException {
-        Path absPath = Path.getCanonical(path, relPath);
+        Path absPath = path.concat(relPath).getCanonical();
         return session.getItemManager().nodeExists(absPath);
     }
 
@@ -315,7 +315,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasProperty(String relPath) throws RepositoryException {
-        Path absPath = Path.getCanonical(path, relPath);
+        Path absPath = path.concat(relPath).getCanonical();
         return session.getItemManager().propertyExists(absPath);
     }
 
@@ -374,7 +374,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public void remove() throws VersionException, LockException,
             ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        if (path.isRoot()) {
+        if (getPath().equals("/")) {
             throw new RepositoryException("Cannot remove the root node");
         }
         super.remove();
