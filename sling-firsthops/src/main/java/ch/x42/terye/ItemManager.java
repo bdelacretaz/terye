@@ -64,7 +64,7 @@ public class ItemManager {
 
     public ItemImpl getItem(Path path) throws PathNotFoundException {
         if (!itemExists(path)) {
-            throw new PathNotFoundException();
+            throw new PathNotFoundException(path.toString());
         }
         return items.get(path.toString());
     }
@@ -73,15 +73,14 @@ public class ItemManager {
         try {
             return itemExists(path) && getItem(path) instanceof NodeImpl;
         } catch (PathNotFoundException e) {
-            // should not happen
-            e.printStackTrace();
+            // cannot happen
         }
         return false;
     }
 
     public NodeImpl getNode(Path path) throws PathNotFoundException {
         if (!nodeExists(path)) {
-            throw new PathNotFoundException();
+            throw new PathNotFoundException(path.toString());
         }
         return (NodeImpl) getItem(path);
     }
@@ -90,15 +89,14 @@ public class ItemManager {
         try {
             return itemExists(path) && getItem(path) instanceof PropertyImpl;
         } catch (PathNotFoundException e) {
-            // should not happen
-            e.printStackTrace();
+            // cannot happen
         }
         return false;
     }
     
     public PropertyImpl getProperty(Path path) throws PathNotFoundException {
         if (!propertyExists(path)) {
-            throw new PathNotFoundException();
+            throw new PathNotFoundException(path.toString());
         }
         return (PropertyImpl) getItem(path);
     }
