@@ -85,8 +85,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node addNode(String relPath, String primaryNodeTypeName) throws ItemExistsException,
             PathNotFoundException, NoSuchNodeTypeException, LockException,
             VersionException, ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return addNode(relPath);
     }
 
     @Override
