@@ -39,22 +39,18 @@ import ch.x42.terye.value.ValueFactoryImpl;
 public class SessionImpl implements Session {
 
     private RepositoryImpl repository;
+    private WorkspaceImpl workspace;
     private ItemManager itemManager;
     private ValueFactoryImpl valueFactory;
-    private Node rootNode = null;
     private boolean live = true;
 
-    public SessionImpl(RepositoryImpl repository) {
+    public SessionImpl(RepositoryImpl repository, String workspaceName) {
         this.repository = repository;
+        workspace = new WorkspaceImpl(workspaceName, this);
         itemManager = new ItemManager(this);
         valueFactory = new ValueFactoryImpl();
-        try {
-            rootNode = getItemManager().createNode(new Path(Path.DELIMITER));
-        } catch (RepositoryException e) {
-            e.printStackTrace();
-        }
     }
-    
+
     protected ItemManager getItemManager() {
         return itemManager;
     }
@@ -84,13 +80,16 @@ public class SessionImpl implements Session {
 
     @Override
     public Workspace getWorkspace() {
-        // TODO Auto-generated method stub
-        return null;
+        return workspace;
     }
 
     @Override
     public Node getRootNode() throws RepositoryException {
-        return rootNode;
+        try {
+            return getItemManager().getNode(new Path("/"));
+        } catch (PathNotFoundException e) {
+            return getItemManager().createNode(new Path("/"));
+        }
     }
 
     @Override
