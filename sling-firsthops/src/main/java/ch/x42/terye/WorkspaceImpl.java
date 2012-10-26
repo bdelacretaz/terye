@@ -26,14 +26,21 @@ import javax.jcr.version.VersionManager;
 
 import org.xml.sax.ContentHandler;
 
+import ch.x42.terye.observation.ObservationManagerImpl;
+import ch.x42.terye.query.QueryManagerImpl;
+
 public class WorkspaceImpl implements Workspace {
 
     private final String name;
     private final SessionImpl session;
+    private final QueryManager queryManager;
+    private final ObservationManagerImpl observationManager;
 
     public WorkspaceImpl(String name, SessionImpl session) {
         this.name = name;
         this.session = session;
+        this.queryManager = new QueryManagerImpl();
+        this.observationManager = new ObservationManagerImpl();
     }
 
     @Override
@@ -101,8 +108,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public QueryManager getQueryManager() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return queryManager;
     }
 
     @Override
@@ -120,8 +126,7 @@ public class WorkspaceImpl implements Workspace {
     @Override
     public ObservationManager getObservationManager()
             throws UnsupportedRepositoryOperationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return observationManager;
     }
 
     @Override
