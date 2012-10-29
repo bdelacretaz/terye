@@ -31,12 +31,16 @@ import javax.jcr.retention.RetentionManager;
 import javax.jcr.security.AccessControlManager;
 import javax.jcr.version.VersionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 import ch.x42.terye.value.ValueFactoryImpl;
 
 public class SessionImpl implements Session {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private RepositoryImpl repository;
     private WorkspaceImpl workspace;
@@ -49,6 +53,7 @@ public class SessionImpl implements Session {
         workspace = new WorkspaceImpl(workspaceName, this);
         itemManager = new ItemManager(this);
         valueFactory = new ValueFactoryImpl();
+        log.debug("Session created for workspace {}", workspaceName);
     }
 
     protected ItemManager getItemManager() {

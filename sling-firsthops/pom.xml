@@ -1,13 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-<!--
-    <parent>
-        <groupId>org.apache.sling</groupId>
-        <artifactId>sling</artifactId>
-        <version>13</version>
-    </parent>
--->
   <groupId>ch.x42.terye</groupId>
   <artifactId>sling-firsthops</artifactId>
   <version>1.0-SNAPSHOT</version>
@@ -70,41 +63,16 @@
           <plugin>
               <groupId>org.apache.felix</groupId>
               <artifactId>maven-bundle-plugin</artifactId>
+              <version>2.3.7</version>
               <extensions>true</extensions>
               <configuration>
                   <instructions>
-                      <Bundle-Activator>
-                          ch.x42.terye.Activator
-                      </Bundle-Activator>
-                      <Export-Package>
-                           ch.x42.terye.*
-                      </Export-Package>
-                      <Private-Package>
-                           ch.x42.terye.*
-                      </Private-Package>
-                      <Import-Package>
-                            <!-- Sling and OSGi -->
-                            org.apache.sling.*, org.osgi.*,
-
-                            <!-- XML stuff -->
-                            org.xml.sax.*,
-
-                            javax.jcr.*,
-                            <!-- Logging -->
-                            org.slf4j,
-                      </Import-Package>
-                      <_removeheaders>
-                          Embed-Dependency,
-                          Embed-Transitive,
-                          Private-Package,
-                          Include-Resource
-                      </_removeheaders>
+                      <Private-Package>ch.x42.terye.*</Private-Package>
                   </instructions>
               </configuration>
           </plugin>
       </plugins>
   </build>
-
 
   <dependencies>
     <dependency>
@@ -118,6 +86,13 @@
             <groupId>javax.jcr</groupId>
             <artifactId>jcr</artifactId>
             <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.5.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.sling</groupId>
@@ -129,7 +104,7 @@
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.jcr.base</artifactId>
             <version>2.1.0</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <!-- OSGi Libraries -->
@@ -137,19 +112,21 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>4.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
             <version>4.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>
             <version>1.7.0</version>
+            <scope>provided</scope>
         </dependency>
 
   </dependencies>
-
 
 </project>

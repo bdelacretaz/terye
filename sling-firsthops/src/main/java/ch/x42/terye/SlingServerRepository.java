@@ -8,22 +8,36 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.sling.jcr.api.SlingRepository;
+import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component(label="%repository.name", description="%repository.description", metatype=true,
-name="ch.x42.terye.SlingServerRepository"/*, configurationFactory=true,
-policy=ConfigurationPolicy.REQUIRE*/)
+@Service
+@Component
 /*@Properties({
 @Property(name="service.vendor", value="The Apache Software Foundation"),
 @Property(name="service.description", value="Factory for embedded Jackrabbit Repository Instances")
 })*/
 public class SlingServerRepository implements Repository, SlingRepository {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private Repository repository;
 
-    public SlingServerRepository() {
+    @Activate
+    public void activate(ComponentContext ctx) {
         repository = new RepositoryImpl();
+        log.debug("Activated, using repository {}", repository);
+    }
+
+    @Deactivate
+    public void deactivate(ComponentContext ctx) {
+        log.debug("Deactivated", repository);
+        repository = null;
     }
 
     public String[] getDescriptorKeys() {
