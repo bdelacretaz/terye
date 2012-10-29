@@ -37,10 +37,15 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.x42.terye.iterator.NodeIteratorImpl;
 import ch.x42.terye.iterator.PropertyIteratorImpl;
 
 public class NodeImpl extends ItemImpl implements Node {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private List<NodeImpl> children = new LinkedList<NodeImpl>();
     private Set<PropertyImpl> properties = new LinkedHashSet<PropertyImpl>();
@@ -68,7 +73,7 @@ public class NodeImpl extends ItemImpl implements Node {
     protected void addChild(NodeImpl child) {
         children.add(child);
     }
-    
+
     protected void removeChild(ItemImpl child) {
         if (child.isNode()) {
             children.remove(child);
@@ -76,15 +81,17 @@ public class NodeImpl extends ItemImpl implements Node {
             properties.remove(child);
         }
     }
-    
-    protected void addProperty(PropertyImpl property) throws RepositoryException {
+
+    protected void addProperty(PropertyImpl property)
+            throws RepositoryException {
         properties.add(property);
     }
 
     @Override
-    public Node addNode(String relPath, String primaryNodeTypeName) throws ItemExistsException,
-            PathNotFoundException, NoSuchNodeTypeException, LockException,
-            VersionException, ConstraintViolationException, RepositoryException {
+    public Node addNode(String relPath, String primaryNodeTypeName)
+            throws ItemExistsException, PathNotFoundException,
+            NoSuchNodeTypeException, LockException, VersionException,
+            ConstraintViolationException, RepositoryException {
         return addNode(relPath);
     }
 
@@ -100,7 +107,7 @@ public class NodeImpl extends ItemImpl implements Node {
             InvalidItemStateException, UnsupportedRepositoryOperationException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -115,7 +122,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public void checkout() throws UnsupportedRepositoryOperationException,
             LockException, ActivityViolationException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -123,7 +130,7 @@ public class NodeImpl extends ItemImpl implements Node {
             InvalidItemStateException, UnsupportedRepositoryOperationException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -131,7 +138,7 @@ public class NodeImpl extends ItemImpl implements Node {
             throws UnsupportedRepositoryOperationException,
             InvalidLifecycleTransitionException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -220,8 +227,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public NodeType getPrimaryNodeType() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new NodeTypeImpl();
     }
 
     @Override
@@ -366,9 +372,9 @@ public class NodeImpl extends ItemImpl implements Node {
             ConstraintViolationException, ItemNotFoundException, LockException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
     @Override
     public void remove() throws VersionException, LockException,
             ConstraintViolationException, AccessDeniedException,
@@ -384,21 +390,21 @@ public class NodeImpl extends ItemImpl implements Node {
             VersionException, ConstraintViolationException, LockException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void removeShare() throws VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void removeSharedSet() throws VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -407,7 +413,7 @@ public class NodeImpl extends ItemImpl implements Node {
             UnsupportedRepositoryOperationException, LockException,
             InvalidItemStateException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -416,7 +422,7 @@ public class NodeImpl extends ItemImpl implements Node {
             InvalidItemStateException, UnsupportedRepositoryOperationException,
             LockException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -426,7 +432,7 @@ public class NodeImpl extends ItemImpl implements Node {
             UnsupportedRepositoryOperationException, LockException,
             InvalidItemStateException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -435,7 +441,7 @@ public class NodeImpl extends ItemImpl implements Node {
             UnsupportedRepositoryOperationException, LockException,
             InvalidItemStateException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -443,7 +449,7 @@ public class NodeImpl extends ItemImpl implements Node {
             throws NoSuchNodeTypeException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -458,7 +464,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, Value value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        PropertyImpl property = session.getItemManager().createProperty(path.concat(name), value);
+        PropertyImpl property = session.getItemManager().createProperty(
+                path.concat(name), value);
         addProperty(property);
         return property;
     }
@@ -475,7 +482,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, String value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, getSession().getValueFactory().createValue(value));
+        return setProperty(name,
+                getSession().getValueFactory().createValue(value));
     }
 
     @Override
@@ -498,35 +506,40 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, boolean value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, getSession().getValueFactory().createValue(value));
+        return setProperty(name,
+                getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, double value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, getSession().getValueFactory().createValue(value));
+        return setProperty(name,
+                getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, BigDecimal value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, getSession().getValueFactory().createValue(value));
+        return setProperty(name,
+                getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, long value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, getSession().getValueFactory().createValue(value));
+        return setProperty(name,
+                getSession().getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, Calendar value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name, getSession().getValueFactory().createValue(value));
+        return setProperty(name,
+                getSession().getValueFactory().createValue(value));
     }
 
     @Override
