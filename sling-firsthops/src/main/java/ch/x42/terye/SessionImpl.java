@@ -48,11 +48,15 @@ public class SessionImpl implements Session {
     private ValueFactoryImpl valueFactory;
     private boolean live = true;
 
-    public SessionImpl(RepositoryImpl repository, String workspaceName) {
+    public SessionImpl(RepositoryImpl repository, String workspaceName)
+            throws RepositoryException {
         this.repository = repository;
         workspace = new WorkspaceImpl(workspaceName, this);
         itemManager = new ItemManager(this);
         valueFactory = new ValueFactoryImpl();
+        if (!nodeExists("/")) {
+            itemManager.createNode(new Path("/"));
+        }
         log.debug("Session created for workspace {}", workspaceName);
     }
 
@@ -90,11 +94,7 @@ public class SessionImpl implements Session {
 
     @Override
     public Node getRootNode() throws RepositoryException {
-        try {
-            return getItemManager().getNode(new Path("/"));
-        } catch (PathNotFoundException e) {
-            return getItemManager().createNode(new Path("/"));
-        }
+        return getItemManager().getNode(new Path("/"));
     }
 
     @Override
@@ -279,8 +279,7 @@ public class SessionImpl implements Session {
 
     @Override
     public String[] getNamespacePrefixes() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new String[0];
     }
 
     @Override
