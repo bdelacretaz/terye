@@ -8,9 +8,17 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 
+import org.apache.felix.scr.annotations.Component;
 import org.apache.sling.jcr.api.SlingRepository;
 
-public class SlingServerRepository implements SlingRepository {
+@Component(label="%repository.name", description="%repository.description", metatype=true,
+name="ch.x42.terye.SlingServerRepository"/*, configurationFactory=true,
+policy=ConfigurationPolicy.REQUIRE*/)
+/*@Properties({
+@Property(name="service.vendor", value="The Apache Software Foundation"),
+@Property(name="service.description", value="Factory for embedded Jackrabbit Repository Instances")
+})*/
+public class SlingServerRepository implements Repository, SlingRepository {
 
     private Repository repository;
 
