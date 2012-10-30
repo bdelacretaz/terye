@@ -233,8 +233,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Item getPrimaryItem() throws ItemNotFoundException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new ItemNotFoundException();
     }
 
     @Override
