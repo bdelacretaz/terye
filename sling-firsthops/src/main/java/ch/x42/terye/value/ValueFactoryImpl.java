@@ -1,5 +1,6 @@
 package ch.x42.terye.value;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -14,14 +15,13 @@ import javax.jcr.ValueFormatException;
 
 public class ValueFactoryImpl implements ValueFactory {
 
-    public ValueFactoryImpl() {
-
-    }
-
     @Override
     public Binary createBinary(InputStream stream) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            return new BinaryImpl(stream);
+        } catch (IOException e) {
+            throw new RepositoryException("Couldn't create binary", e);
+        }
     }
 
     @Override
@@ -31,8 +31,7 @@ public class ValueFactoryImpl implements ValueFactory {
 
     @Override
     public Value createValue(Binary value) {
-        // TODO Auto-generated method stub
-        return null;
+        return new ValueImpl(value, PropertyType.BINARY);
     }
 
     @Override
@@ -52,8 +51,12 @@ public class ValueFactoryImpl implements ValueFactory {
 
     @Override
     public Value createValue(InputStream value) {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            return new ValueImpl(createBinary(value), PropertyType.BINARY);
+        } catch (RepositoryException e) {
+            // XXX: other exception?
+            throw new RuntimeException("Couldn't create binary value", e);
+        }
     }
 
     @Override

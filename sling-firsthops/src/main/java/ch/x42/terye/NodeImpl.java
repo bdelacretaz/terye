@@ -501,16 +501,16 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, InputStream value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return setProperty(name,
+                getSession().getValueFactory().createBinary(value));
     }
 
     @Override
     public Property setProperty(String name, Binary value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return setProperty(name,
+                getSession().getValueFactory().createValue(value));
     }
 
     @Override

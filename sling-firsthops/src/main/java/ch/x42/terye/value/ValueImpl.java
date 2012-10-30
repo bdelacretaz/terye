@@ -30,8 +30,8 @@ public class ValueImpl implements Value {
 
     @Override
     public Binary getBinary() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        validate(PropertyType.BOOLEAN);
+        return (Binary) value;
     }
 
     @Override
@@ -73,8 +73,8 @@ public class ValueImpl implements Value {
 
     @Override
     public InputStream getStream() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        validate(PropertyType.BINARY);
+        return ((Binary) value).getStream();
     }
 
     @Override
