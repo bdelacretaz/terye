@@ -99,8 +99,12 @@ public class NodeImpl extends ItemImpl implements Node {
             NoSuchNodeTypeException, LockException, VersionException,
             ConstraintViolationException, RepositoryException {
         Path absPath = path.concat(relPath).getCanonical();
-        return session.getItemManager()
-                .createNode(absPath, primaryNodeTypeName);
+        NodeImpl node = session.getItemManager().createNode(absPath,
+                primaryNodeTypeName);
+        // XXX: temporarily add jcr:created to all nodes in order to prevent
+        // Sling from throwing an exception
+        node.setProperty("jcr:created", Calendar.getInstance());
+        return node;
     }
 
     @Override
@@ -352,8 +356,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean isNodeType(String nodeTypeName) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        return primaryType.isNodeType(nodeTypeName);
     }
 
     @Override
