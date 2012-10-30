@@ -62,8 +62,13 @@ public class ValueImpl implements Value {
 
     @Override
     public long getLong() throws ValueFormatException, RepositoryException {
-        validate(PropertyType.LONG);
-        return (Long) value;
+        switch (getType()) {
+            case PropertyType.LONG:
+                return (Long) value;
+            case PropertyType.DATE:
+                return ((Calendar) value).getTimeInMillis();
+        }
+        throw new ValueFormatException("Couldn't convert value to long");
     }
 
     @Override
