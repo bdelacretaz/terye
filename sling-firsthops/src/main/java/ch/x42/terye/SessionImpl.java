@@ -54,9 +54,6 @@ public class SessionImpl implements Session {
         workspace = new WorkspaceImpl(workspaceName, this);
         itemManager = new ItemManager(this);
         valueFactory = new ValueFactoryImpl();
-        if (!nodeExists("/")) {
-            itemManager.createNode(new Path("/"));
-        }
         log.debug("Session created for workspace {}", workspaceName);
     }
 
