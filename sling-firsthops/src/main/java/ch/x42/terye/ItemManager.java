@@ -173,25 +173,29 @@ public class ItemManager {
         parent.removeChild(item);
         log.itemModified(parent);
 
-        // only for nodes: remove descendants from cache
+        // if it is a node...
         if (!item.isNode()) {
             return;
         }
+        // ...remove its descendants from cache
         Iterator<String> iterator = cache.tailMap(path.toString(), true)
                 .navigableKeySet().iterator();
-        boolean done = false;
-        while (iterator.hasNext() && !done) {
+        while (iterator.hasNext()) {
             String key = iterator.next();
             if (!key.startsWith(path.toString())) {
-                done = true;
-            } else {
-                iterator.remove();
+                break;
             }
+            iterator.remove();
         }
     }
 
-    public void persistChanges() {
+    public void persistChanges() throws RepositoryException {
+        store.persist(log);
+        log.purge();
+    }
 
+    public boolean hasPendingChanges() {
+        return !log.isEmpty();
     }
 
 }

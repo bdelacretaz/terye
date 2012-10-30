@@ -174,8 +174,7 @@ public class SessionImpl implements Session {
             ReferentialIntegrityException, ConstraintViolationException,
             InvalidItemStateException, VersionException, LockException,
             NoSuchNodeTypeException, RepositoryException {
-        // TODO Auto-generated method stub
-
+        getItemManager().persistChanges();
     }
 
     @Override
@@ -186,8 +185,7 @@ public class SessionImpl implements Session {
 
     @Override
     public boolean hasPendingChanges() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return false;
+        return getItemManager().hasPendingChanges();
     }
 
     @Override
