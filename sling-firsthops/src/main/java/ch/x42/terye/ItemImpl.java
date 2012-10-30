@@ -15,18 +15,21 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.version.VersionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.x42.terye.store.ItemType;
+
 public class ItemImpl implements Item {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     protected SessionImpl session;
     protected Path path;
-    private String name;
-    private NodeImpl parent;
 
-    public ItemImpl(SessionImpl session, Path path, NodeImpl parent) {
+    public ItemImpl(SessionImpl session, Path path) {
         this.session = session;
         this.path = path;
-        this.name = path.getLastSegment();
-        this.parent = parent;
     }
 
     @Override
@@ -50,13 +53,16 @@ public class ItemImpl implements Item {
 
     @Override
     public String getName() throws RepositoryException {
-        return name;
+        return path.getLastSegment();
     }
 
     @Override
     public Node getParent() throws ItemNotFoundException,
             AccessDeniedException, RepositoryException {
-        return parent;
+        if (path.getParent() == null) {
+            throw new ItemNotFoundException("The root node has no parent.");
+        }
+        return session.getItemManager().getNode(path.getParent());
     }
 
     @Override
@@ -96,7 +102,7 @@ public class ItemImpl implements Item {
     public void refresh(boolean arg0) throws InvalidItemStateException,
             RepositoryException {
         // TODO Auto-generated method stub
-
+        log.debug("refresh");
     }
 
     @Override
@@ -112,6 +118,10 @@ public class ItemImpl implements Item {
             ReferentialIntegrityException, VersionException, LockException,
             NoSuchNodeTypeException, RepositoryException {
         // TODO Auto-generated method stub
+        log.debug("save()");
+    }
 
+    public ItemType getItemType() {
+        return isNode() ? ItemType.NODE : ItemType.PROPERTY;
     }
 }

@@ -3,18 +3,28 @@ package ch.x42.terye.iterator;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RangeIterator;
 
-public class RangeIteratorImpl<T> implements RangeIterator {
+import ch.x42.terye.ItemManager;
+import ch.x42.terye.Path;
+import ch.x42.terye.store.ItemType;
 
-    private Iterator<T> iterator;
+public abstract class RangeIteratorImpl implements RangeIterator {
+
+    private ItemManager itemManager;
+    private Iterator<String> iterator;
+    private ItemType type;
     private long size = -1L;
     private long position = 0L;
 
-    public RangeIteratorImpl(Iterable<T> iterable) {
-        iterator = iterable.iterator();
-        if (iterable instanceof Collection) {
-            size = ((Collection<T>) iterable).size();
+    public RangeIteratorImpl(ItemManager itemManager, Iterable<String> items,
+            ItemType type) {
+        this.itemManager = itemManager;
+        this.iterator = items.iterator();
+        this.type = type;
+        if (items instanceof Collection) {
+            size = ((Collection<String>) items).size();
         }
     }
 
@@ -26,7 +36,12 @@ public class RangeIteratorImpl<T> implements RangeIterator {
     @Override
     public Object next() {
         position++;
-        return iterator.next();
+        String item = iterator.next();
+        try {
+            return itemManager.getItem(new Path(item), type);
+        } catch (PathNotFoundException e) {
+            return null;
+        }
     }
 
     @Override

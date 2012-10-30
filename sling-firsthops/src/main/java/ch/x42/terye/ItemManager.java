@@ -1,7 +1,9 @@
 package ch.x42.terye;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.jcr.ItemExistsException;
@@ -9,118 +11,187 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.x42.terye.store.ChangeLog;
+import ch.x42.terye.store.ItemStore;
+import ch.x42.terye.store.ItemType;
+
 public class ItemManager {
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private SessionImpl session;
-    private NavigableMap<String, ItemImpl> items = new TreeMap<String, ItemImpl>();
+    private ItemStore store;
+    private ChangeLog log;
+    private NavigableMap<String, ItemImpl> cache;
+    // stores paths of items that have been removed in this session
+    private Set<String> removed = new HashSet<String>();
 
     protected ItemManager(SessionImpl session) {
         this.session = session;
+        this.store = ItemStore.getInstance();
+        this.log = new ChangeLog();
+        this.cache = new TreeMap<String, ItemImpl>();
     }
 
-    public NodeImpl createNode(Path path) throws ItemExistsException,
-            PathNotFoundException, RepositoryException {
-        // check if path already exists
-        if (itemExists(path)) {
-            throw new ItemExistsException("An item at that path already exists");
+    public ItemImpl getItem(Path path, ItemType type)
+            throws PathNotFoundException {
+        // check if the item or one of its ancestors has
+        // been removed in this session
+        String pathStr = path.toString();
+        Iterator<String> iterator = removed.iterator();
+        while (iterator.hasNext()) {
+            String prefix = iterator.next();
+            if (pathStr.startsWith(prefix)) {
+                throw new PathNotFoundException(pathStr);
+            }
         }
 
-        // get parent
-        Path parentPath = path.getParent();
-        NodeImpl parent = null;
-        if (parentPath != null) {
-            parent = getNode(parentPath);
-        }
-        // create node and add to parent
-        NodeImpl node = new NodeImpl(session, path, parent);
-        if (parent != null) {
-            parent.addChild(node);
-        }
-        items.put(path.toString(), node);
-        return node;
-    }
-
-    public PropertyImpl createProperty(Path path, Value value) throws ItemExistsException,
-            PathNotFoundException, RepositoryException {
-        // check if a node already exists at that path
-        // (properties get overwritten)
-        if (nodeExists(path)) {
-            throw new ItemExistsException("An node at that path already exists");
+        // check if the item is cached
+        ItemImpl item = cache.get(pathStr);
+        if (item != null) {
+            // if type matters, then the types must match
+            if (type == null || item.getItemType().equals(type)) {
+                return item;
+            }
+            throw new PathNotFoundException(pathStr);
         }
 
-        // get path to parent
-        Path parentPath = path.getParent();
-        NodeImpl parent = getNode(parentPath);
-        // create property and add to parent
-        PropertyImpl property = new PropertyImpl(session, path, value, parent);
-        parent.addProperty(property);
-        items.put(path.toString(), property);
-        return property;
-    }
-    
-    public boolean itemExists(Path path) {
-        return items.containsKey(path.toString());
+        // load item from store
+        item = store.load(pathStr, type);
+        if (item == null) {
+            throw new PathNotFoundException(pathStr);
+        }
+
+        // instantiate new in-memory copy and cache it
+        if (item.getItemType().equals(ItemType.NODE)) {
+            item = new NodeImpl(session, (NodeImpl) item);
+        } else {
+            item = new PropertyImpl(session, (PropertyImpl) item);
+        }
+        cache.put(pathStr, item);
+
+        return item;
     }
 
     public ItemImpl getItem(Path path) throws PathNotFoundException {
-        if (!itemExists(path)) {
-            throw new PathNotFoundException(path.toString());
-        }
-        return items.get(path.toString());
+        logger.debug("getItem(" + path.toString() + ")");
+        return getItem(path, null);
+    }
+
+    public NodeImpl getNode(Path path) throws PathNotFoundException {
+        return (NodeImpl) getItem(path, ItemType.NODE);
+    }
+
+    public PropertyImpl getProperty(Path path) throws PathNotFoundException {
+        return (PropertyImpl) getItem(path, ItemType.PROPERTY);
     }
 
     public boolean nodeExists(Path path) {
         try {
-            return itemExists(path) && getItem(path) instanceof NodeImpl;
+            getNode(path);
         } catch (PathNotFoundException e) {
-            // cannot happen
+            return false;
         }
-        return false;
+        return true;
     }
 
-    public NodeImpl getNode(Path path) throws PathNotFoundException {
-        if (!nodeExists(path)) {
-            throw new PathNotFoundException(path.toString());
-        }
-        return (NodeImpl) getItem(path);
-    }
-    
     public boolean propertyExists(Path path) {
         try {
-            return itemExists(path) && getItem(path) instanceof PropertyImpl;
+            getProperty(path);
         } catch (PathNotFoundException e) {
-            // cannot happen
+            return false;
         }
-        return false;
+        return true;
     }
-    
-    public PropertyImpl getProperty(Path path) throws PathNotFoundException {
-        if (!propertyExists(path)) {
-            throw new PathNotFoundException(path.toString());
+
+    public boolean itemExists(Path path) {
+        return nodeExists(path) || propertyExists(path);
+    }
+
+    public NodeImpl createNode(Path path) throws ItemExistsException,
+            PathNotFoundException, RepositoryException {
+        logger.debug("createNode(" + path.toString() + ")");
+        // check if path already exists
+        if (itemExists(path)) {
+            throw new ItemExistsException("An item already exists at: " + path);
         }
-        return (PropertyImpl) getItem(path);
+
+        // create new node
+        NodeImpl node = new NodeImpl(session, path);
+        cache.put(path.toString(), node);
+        log.itemAdded(node);
+        removed.remove(path.toString());
+
+        // add to parent
+        Path parentPath = path.getParent();
+        if (parentPath == null) {
+            // only the case for the root node
+            return node;
+        }
+        NodeImpl parent = getNode(parentPath);
+        parent.addChild(node);
+        log.itemModified(parent);
+
+        return node;
     }
-    
+
+    public PropertyImpl createProperty(Path path, Value value)
+            throws ItemExistsException, PathNotFoundException,
+            RepositoryException {
+        // disallow nodes and properties having the same path
+        if (nodeExists(path)) {
+            throw new ItemExistsException("A node already exists at: " + path);
+        }
+
+        // create new property
+        PropertyImpl property = new PropertyImpl(session, path, value);
+        cache.put(path.toString(), property);
+        log.itemAdded(property);
+        removed.remove(path.toString());
+
+        // add to parent
+        NodeImpl parent = getNode(path.getParent());
+        parent.addProperty(property);
+        log.itemModified(parent);
+
+        return property;
+    }
+
     public void removeItem(Path path) throws RepositoryException {
-        // get item
-        ItemImpl item = getItem(path);        
-        // remove reference in parent node
-        ((NodeImpl) item.getParent()).removeChild(item);
-        // remove item from map
-        String pathStr = path.toString();
-        items.remove(pathStr);
-        
-        // remove all items from the map that are further down the path tree
-        Iterator<String> iterator = items.tailMap(pathStr, true).navigableKeySet().iterator();
+        ItemImpl item = getItem(path);
+        cache.remove(path.toString());
+        // takes care of removing descendants from store
+        log.itemRemoved(item);
+        // add to paths removed in this session
+        removed.add(path.toString());
+
+        // remove reference in parent
+        NodeImpl parent = (NodeImpl) item.getParent();
+        parent.removeChild(item);
+        log.itemModified(parent);
+
+        // only for nodes: remove descendants from cache
+        if (!item.isNode()) {
+            return;
+        }
+        Iterator<String> iterator = cache.tailMap(path.toString(), true)
+                .navigableKeySet().iterator();
         boolean done = false;
         while (iterator.hasNext() && !done) {
             String key = iterator.next();
-            if(!key.startsWith(pathStr)) {
+            if (!key.startsWith(path.toString())) {
                 done = true;
             } else {
                 iterator.remove();
             }
         }
     }
-    
+
+    public void persistChanges() {
+
+    }
+
 }

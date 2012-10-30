@@ -16,15 +16,20 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
-
 public class PropertyImpl extends ItemImpl implements Property {
-    
+
     private Value value;
 
-    public PropertyImpl(SessionImpl session, Path path, Value value, NodeImpl parent) {
+    public PropertyImpl(SessionImpl session, Path path, Value value) {
         // TODO: validate name
-        super(session, path, parent);
+        super(session, path);
         this.value = value;
+    }
+
+    public PropertyImpl(SessionImpl session, PropertyImpl property) {
+        super(session, property.path);
+        // XXX: copy state
+        this.value = property.value;
     }
 
     @Override
@@ -131,7 +136,7 @@ public class PropertyImpl extends ItemImpl implements Property {
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -139,7 +144,7 @@ public class PropertyImpl extends ItemImpl implements Property {
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -168,7 +173,7 @@ public class PropertyImpl extends ItemImpl implements Property {
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -183,7 +188,7 @@ public class PropertyImpl extends ItemImpl implements Property {
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -198,7 +203,7 @@ public class PropertyImpl extends ItemImpl implements Property {
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -213,7 +218,7 @@ public class PropertyImpl extends ItemImpl implements Property {
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

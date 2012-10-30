@@ -37,21 +37,26 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.x42.terye.iterator.NodeIteratorImpl;
 import ch.x42.terye.iterator.PropertyIteratorImpl;
 
 public class NodeImpl extends ItemImpl implements Node {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    // store children and properties as lists of path strings
+    private List<String> children = new LinkedList<String>();
+    private Set<String> properties = new LinkedHashSet<String>();
 
-    private List<NodeImpl> children = new LinkedList<NodeImpl>();
-    private Set<PropertyImpl> properties = new LinkedHashSet<PropertyImpl>();
+    public NodeImpl(SessionImpl session, Path path) {
+        super(session, path);
+        children = new LinkedList<String>();
+        properties = new LinkedHashSet<String>();
+    }
 
-    public NodeImpl(SessionImpl session, Path path, NodeImpl parent) {
-        super(session, path, parent);
+    public NodeImpl(SessionImpl session, NodeImpl node) {
+        super(session, node.path);
+        // copy state
+        children = new LinkedList<String>(node.children);
+        properties = new LinkedHashSet<String>(node.properties);
     }
 
     @Override
@@ -71,20 +76,20 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     protected void addChild(NodeImpl child) {
-        children.add(child);
+        children.add(child.path.toString());
     }
 
     protected void removeChild(ItemImpl child) {
         if (child.isNode()) {
-            children.remove(child);
+            children.remove(child.path.toString());
         } else {
-            properties.remove(child);
+            properties.remove(child.path.toString());
         }
     }
 
     protected void addProperty(PropertyImpl property)
             throws RepositoryException {
-        properties.add(property);
+        properties.add(property.path.toString());
     }
 
     @Override
@@ -203,7 +208,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public NodeIterator getNodes() throws RepositoryException {
-        return new NodeIteratorImpl(children);
+        return new NodeIteratorImpl(session.getItemManager(), children);
     }
 
     @Override
@@ -232,7 +237,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public PropertyIterator getProperties() throws RepositoryException {
-        return new PropertyIteratorImpl(properties);
+        return new PropertyIteratorImpl(session.getItemManager(), properties);
     }
 
     @Override

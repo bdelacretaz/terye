@@ -3,13 +3,13 @@ package ch.x42.terye.iterator;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 
-import ch.x42.terye.NodeImpl;
+import ch.x42.terye.ItemManager;
+import ch.x42.terye.store.ItemType;
 
-public class NodeIteratorImpl extends RangeIteratorImpl<NodeImpl> implements
-        NodeIterator {
+public class NodeIteratorImpl extends RangeIteratorImpl implements NodeIterator {
 
-    public NodeIteratorImpl(Iterable<NodeImpl> nodes) {
-        super(nodes);
+    public NodeIteratorImpl(ItemManager itemManager, Iterable<String> nodes) {
+        super(itemManager, nodes, ItemType.NODE);
     }
 
     @Override
