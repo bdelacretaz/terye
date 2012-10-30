@@ -45,11 +45,13 @@ public class NodeImpl extends ItemImpl implements Node {
     // store children and properties as lists of path strings
     private List<String> children = new LinkedList<String>();
     private Set<String> properties = new LinkedHashSet<String>();
+    private NodeTypeImpl primaryType;
 
-    public NodeImpl(SessionImpl session, Path path) {
+    public NodeImpl(SessionImpl session, Path path, String primaryTypeName) {
         super(session, path);
         children = new LinkedList<String>();
         properties = new LinkedHashSet<String>();
+        primaryType = new NodeTypeImpl(primaryTypeName);
     }
 
     public NodeImpl(SessionImpl session, NodeImpl node) {
@@ -57,6 +59,23 @@ public class NodeImpl extends ItemImpl implements Node {
         // copy state
         children = new LinkedList<String>(node.children);
         properties = new LinkedHashSet<String>(node.properties);
+        primaryType = node.primaryType;
+    }
+
+    protected void addChild(ItemImpl child) {
+        if (child.isNode()) {
+            children.add(child.path.toString());
+        } else {
+            properties.add(child.path.toString());
+        }
+    }
+
+    protected void removeChild(ItemImpl child) {
+        if (child.isNode()) {
+            children.remove(child.path.toString());
+        } else {
+            properties.remove(child.path.toString());
+        }
     }
 
     @Override
@@ -71,25 +90,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node addNode(String relPath) throws ItemExistsException,
             PathNotFoundException, VersionException,
             ConstraintViolationException, LockException, RepositoryException {
-        Path absPath = path.concat(relPath).getCanonical();
-        return session.getItemManager().createNode(absPath);
-    }
-
-    protected void addChild(NodeImpl child) {
-        children.add(child.path.toString());
-    }
-
-    protected void removeChild(ItemImpl child) {
-        if (child.isNode()) {
-            children.remove(child.path.toString());
-        } else {
-            properties.remove(child.path.toString());
-        }
-    }
-
-    protected void addProperty(PropertyImpl property)
-            throws RepositoryException {
-        properties.add(property.path.toString());
+        return addNode(relPath, "nt:unstructured");
     }
 
     @Override
@@ -97,7 +98,9 @@ public class NodeImpl extends ItemImpl implements Node {
             throws ItemExistsException, PathNotFoundException,
             NoSuchNodeTypeException, LockException, VersionException,
             ConstraintViolationException, RepositoryException {
-        return addNode(relPath);
+        Path absPath = path.concat(relPath).getCanonical();
+        return session.getItemManager()
+                .createNode(absPath, primaryNodeTypeName);
     }
 
     @Override
@@ -232,7 +235,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public NodeType getPrimaryNodeType() throws RepositoryException {
-        return new NodeTypeImpl();
+        return primaryType;
     }
 
     @Override
@@ -471,7 +474,7 @@ public class NodeImpl extends ItemImpl implements Node {
             ConstraintViolationException, RepositoryException {
         PropertyImpl property = session.getItemManager().createProperty(
                 path.concat(name), value);
-        addProperty(property);
+        addChild(property);
         return property;
     }
 

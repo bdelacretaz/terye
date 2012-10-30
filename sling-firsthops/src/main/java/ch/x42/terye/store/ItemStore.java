@@ -23,7 +23,8 @@ public class ItemStore {
     private ItemStore() {
         items = new TreeMap<String, ItemImpl>();
         // create root node
-        items.put(Path.ROOT, new NodeImpl(null, new Path(Path.ROOT)));
+        items.put(Path.ROOT,
+                new NodeImpl(null, new Path(Path.ROOT), "rep:root"));
     }
 
     public static synchronized ItemStore getInstance() {

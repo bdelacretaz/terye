@@ -111,8 +111,9 @@ public class ItemManager {
         return nodeExists(path) || propertyExists(path);
     }
 
-    public NodeImpl createNode(Path path) throws ItemExistsException,
-            PathNotFoundException, RepositoryException {
+    public NodeImpl createNode(Path path, String primaryNodeTypeName)
+            throws ItemExistsException, PathNotFoundException,
+            RepositoryException {
         logger.debug("createNode(" + path.toString() + ")");
         // check if path already exists
         if (itemExists(path)) {
@@ -120,7 +121,7 @@ public class ItemManager {
         }
 
         // create new node
-        NodeImpl node = new NodeImpl(session, path);
+        NodeImpl node = new NodeImpl(session, path, primaryNodeTypeName);
         cache.put(path.toString(), node);
         log.itemAdded(node);
         removed.remove(path.toString());
@@ -154,7 +155,7 @@ public class ItemManager {
 
         // add to parent
         NodeImpl parent = getNode(path.getParent());
-        parent.addProperty(property);
+        parent.addChild(property);
         log.itemModified(parent);
 
         return property;

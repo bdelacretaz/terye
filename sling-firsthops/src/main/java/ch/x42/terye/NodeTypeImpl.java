@@ -9,9 +9,15 @@ import javax.jcr.nodetype.PropertyDefinition;
 
 public class NodeTypeImpl implements NodeType {
 
+    private String name;
+    
+    public NodeTypeImpl(String name) {
+        this.name = name;
+    }
+    
     @Override
     public String getName() {
-        return "dummy";
+        return name;
     }
 
     @Override
@@ -88,8 +94,7 @@ public class NodeTypeImpl implements NodeType {
 
     @Override
     public boolean isNodeType(String nodeTypeName) {
-        // TODO Auto-generated method stub
-        return false;
+        return name.equals(nodeTypeName);
     }
 
     @Override
