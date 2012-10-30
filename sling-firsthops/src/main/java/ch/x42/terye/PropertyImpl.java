@@ -57,8 +57,7 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     @Override
     public PropertyDefinition getDefinition() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new PropertyDefinitionImpl();
     }
 
     @Override
