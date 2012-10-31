@@ -119,6 +119,7 @@ public class ItemImpl implements Item {
             NoSuchNodeTypeException, RepositoryException {
         // TODO Auto-generated method stub
         log.debug("save()");
+        getSession().save();
     }
 
     public ItemType getItemType() {
