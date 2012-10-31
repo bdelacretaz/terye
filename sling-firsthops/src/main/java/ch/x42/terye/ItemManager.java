@@ -38,6 +38,7 @@ public class ItemManager {
 
     public ItemImpl getItem(Path path, ItemType type)
             throws PathNotFoundException {
+        logger.debug("getItem({})", path);
         // check if the item or one of its ancestors has
         // been removed in this session
         String pathStr = path.toString();
@@ -77,7 +78,6 @@ public class ItemManager {
     }
 
     public ItemImpl getItem(Path path) throws PathNotFoundException {
-        logger.debug("getItem(" + path.toString() + ")");
         return getItem(path, null);
     }
 
@@ -114,7 +114,7 @@ public class ItemManager {
     public NodeImpl createNode(Path path, String primaryNodeTypeName)
             throws ItemExistsException, PathNotFoundException,
             RepositoryException {
-        logger.debug("createNode(" + path.toString() + ")");
+        logger.debug("createNode({})", path);
         // check if path already exists
         if (itemExists(path)) {
             throw new ItemExistsException("An item already exists at: " + path);

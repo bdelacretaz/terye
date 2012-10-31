@@ -40,7 +40,7 @@ import ch.x42.terye.value.ValueFactoryImpl;
 
 public class SessionImpl implements Session {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private RepositoryImpl repository;
     private WorkspaceImpl workspace;
@@ -54,7 +54,7 @@ public class SessionImpl implements Session {
         workspace = new WorkspaceImpl(workspaceName, this);
         itemManager = new ItemManager(this);
         valueFactory = new ValueFactoryImpl();
-        log.debug("Session created for workspace {}", workspaceName);
+        logger.debug("Session created for workspace {}", workspaceName);
     }
 
     protected ItemManager getItemManager() {

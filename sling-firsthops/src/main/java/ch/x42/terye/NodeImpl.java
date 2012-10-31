@@ -3,6 +3,7 @@ package ch.x42.terye;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -40,11 +41,16 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.x42.terye.iterator.NodeIteratorImpl;
 import ch.x42.terye.iterator.PropertyIteratorImpl;
 
 public class NodeImpl extends ItemImpl implements Node {
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    
     // store children and properties as lists of path strings
     private List<String> children = new LinkedList<String>();
     private Set<String> properties = new LinkedHashSet<String>();
@@ -211,12 +217,14 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Node getNode(String relPath) throws PathNotFoundException,
             RepositoryException {
+        logger.debug("[{}].getNode({})", getPath(), relPath);
         Path absPath = path.concat(relPath).getCanonical();
         return session.getItemManager().getNode(absPath);
     }
 
     @Override
     public NodeIterator getNodes() throws RepositoryException {
+        logger.debug("[{}].getNodes()", getPath());
         return new NodeIteratorImpl(session.getItemManager(), children);
     }
 
@@ -227,6 +235,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public NodeIterator getNodes(String[] nameGlobs) throws RepositoryException {
+        logger.debug("[{}].getNodes({})", getPath(), Arrays.toString(nameGlobs));
         List<String> filteredChildren = filterByName(children, nameGlobs);
         return new NodeIteratorImpl(session.getItemManager(), filteredChildren);
     }
@@ -269,6 +278,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public PropertyIterator getProperties() throws RepositoryException {
+        logger.debug("[{}].getProperties()", getPath());
         return new PropertyIteratorImpl(session.getItemManager(), properties);
     }
 
@@ -281,6 +291,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public PropertyIterator getProperties(String[] nameGlobs)
             throws RepositoryException {
+        logger.debug("[{}].getProperties({})", getPath(), Arrays.toString(nameGlobs));
         List<String> filteredProperties = filterByName(children, nameGlobs);
         return new PropertyIteratorImpl(session.getItemManager(),
                 filteredProperties);
@@ -289,6 +300,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Property getProperty(String relPath) throws PathNotFoundException,
             RepositoryException {
+        logger.debug("[{}].getProperty({})", getPath(), relPath);
         Path absPath = path.concat(relPath).getCanonical();
         return session.getItemManager().getProperty(absPath);
     }
