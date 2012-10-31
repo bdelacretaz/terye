@@ -22,7 +22,7 @@ import ch.x42.terye.store.ItemType;
 
 public class ItemImpl implements Item {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected SessionImpl session;
     protected Path path;
@@ -101,8 +101,7 @@ public class ItemImpl implements Item {
     @Override
     public void refresh(boolean arg0) throws InvalidItemStateException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        log.debug("refresh");
+        logger.debug("refresh({})", arg0);
     }
 
     @Override
@@ -117,8 +116,8 @@ public class ItemImpl implements Item {
             ConstraintViolationException, InvalidItemStateException,
             ReferentialIntegrityException, VersionException, LockException,
             NoSuchNodeTypeException, RepositoryException {
-        // TODO Auto-generated method stub
-        log.debug("save()");
+        logger.debug("save()");
+        // XXX: temporarily save the whole session
         getSession().save();
     }
 

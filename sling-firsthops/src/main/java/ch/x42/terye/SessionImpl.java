@@ -174,13 +174,13 @@ public class SessionImpl implements Session {
             ReferentialIntegrityException, ConstraintViolationException,
             InvalidItemStateException, VersionException, LockException,
             NoSuchNodeTypeException, RepositoryException {
+        logger.debug("save()");
         getItemManager().persistChanges();
     }
 
     @Override
     public void refresh(boolean keepChanges) throws RepositoryException {
-        // TODO Auto-generated method stub
-
+        logger.debug("refresh({})", keepChanges);
     }
 
     @Override
