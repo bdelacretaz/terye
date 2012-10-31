@@ -2,11 +2,14 @@ package ch.x42.terye;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Binary;
@@ -219,14 +222,38 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public NodeIterator getNodes(String namePattern) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return getNodes(patternToArray(namePattern));
     }
 
     @Override
     public NodeIterator getNodes(String[] nameGlobs) throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        List<String> filteredChildren = filterByName(children, nameGlobs);
+        return new NodeIteratorImpl(session.getItemManager(), filteredChildren);
+    }
+
+    private String[] patternToArray(String namePattern) {
+        StringTokenizer st = new StringTokenizer(namePattern, "|");
+        ArrayList<String> globs = new ArrayList<String>();
+        while (st.hasMoreTokens()) {
+            globs.add(st.nextToken().trim());
+        }
+        return globs.toArray(new String[globs.size()]);
+    }
+
+    private List<String> filterByName(List<String> items, String[] nameGlobs) {
+        List<String> filteredItems = new LinkedList<String>();
+        Iterator<String> iterator = children.iterator();
+        while (iterator.hasNext()) {
+            Path path = new Path(iterator.next());
+            for (String nameGlob : nameGlobs) {
+                // XXX: simplistic matching (ignoring *)
+                if (path.getLastSegment().matches(nameGlob)) {
+                    filteredItems.add(path.toString());
+                    break;
+                }
+            }
+        }
+        return filteredItems;
     }
 
     @Override
@@ -248,15 +275,15 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public PropertyIterator getProperties(String namePattern)
             throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return getProperties(patternToArray(namePattern));
     }
 
     @Override
     public PropertyIterator getProperties(String[] nameGlobs)
             throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        List<String> filteredProperties = filterByName(children, nameGlobs);
+        return new PropertyIteratorImpl(session.getItemManager(),
+                filteredProperties);
     }
 
     @Override
