@@ -34,8 +34,7 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     @Override
     public Binary getBinary() throws ValueFormatException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return value.getBinary();
     }
 
     @Override

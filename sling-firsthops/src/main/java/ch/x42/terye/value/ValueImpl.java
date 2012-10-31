@@ -30,7 +30,7 @@ public class ValueImpl implements Value {
 
     @Override
     public Binary getBinary() throws RepositoryException {
-        validate(PropertyType.BOOLEAN);
+        validate(PropertyType.BINARY);
         return (Binary) value;
     }
 

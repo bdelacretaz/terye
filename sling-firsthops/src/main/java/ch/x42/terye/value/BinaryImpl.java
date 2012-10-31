@@ -28,7 +28,7 @@ public class BinaryImpl implements Binary {
             buffer.write(data, 0, nRead);
         }
         buffer.flush();
-        data = buffer.toByteArray();
+        this.data = buffer.toByteArray();
         buffer.close();
         stream.close();
         streams = new LinkedList<InputStream>();
