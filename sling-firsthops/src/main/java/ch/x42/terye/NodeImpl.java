@@ -50,7 +50,7 @@ import ch.x42.terye.iterator.PropertyIteratorImpl;
 public class NodeImpl extends ItemImpl implements Node {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     // store children and properties as lists of path strings
     private List<String> children = new LinkedList<String>();
     private Set<String> properties = new LinkedHashSet<String>();
@@ -249,9 +249,9 @@ public class NodeImpl extends ItemImpl implements Node {
         return globs.toArray(new String[globs.size()]);
     }
 
-    private List<String> filterByName(List<String> items, String[] nameGlobs) {
+    private List<String> filterByName(Iterable<String> items, String[] nameGlobs) {
         List<String> filteredItems = new LinkedList<String>();
-        Iterator<String> iterator = children.iterator();
+        Iterator<String> iterator = items.iterator();
         while (iterator.hasNext()) {
             Path path = new Path(iterator.next());
             for (String nameGlob : nameGlobs) {
@@ -291,8 +291,9 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public PropertyIterator getProperties(String[] nameGlobs)
             throws RepositoryException {
-        logger.debug("[{}].getProperties({})", getPath(), Arrays.toString(nameGlobs));
-        List<String> filteredProperties = filterByName(children, nameGlobs);
+        logger.debug("[{}].getProperties({})", getPath(),
+                Arrays.toString(nameGlobs));
+        List<String> filteredProperties = filterByName(properties, nameGlobs);
         return new PropertyIteratorImpl(session.getItemManager(),
                 filteredProperties);
     }
