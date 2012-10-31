@@ -177,8 +177,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public NodeDefinition getDefinition() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new NodeDefinitionImpl();
     }
 
     @Override
