@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.x42.terye.iterator.NodeIteratorImpl;
 import ch.x42.terye.iterator.PropertyIteratorImpl;
+import ch.x42.terye.nodetype.NodeTypeImpl;
 
 public class NodeImpl extends ItemImpl implements Node {
 

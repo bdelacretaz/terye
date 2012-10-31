@@ -26,6 +26,7 @@ import javax.jcr.version.VersionManager;
 
 import org.xml.sax.ContentHandler;
 
+import ch.x42.terye.nodetype.NodeTypeManagerImpl;
 import ch.x42.terye.observation.ObservationManagerImpl;
 import ch.x42.terye.query.QueryManagerImpl;
 
@@ -119,8 +120,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public NodeTypeManager getNodeTypeManager() throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new NodeTypeManagerImpl();
     }
 
     @Override

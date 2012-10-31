@@ -1,4 +1,4 @@
-package ch.x42.terye;
+package ch.x42.terye.nodetype;
 
 import javax.jcr.Value;
 import javax.jcr.nodetype.NodeDefinition;
