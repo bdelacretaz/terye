@@ -311,8 +311,7 @@ public class SessionImpl implements Session {
 
     @Override
     public String[] getLockTokens() {
-        // TODO Auto-generated method stub
-        return null;
+        return new String[0];
     }
 
     @Override
