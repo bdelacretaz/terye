@@ -2,9 +2,8 @@ Vagrant::Config.run do |config|
 
   config.vm.box     = "lucid64"
   config.vm.box_url = "http://files.vagrantup.com/lucid64.box"
-
+  config.vm.network :hostonly, "192.168.50.4"
   config.vm.share_folder "files", "/files", "files"
-  config.vm.forward_port 60000, 60001
   config.vm.provision :shell, :path => "provision.sh"
 
 end
