@@ -5,7 +5,7 @@
   <groupId>ch.x42.terye</groupId>
   <artifactId>hbase-firsthops</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
 
   <name>hbase-firsthops</name>
   <url>http://maven.apache.org</url>
@@ -14,6 +14,68 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <build>
+      <plugins>
+          <!-- generate the SCR descriptors -->
+          <plugin>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>maven-scr-plugin</artifactId>
+              <version>1.8.0</version>
+              <executions>
+		          <execution>
+        		    <id>generate-scr-scrdescriptor</id>
+            		<goals>
+              			<goal>scr</goal>
+            		</goals>
+          		</execution>
+        	  </executions>
+          </plugin>
+
+          <!--
+              copy the SCR descriptors into the correct location
+              because the maven-scr-plugin cannot be configured
+              to write the descriptors elsewhere
+          -->
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-resources-plugin</artifactId>
+              <version>2.6</version>
+              <executions>
+                <execution>
+                  <id>copy-resources</id>
+                  <phase>process-classes</phase>
+                  <goals>
+                    <goal>copy-resources</goal>
+                  </goals>
+                  <configuration>
+                    <outputDirectory>
+                      ${project.build.outputDirectory}
+                    </outputDirectory>
+                    <encoding>UTF-8</encoding>
+                    <resources>
+                      <resource>
+                        <directory>target/scr-plugin-generated</directory>
+                        <filtering>false</filtering>
+                      </resource>
+                    </resources>
+                  </configuration>
+                </execution>
+              </executions>
+          </plugin>
+          <plugin>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>maven-bundle-plugin</artifactId>
+              <version>2.3.7</version>
+              <extensions>true</extensions>
+              <configuration>
+                  <instructions>
+                      <Private-Package>ch.x42.terye.*</Private-Package>
+                  </instructions>
+              </configuration>
+          </plugin>
+      </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -21,6 +83,51 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+        <groupId>javax.jcr</groupId>
+        <artifactId>jcr</artifactId>
+        <version>2.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>1.5.2</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.sling</groupId>
+        <artifactId>org.apache.sling.jcr.api</artifactId>
+        <version>2.1.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.sling</groupId>
+        <artifactId>org.apache.sling.jcr.base</artifactId>
+        <version>2.1.0</version>
+        <scope>provided</scope>
+    </dependency>
+
+    <!-- OSGi Libraries -->
+    <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <version>4.1.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.compendium</artifactId>
+        <version>4.1.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.scr.annotations</artifactId>
+        <version>1.7.0</version>
+        <scope>provided</scope>
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase</artifactId>
