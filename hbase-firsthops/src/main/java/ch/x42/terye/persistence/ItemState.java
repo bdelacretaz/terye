@@ -1,19 +1,19 @@
 package ch.x42.terye.persistence;
 
-public class ItemState {
+import ch.x42.terye.persistence.id.ItemId;
 
-    private String path;
+public abstract class ItemState {
 
-    public ItemState(String path) {
-        this.path = path;
+    private ItemId id;
+
+    public ItemState(ItemId id) {
+        this.id = id;
     }
 
     public String getPath() {
-        return path;
+        return id.toString();
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+    public abstract boolean isNode();
 
 }

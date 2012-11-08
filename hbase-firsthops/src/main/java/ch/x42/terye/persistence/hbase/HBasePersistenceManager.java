@@ -17,6 +17,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
+import ch.x42.terye.persistence.id.NodeId;
 
 public class HBasePersistenceManager implements PersistenceManager {
 
@@ -78,14 +79,14 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public NodeState loadNode(String path) throws RepositoryException {
+    public NodeState loadNode(NodeId id) throws RepositoryException {
         try {
-            Result result = getRow(nodeTable, path);
+            Result result = getRow(nodeTable, id.toString());
             String nodeTypeName = getString(result,
                     Constants.NODE_COLNAME_NODETYPE);
-            return new NodeState(path, nodeTypeName);
+            return new NodeState(id, nodeTypeName);
         } catch (IOException e) {
-            throw new RepositoryException("Could not load node " + path, e);
+            throw new RepositoryException("Could not load node " + id, e);
         }
     }
 
