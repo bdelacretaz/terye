@@ -92,6 +92,9 @@ public class HBasePersistenceManager implements PersistenceManager {
     public NodeState loadNode(NodeId id) throws RepositoryException {
         try {
             Result result = getRow(nodeTable, id.toString());
+            if (result.isEmpty()) {
+                return null;
+            }
             String nodeTypeName = getString(result,
                     Constants.NODE_COLNAME_NODETYPE);
             return new NodeState(id, nodeTypeName);
