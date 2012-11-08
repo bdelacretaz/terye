@@ -9,17 +9,16 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableNotFoundException;
+import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
 
 public class HBasePersistenceManager implements PersistenceManager {
-
-    private static final String NODE_TABLE_NAME = "nodes";
-    private static final String PROPERTY_TABLE_NAME = "properties";
-    private static final String COLUMN_FAMILY = "d";
 
     private static HBasePersistenceManager instance;
     private Configuration config;
@@ -31,8 +30,8 @@ public class HBasePersistenceManager implements PersistenceManager {
         config = HBaseConfiguration.create();
         try {
             admin = new HBaseAdmin(config);
-            nodeTable = getOrCreateTable(NODE_TABLE_NAME);
-            propertyTable = getOrCreateTable(PROPERTY_TABLE_NAME);
+            nodeTable = getOrCreateTable(Constants.NODE_TABLE_NAME);
+            propertyTable = getOrCreateTable(Constants.PROPERTY_TABLE_NAME);
         } catch (Exception e) {
             throw new RepositoryException(
                     "Could not instantiate HBase persistence manager", e);
@@ -61,9 +60,33 @@ public class HBasePersistenceManager implements PersistenceManager {
         HTableDescriptor tableDesc = new HTableDescriptor(
                 Bytes.toBytes(tableName));
         HColumnDescriptor colDesc = new HColumnDescriptor(
-                Bytes.toBytes(COLUMN_FAMILY));
+                Bytes.toBytes(Constants.COLUMN_FAMILY));
         tableDesc.addFamily(colDesc);
         admin.createTable(tableDesc);
+    }
+
+    private Result getRow(HTable table, String key) throws IOException {
+        Get get = new Get(Bytes.toBytes(key));
+        get.addFamily(Bytes.toBytes(Constants.COLUMN_FAMILY));
+        return table.get(get);
+    }
+
+    private String getString(Result result, String qualifier) {
+        byte[] bytes = result.getValue(Bytes.toBytes(Constants.COLUMN_FAMILY),
+                Bytes.toBytes(qualifier));
+        return Bytes.toString(bytes);
+    }
+
+    @Override
+    public NodeState loadNode(String path) throws RepositoryException {
+        try {
+            Result result = getRow(nodeTable, path);
+            String nodeTypeName = getString(result,
+                    Constants.NODE_COLNAME_NODETYPE);
+            return new NodeState(path, nodeTypeName);
+        } catch (IOException e) {
+            throw new RepositoryException("Could not load node " + path, e);
+        }
     }
 
 }
