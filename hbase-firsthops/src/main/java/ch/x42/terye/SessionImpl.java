@@ -91,7 +91,12 @@ public class SessionImpl implements Session {
 
     @Override
     public Node getRootNode() throws RepositoryException {
-        return getItemManager().getNode(new Path("/"));
+        Path root = new Path("/");
+        try {
+            return getItemManager().getNode(root);
+        } catch (PathNotFoundException e) {
+            return getItemManager().createNode(root, "rep:root");
+        }
     }
 
     @Override
