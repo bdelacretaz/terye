@@ -16,20 +16,15 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
+import ch.x42.terye.persistence.PropertyState;
+
 public class PropertyImpl extends ItemImpl implements Property {
 
     private Value value;
 
-    public PropertyImpl(SessionImpl session, Path path, Value value) {
+    public PropertyImpl(SessionImpl session, PropertyState state) {
         // TODO: validate name
-        super(session, path);
-        this.value = value;
-    }
-
-    public PropertyImpl(SessionImpl session, PropertyImpl property) {
-        super(session, property.path);
-        // XXX: copy state
-        this.value = property.value;
+        super(session, state);
     }
 
     @Override

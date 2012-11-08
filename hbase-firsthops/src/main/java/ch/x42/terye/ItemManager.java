@@ -17,8 +17,10 @@ import org.slf4j.LoggerFactory;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
+import ch.x42.terye.persistence.PropertyState;
 import ch.x42.terye.persistence.id.ItemId;
 import ch.x42.terye.persistence.id.NodeId;
+import ch.x42.terye.persistence.id.PropertyId;
 import ch.x42.terye.store.ChangeLog;
 
 public class ItemManager {
@@ -96,9 +98,9 @@ public class ItemManager {
         return (NodeImpl) getItem(id);
     }
 
-    public PropertyImpl getProperty(Path path) throws PathNotFoundException {
-        // return (PropertyImpl) getItem(path, ItemType.PROPERTY);
-        return null;
+    public PropertyImpl getProperty(Path path) throws RepositoryException {
+        PropertyId id = new PropertyId(path.getCanonical().toString());
+        return (PropertyImpl) getItem(id);
     }
 
     public boolean nodeExists(Path path) throws RepositoryException {
@@ -110,7 +112,7 @@ public class ItemManager {
         return true;
     }
 
-    public boolean propertyExists(Path path) {
+    public boolean propertyExists(Path path) throws RepositoryException {
         try {
             getProperty(path);
         } catch (PathNotFoundException e) {
@@ -162,7 +164,9 @@ public class ItemManager {
         }
 
         // create new property
-        PropertyImpl property = new PropertyImpl(session, path, value);
+        PropertyId id = new PropertyId(path.getCanonical().toString());
+        PropertyState state = new PropertyState(id);
+        PropertyImpl property = new PropertyImpl(session, state);
         cache.put(path.toString(), property);
         log.itemAdded(property);
         removed.remove(path.toString());

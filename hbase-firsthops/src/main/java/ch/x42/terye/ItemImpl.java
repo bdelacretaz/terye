@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.x42.terye.persistence.ItemState;
-import ch.x42.terye.store.ItemType;
 
 public class ItemImpl implements Item {
 
