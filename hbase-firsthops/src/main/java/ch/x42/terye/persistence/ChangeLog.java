@@ -1,4 +1,4 @@
-package ch.x42.terye.store;
+package ch.x42.terye.persistence;
 
 import java.util.Iterator;
 import java.util.LinkedList;

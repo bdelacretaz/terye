@@ -14,6 +14,7 @@ import javax.jcr.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
@@ -21,7 +22,6 @@ import ch.x42.terye.persistence.PropertyState;
 import ch.x42.terye.persistence.id.ItemId;
 import ch.x42.terye.persistence.id.NodeId;
 import ch.x42.terye.persistence.id.PropertyId;
-import ch.x42.terye.store.ChangeLog;
 
 public class ItemManager {
 
