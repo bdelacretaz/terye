@@ -15,8 +15,10 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
+import ch.x42.terye.persistence.id.ItemId;
 import ch.x42.terye.persistence.id.NodeId;
 
 public class HBasePersistenceManager implements PersistenceManager {
@@ -76,6 +78,14 @@ public class HBasePersistenceManager implements PersistenceManager {
         byte[] bytes = result.getValue(Bytes.toBytes(Constants.COLUMN_FAMILY),
                 Bytes.toBytes(qualifier));
         return Bytes.toString(bytes);
+    }
+
+    @Override
+    public ItemState loadItem(ItemId id) throws RepositoryException {
+        if (id.denotesNode()) {
+            return loadNode((NodeId) id);
+        }
+        return null;
     }
 
     @Override
