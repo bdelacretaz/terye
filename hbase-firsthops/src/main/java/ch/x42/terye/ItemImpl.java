@@ -25,14 +25,16 @@ public class ItemImpl implements Item {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected SessionImpl session;
+    private SessionImpl session;
     protected ItemState state;
-    protected Path path;
 
     public ItemImpl(SessionImpl session, ItemState state) {
         this.session = session;
         this.state = state;
-        this.path = path;
+    }
+
+    protected ItemManager getItemManager() {
+        return session.getItemManager();
     }
 
     @Override
@@ -56,16 +58,17 @@ public class ItemImpl implements Item {
 
     @Override
     public String getName() throws RepositoryException {
-        return path.getLastSegment();
+        return new Path(getPath()).getLastSegment();
     }
 
     @Override
     public Node getParent() throws ItemNotFoundException,
             AccessDeniedException, RepositoryException {
+        Path path = new Path(getPath());
         if (path.getParent() == null) {
             throw new ItemNotFoundException("The root node has no parent.");
         }
-        return session.getItemManager().getNode(path.getParent());
+        return getItemManager().getNode(path.getParent());
     }
 
     @Override
@@ -111,7 +114,7 @@ public class ItemImpl implements Item {
     public void remove() throws VersionException, LockException,
             ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        session.getItemManager().removeItem(path);
+        getItemManager().removeItem(new Path(getPath()));
     }
 
     @Override
@@ -122,9 +125,5 @@ public class ItemImpl implements Item {
         logger.debug("save()");
         // XXX: temporarily save the whole session
         getSession().save();
-    }
-
-    public ItemType getItemType() {
-        return isNode() ? ItemType.NODE : ItemType.PROPERTY;
     }
 }

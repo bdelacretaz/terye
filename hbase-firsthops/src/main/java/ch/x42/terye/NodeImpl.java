@@ -65,19 +65,19 @@ public class NodeImpl extends ItemImpl implements Node {
         primaryType = new NodeTypeImpl(state.getNodeTypeName());
     }
 
-    protected void addChild(ItemImpl child) {
+    protected void addChild(ItemImpl child) throws RepositoryException {
         if (child.isNode()) {
-            children.add(child.path.toString());
+            children.add(child.getPath());
         } else {
-            properties.add(child.path.toString());
+            properties.add(child.getPath());
         }
     }
 
-    protected void removeChild(ItemImpl child) {
+    protected void removeChild(ItemImpl child) throws RepositoryException {
         if (child.isNode()) {
-            children.remove(child.path.toString());
+            children.remove(child.getPath());
         } else {
-            properties.remove(child.path.toString());
+            properties.remove(child.getPath());
         }
     }
 
@@ -101,8 +101,8 @@ public class NodeImpl extends ItemImpl implements Node {
             throws ItemExistsException, PathNotFoundException,
             NoSuchNodeTypeException, LockException, VersionException,
             ConstraintViolationException, RepositoryException {
-        Path absPath = path.concat(relPath).getCanonical();
-        NodeImpl node = session.getItemManager().createNode(absPath,
+        Path absPath = new Path(getPath()).concat(relPath);
+        NodeImpl node = getItemManager().createNode(absPath,
                 primaryNodeTypeName);
         // XXX: temporarily add jcr:created to all nodes in order to prevent
         // Sling from throwing an exception
@@ -212,14 +212,14 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node getNode(String relPath) throws PathNotFoundException,
             RepositoryException {
         logger.debug("[{}].getNode({})", getPath(), relPath);
-        Path absPath = path.concat(relPath).getCanonical();
-        return session.getItemManager().getNode(absPath);
+        Path absPath = new Path(getPath()).concat(relPath);
+        return getItemManager().getNode(absPath);
     }
 
     @Override
     public NodeIterator getNodes() throws RepositoryException {
         logger.debug("[{}].getNodes()", getPath());
-        return new NodeIteratorImpl(session.getItemManager(), children);
+        return new NodeIteratorImpl(getItemManager(), children);
     }
 
     @Override
@@ -231,7 +231,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public NodeIterator getNodes(String[] nameGlobs) throws RepositoryException {
         logger.debug("[{}].getNodes({})", getPath(), Arrays.toString(nameGlobs));
         List<String> filteredChildren = filterByName(children, nameGlobs);
-        return new NodeIteratorImpl(session.getItemManager(), filteredChildren);
+        return new NodeIteratorImpl(getItemManager(), filteredChildren);
     }
 
     private String[] patternToArray(String namePattern) {
@@ -273,7 +273,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public PropertyIterator getProperties() throws RepositoryException {
         logger.debug("[{}].getProperties()", getPath());
-        return new PropertyIteratorImpl(session.getItemManager(), properties);
+        return new PropertyIteratorImpl(getItemManager(), properties);
     }
 
     @Override
@@ -288,16 +288,15 @@ public class NodeImpl extends ItemImpl implements Node {
         logger.debug("[{}].getProperties({})", getPath(),
                 Arrays.toString(nameGlobs));
         List<String> filteredProperties = filterByName(properties, nameGlobs);
-        return new PropertyIteratorImpl(session.getItemManager(),
-                filteredProperties);
+        return new PropertyIteratorImpl(getItemManager(), filteredProperties);
     }
 
     @Override
     public Property getProperty(String relPath) throws PathNotFoundException,
             RepositoryException {
         logger.debug("[{}].getProperty({})", getPath(), relPath);
-        Path absPath = path.concat(relPath).getCanonical();
-        return session.getItemManager().getProperty(absPath);
+        Path absPath = new Path(getPath()).concat(relPath);
+        return getItemManager().getProperty(absPath);
     }
 
     @Override
@@ -348,8 +347,8 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasNode(String relPath) throws RepositoryException {
-        Path absPath = path.concat(relPath).getCanonical();
-        return session.getItemManager().nodeExists(absPath);
+        Path absPath = new Path(getPath()).concat(relPath);
+        return getItemManager().nodeExists(absPath);
     }
 
     @Override
@@ -364,8 +363,8 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasProperty(String relPath) throws RepositoryException {
-        Path absPath = path.concat(relPath).getCanonical();
-        return session.getItemManager().propertyExists(absPath);
+        Path absPath = new Path(getPath()).concat(relPath);
+        return getItemManager().propertyExists(absPath);
     }
 
     @Override
@@ -507,8 +506,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, Value value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        PropertyImpl property = session.getItemManager().createProperty(
-                path.concat(name), value);
+        Path path = new Path(getPath()).concat(name);
+        PropertyImpl property = getItemManager().createProperty(path, value);
         addChild(property);
         return property;
     }
