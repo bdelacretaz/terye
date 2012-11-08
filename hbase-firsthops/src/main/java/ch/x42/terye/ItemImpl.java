@@ -18,6 +18,7 @@ import javax.jcr.version.VersionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.store.ItemType;
 
 public class ItemImpl implements Item {
@@ -25,10 +26,12 @@ public class ItemImpl implements Item {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected SessionImpl session;
+    protected ItemState state;
     protected Path path;
 
-    public ItemImpl(SessionImpl session, Path path) {
+    public ItemImpl(SessionImpl session, ItemState state) {
         this.session = session;
+        this.state = state;
         this.path = path;
     }
 
@@ -67,7 +70,7 @@ public class ItemImpl implements Item {
 
     @Override
     public String getPath() throws RepositoryException {
-        return path.toString();
+        return state.getPath();
     }
 
     @Override

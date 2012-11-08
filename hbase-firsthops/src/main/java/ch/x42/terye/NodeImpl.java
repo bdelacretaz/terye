@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import ch.x42.terye.iterator.NodeIteratorImpl;
 import ch.x42.terye.iterator.PropertyIteratorImpl;
 import ch.x42.terye.nodetype.NodeTypeImpl;
+import ch.x42.terye.persistence.NodeState;
 
 public class NodeImpl extends ItemImpl implements Node {
 
@@ -57,19 +58,11 @@ public class NodeImpl extends ItemImpl implements Node {
     private Set<String> properties = new LinkedHashSet<String>();
     private NodeTypeImpl primaryType;
 
-    public NodeImpl(SessionImpl session, Path path, String primaryTypeName) {
-        super(session, path);
+    public NodeImpl(SessionImpl session, NodeState state) {
+        super(session, state);
         children = new LinkedList<String>();
         properties = new LinkedHashSet<String>();
-        primaryType = new NodeTypeImpl(primaryTypeName);
-    }
-
-    public NodeImpl(SessionImpl session, NodeImpl node) {
-        super(session, node.path);
-        // copy state
-        children = new LinkedList<String>(node.children);
-        properties = new LinkedHashSet<String>(node.properties);
-        primaryType = node.primaryType;
+        primaryType = new NodeTypeImpl(state.getNodeTypeName());
     }
 
     protected void addChild(ItemImpl child) {
