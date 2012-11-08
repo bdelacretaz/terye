@@ -14,16 +14,19 @@ import javax.jcr.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.x42.terye.persistence.ItemState;
+import ch.x42.terye.persistence.NodeState;
+import ch.x42.terye.persistence.PersistenceManager;
+import ch.x42.terye.persistence.id.ItemId;
+import ch.x42.terye.persistence.id.NodeId;
 import ch.x42.terye.store.ChangeLog;
-import ch.x42.terye.store.ItemStore;
-import ch.x42.terye.store.ItemType;
 
 public class ItemManager {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private SessionImpl session;
-    private ItemStore store;
+    private PersistenceManager persistenceManager;
     private ChangeLog log;
     private NavigableMap<String, ItemImpl> cache;
     // stores paths of items that have been removed in this session
@@ -31,65 +34,74 @@ public class ItemManager {
 
     protected ItemManager(SessionImpl session) {
         this.session = session;
-        this.store = ItemStore.getInstance();
+        this.persistenceManager = ((WorkspaceImpl) session.getWorkspace())
+                .getPersistenceManager();
         this.log = new ChangeLog();
         this.cache = new TreeMap<String, ItemImpl>();
     }
 
-    public ItemImpl getItem(Path path, ItemType type)
-            throws PathNotFoundException {
-        logger.debug("getItem({})", path);
+    private ItemImpl createNewInstance(ItemState state) {
+        if (state.isNode()) {
+            return new NodeImpl(session, (NodeState) state);
+        }
+        return null;
+    }
+
+    public ItemImpl getItem(ItemId id) throws PathNotFoundException,
+            RepositoryException {
+        logger.debug("getItem({})", id);
+        String path = id.toString();
         // check if the item or one of its ancestors has
         // been removed in this session
-        String pathStr = path.toString();
         Iterator<String> iterator = removed.iterator();
         while (iterator.hasNext()) {
             String prefix = iterator.next();
-            if (pathStr.startsWith(prefix)) {
-                throw new PathNotFoundException(pathStr);
+            if (path.startsWith(prefix)) {
+                throw new PathNotFoundException(path);
             }
         }
 
         // check if the item is cached
-        ItemImpl item = cache.get(pathStr);
+        ItemImpl item = cache.get(path);
         if (item != null) {
-            // if type matters, then the types must match
-            if (type == null || item.getItemType().equals(type)) {
-                return item;
-            }
-            throw new PathNotFoundException(pathStr);
+            return item;
         }
 
-        // load item from store
-        item = store.load(pathStr, type);
-        if (item == null) {
-            throw new PathNotFoundException(pathStr);
+        // load item state from store
+        ItemState state = persistenceManager.loadItem(id);
+        if (state == null) {
+            throw new PathNotFoundException(path);
         }
 
         // instantiate new in-memory copy and cache it
-        if (item.getItemType().equals(ItemType.NODE)) {
-            item = new NodeImpl(session, (NodeImpl) item);
-        } else {
-            item = new PropertyImpl(session, (PropertyImpl) item);
-        }
-        cache.put(pathStr, item);
+        item = createNewInstance(state);
+        cache.put(path, item);
 
         return item;
     }
 
-    public ItemImpl getItem(Path path) throws PathNotFoundException {
-        return getItem(path, null);
+    public ItemImpl getItem(Path path) throws PathNotFoundException,
+            RepositoryException {
+        // XXX: hacky
+        try {
+            return getNode(path);
+        } catch (PathNotFoundException e) {
+            return getProperty(path);
+        }
     }
 
-    public NodeImpl getNode(Path path) throws PathNotFoundException {
-        return (NodeImpl) getItem(path, ItemType.NODE);
+    public NodeImpl getNode(Path path) throws PathNotFoundException,
+            RepositoryException {
+        NodeId id = new NodeId(path.getCanonical().toString());
+        return (NodeImpl) getItem(id);
     }
 
     public PropertyImpl getProperty(Path path) throws PathNotFoundException {
-        return (PropertyImpl) getItem(path, ItemType.PROPERTY);
+        // return (PropertyImpl) getItem(path, ItemType.PROPERTY);
+        return null;
     }
 
-    public boolean nodeExists(Path path) {
+    public boolean nodeExists(Path path) throws RepositoryException {
         try {
             getNode(path);
         } catch (PathNotFoundException e) {
@@ -107,7 +119,7 @@ public class ItemManager {
         return true;
     }
 
-    public boolean itemExists(Path path) {
+    public boolean itemExists(Path path) throws RepositoryException {
         return nodeExists(path) || propertyExists(path);
     }
 
@@ -121,7 +133,9 @@ public class ItemManager {
         }
 
         // create new node
-        NodeImpl node = new NodeImpl(session, path, primaryNodeTypeName);
+        NodeId id = new NodeId(path.getCanonical().toString());
+        NodeState state = new NodeState(id, primaryNodeTypeName);
+        NodeImpl node = new NodeImpl(session, state);
         cache.put(path.toString(), node);
         log.itemAdded(node);
         removed.remove(path.toString());
@@ -191,7 +205,7 @@ public class ItemManager {
     }
 
     public void persistChanges() throws RepositoryException {
-        store.persist(log);
+        // store.persist(log);
         log.purge();
     }
 
