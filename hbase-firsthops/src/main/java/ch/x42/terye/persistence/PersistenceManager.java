@@ -14,4 +14,6 @@ public interface PersistenceManager {
 
     public PropertyState loadProperty(PropertyId id) throws RepositoryException;
 
+    public void persist(ChangeLog log) throws RepositoryException;
+
 }

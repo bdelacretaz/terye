@@ -1,6 +1,7 @@
 package ch.x42.terye.persistence.hbase;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import javax.jcr.RepositoryException;
 
@@ -12,9 +13,12 @@ import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import ch.x42.terye.persistence.ChangeLog;
+import ch.x42.terye.persistence.ChangeLog.Operation;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
@@ -87,7 +91,7 @@ public class HBasePersistenceManager implements PersistenceManager {
         if (id.denotesNode()) {
             return loadNode((NodeId) id);
         }
-        return null;
+        return loadProperty((PropertyId) id);
     }
 
     @Override
@@ -115,6 +119,37 @@ public class HBasePersistenceManager implements PersistenceManager {
             return new PropertyState(id);
         } catch (IOException e) {
             throw new RepositoryException("Could not load property " + id, e);
+        }
+    }
+
+    private void store(ItemState state) throws IOException {
+        if (state.isNode()) {
+            store((NodeState) state);
+        }
+    }
+
+    private void store(NodeState state) throws IOException {
+        Put put = new Put(Bytes.toBytes(state.getId().toString()));
+        put.add(Bytes.toBytes(Constants.COLUMN_FAMILY),
+                Bytes.toBytes(Constants.NODE_COLNAME_NODETYPE),
+                Bytes.toBytes(state.getNodeTypeName()));
+        nodeTable.put(put);
+    }
+
+    @Override
+    public void persist(ChangeLog log) throws RepositoryException {
+        // XXX: batch processing
+        Iterable<Operation> operations = log.getOperations();
+        Iterator<Operation> iterator = operations.iterator();
+        try {
+            while (iterator.hasNext()) {
+                Operation op = iterator.next();
+                if (op.isAddOperation()) {
+                    store(op.getState());
+                }
+            }
+        } catch (IOException e) {
+            throw new RepositoryException("Error persisting change log", e);
         }
     }
 

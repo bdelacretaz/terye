@@ -10,6 +10,10 @@ public abstract class ItemState {
         this.id = id;
     }
 
+    public ItemId getId() {
+        return id;
+    }
+
     public String getPath() {
         return id.toString();
     }

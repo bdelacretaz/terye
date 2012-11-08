@@ -36,6 +36,10 @@ public class ItemImpl implements Item {
         return session.getItemManager();
     }
 
+    public ItemState getState() {
+        return state;
+    }
+
     @Override
     public void accept(ItemVisitor visitor) throws RepositoryException {
         // TODO Auto-generated method stub

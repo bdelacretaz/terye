@@ -209,7 +209,7 @@ public class ItemManager {
     }
 
     public void persistChanges() throws RepositoryException {
-        // store.persist(log);
+        persistenceManager.persist(log);
         log.purge();
     }
 

@@ -10,38 +10,34 @@ public class ChangeLog {
 
     public static abstract class Operation {
 
-        private ItemImpl item;
+        private ItemState state;
 
-        public Operation(ItemImpl item) {
-            this.item = item;
+        private Operation(ItemState state) {
+            this.state = state;
         }
 
-        public ItemImpl getItem() {
-            return item;
+        private Operation(ItemImpl item) {
+            this(item.getState());
+        }
+
+        public ItemState getState() {
+            return state;
+        }
+
+        public boolean isAddOperation() {
+            return false;
         }
 
     }
 
     public static class AddOperation extends ChangeLog.Operation {
 
-        public AddOperation(ItemImpl item) {
+        private AddOperation(ItemImpl item) {
             super(item);
         }
 
-    }
-
-    public static class ModifyOperation extends ChangeLog.Operation {
-
-        public ModifyOperation(ItemImpl item) {
-            super(item);
-        }
-
-    }
-
-    public static class RemoveOperation extends ChangeLog.Operation {
-
-        public RemoveOperation(ItemImpl item) {
-            super(item);
+        public boolean isAddOperation() {
+            return true;
         }
 
     }
@@ -53,11 +49,9 @@ public class ChangeLog {
     }
 
     public void itemModified(ItemImpl item) {
-        operations.add(new ModifyOperation(item));
     }
 
     public void itemRemoved(ItemImpl item) {
-        operations.add(new RemoveOperation(item));
     }
 
     public Iterable<Operation> getOperations() {
