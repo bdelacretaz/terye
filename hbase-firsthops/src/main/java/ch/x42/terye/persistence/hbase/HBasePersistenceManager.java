@@ -18,8 +18,10 @@ import org.apache.hadoop.hbase.util.Bytes;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
+import ch.x42.terye.persistence.PropertyState;
 import ch.x42.terye.persistence.id.ItemId;
 import ch.x42.terye.persistence.id.NodeId;
+import ch.x42.terye.persistence.id.PropertyId;
 
 public class HBasePersistenceManager implements PersistenceManager {
 
@@ -100,6 +102,19 @@ public class HBasePersistenceManager implements PersistenceManager {
             return new NodeState(id, nodeTypeName);
         } catch (IOException e) {
             throw new RepositoryException("Could not load node " + id, e);
+        }
+    }
+
+    @Override
+    public PropertyState loadProperty(PropertyId id) throws RepositoryException {
+        try {
+            Result result = getRow(propertyTable, id.toString());
+            if (result.isEmpty()) {
+                return null;
+            }
+            return new PropertyState(id);
+        } catch (IOException e) {
+            throw new RepositoryException("Could not load property " + id, e);
         }
     }
 

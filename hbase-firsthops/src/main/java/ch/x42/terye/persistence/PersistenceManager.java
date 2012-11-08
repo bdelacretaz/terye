@@ -4,11 +4,14 @@ import javax.jcr.RepositoryException;
 
 import ch.x42.terye.persistence.id.ItemId;
 import ch.x42.terye.persistence.id.NodeId;
+import ch.x42.terye.persistence.id.PropertyId;
 
 public interface PersistenceManager {
 
     public ItemState loadItem(ItemId id) throws RepositoryException;
 
     public NodeState loadNode(NodeId id) throws RepositoryException;
+
+    public PropertyState loadProperty(PropertyId id) throws RepositoryException;
 
 }
