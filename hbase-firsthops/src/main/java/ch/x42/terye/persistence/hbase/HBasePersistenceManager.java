@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableNotFoundException;
+import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
@@ -101,8 +102,9 @@ public class HBasePersistenceManager implements PersistenceManager {
     public ItemState loadItem(ItemId id) throws RepositoryException {
         if (id.denotesNode()) {
             return loadNode((NodeId) id);
+        } else {
+            return loadProperty((PropertyId) id);
         }
-        return loadProperty((PropertyId) id);
     }
 
     @Override
@@ -135,7 +137,7 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
-    private void store(ItemState state) throws IOException {
+    public void store(ItemState state) throws RepositoryException {
         if (state.isNode()) {
             store((NodeState) state);
         } else {
@@ -143,15 +145,20 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
-    private void store(NodeState state) throws IOException {
+    public void store(NodeState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
         put.add(Bytes.toBytes(Constants.COLUMN_FAMILY),
                 Bytes.toBytes(Constants.NODE_COLNAME_NODETYPE),
                 Bytes.toBytes(state.getNodeTypeName()));
-        nodeTable.put(put);
+        try {
+            nodeTable.put(put);
+        } catch (IOException e) {
+            throw new RepositoryException("Could not store node "
+                    + state.getId(), e);
+        }
     }
 
-    private void store(PropertyState state) throws IOException {
+    public void store(PropertyState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
         put.add(Bytes.toBytes(Constants.COLUMN_FAMILY),
                 Bytes.toBytes(Constants.PROPERTY_COLNAME_TYPE),
@@ -159,7 +166,38 @@ public class HBasePersistenceManager implements PersistenceManager {
         put.add(Bytes.toBytes(Constants.COLUMN_FAMILY),
                 Bytes.toBytes(Constants.PROPERTY_COLNAME_VALUE),
                 state.getBytes());
-        propertyTable.put(put);
+        try {
+            propertyTable.put(put);
+        } catch (IOException e) {
+            throw new RepositoryException("Could not store property "
+                    + state.getId(), e);
+        }
+    }
+
+    public void delete(ItemId id) throws RepositoryException {
+        if (id.denotesNode()) {
+            delete((NodeId) id);
+        } else {
+            delete((PropertyId) id);
+        }
+    }
+
+    public void delete(NodeId id) throws RepositoryException {
+        Delete delete = new Delete(Bytes.toBytes(id.toString()));
+        try {
+            nodeTable.delete(delete);
+        } catch (IOException e) {
+            throw new RepositoryException("Could not delete node " + id, e);
+        }
+    }
+
+    public void delete(PropertyId id) throws RepositoryException {
+        Delete delete = new Delete(Bytes.toBytes(id.toString()));
+        try {
+            propertyTable.delete(delete);
+        } catch (IOException e) {
+            throw new RepositoryException("Could not delete property " + id, e);
+        }
     }
 
     @Override
@@ -172,9 +210,11 @@ public class HBasePersistenceManager implements PersistenceManager {
                 Operation op = iterator.next();
                 if (op.isAddOperation() || op.isModifyOperation()) {
                     store(op.getState());
+                } else if (op.isRemoveOperation()) {
+                    delete(op.getState().getId());
                 }
             }
-        } catch (IOException e) {
+        } catch (RepositoryException e) {
             throw new RepositoryException("Error persisting change log", e);
         }
     }

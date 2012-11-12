@@ -32,6 +32,10 @@ public class ChangeLog {
             return false;
         }
 
+        public boolean isRemoveOperation() {
+            return false;
+        }
+
     }
 
     public static class AddOperation extends ChangeLog.Operation {
@@ -58,6 +62,18 @@ public class ChangeLog {
 
     }
 
+    public static class RemoveOperation extends ChangeLog.Operation {
+
+        private RemoveOperation(ItemImpl item) {
+            super(item);
+        }
+
+        public boolean isRemoveOperation() {
+            return true;
+        }
+
+    }
+
     private List<Operation> operations = new LinkedList<Operation>();
 
     public void itemAdded(ItemImpl item) {
@@ -69,6 +85,7 @@ public class ChangeLog {
     }
 
     public void itemRemoved(ItemImpl item) {
+        operations.add(new RemoveOperation(item));
     }
 
     public Iterable<Operation> getOperations() {
