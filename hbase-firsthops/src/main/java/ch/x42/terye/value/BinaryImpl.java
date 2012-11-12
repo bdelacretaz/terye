@@ -35,6 +35,11 @@ public class BinaryImpl implements Binary {
         isDisposed = false;
     }
 
+    public BinaryImpl(byte[] data) {
+        this.data = data;
+        isDisposed = false;
+    }
+
     private void checkDisposed() {
         if (isDisposed) {
             throw new IllegalStateException(
@@ -77,6 +82,10 @@ public class BinaryImpl implements Binary {
                 // can't do nothing
             }
         }
+    }
+
+    public byte[] getByteArray() {
+        return data;
     }
 
 }

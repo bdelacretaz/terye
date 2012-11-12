@@ -17,14 +17,38 @@ import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
 import ch.x42.terye.persistence.PropertyState;
+import ch.x42.terye.value.ValueFactoryImpl;
+import ch.x42.terye.value.ValueImpl;
 
 public class PropertyImpl extends ItemImpl implements Property {
 
-    private Value value;
+    /**
+     * Value representation of the property state
+     */
+    private ValueImpl value;
 
-    public PropertyImpl(SessionImpl session, PropertyState state) {
+    /**
+     * 'value' must correspond to 'state' represented as a value object
+     */
+    public PropertyImpl(SessionImpl session, PropertyState state,
+            ValueImpl value) {
         // TODO: validate name
         super(session, state);
+        this.value = value;
+    }
+
+    public PropertyImpl(SessionImpl session, PropertyState state)
+            throws RepositoryException {
+        // TODO: validate name
+        super(session, state);
+        this.value = ((ValueFactoryImpl) session.getValueFactory())
+                .createValue(state.getType(), state.getBytes());
+    }
+
+    public void setValueInternal(ValueImpl value) throws RepositoryException {
+        this.value = value;
+        this.state = new PropertyState(getState().getId(), value);
+        getItemManager().propertyUpdated(this);
     }
 
     @Override
@@ -128,52 +152,57 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValue(BigDecimal value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        setValueInternal((ValueImpl) getSession().getValueFactory()
+                .createValue(value));
     }
 
     @Override
     public void setValue(Binary value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        setValueInternal((ValueImpl) getSession().getValueFactory()
+                .createValue(value));
     }
 
     @Override
     public void setValue(boolean value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        setValue(getSession().getValueFactory().createValue(value));
+        setValueInternal((ValueImpl) getSession().getValueFactory()
+                .createValue(value));
     }
 
     @Override
     public void setValue(Calendar value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        setValue(getSession().getValueFactory().createValue(value));
+        setValueInternal((ValueImpl) getSession().getValueFactory()
+                .createValue(value));
     }
 
     @Override
     public void setValue(double value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        setValue(getSession().getValueFactory().createValue(value));
+        setValueInternal((ValueImpl) getSession().getValueFactory()
+                .createValue(value));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setValue(InputStream value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        setValueInternal((ValueImpl) getSession().getValueFactory()
+                .createValue(value));
     }
 
     @Override
     public void setValue(long value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        setValue(getSession().getValueFactory().createValue(value));
+        setValueInternal((ValueImpl) getSession().getValueFactory()
+                .createValue(value));
     }
 
     @Override
@@ -188,7 +217,8 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValue(String value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        setValue(getSession().getValueFactory().createValue(value));
+        setValueInternal((ValueImpl) getSession().getValueFactory()
+                .createValue(value));
     }
 
     @Override
@@ -203,7 +233,8 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValue(Value value) throws ValueFormatException,
             VersionException, LockException, ConstraintViolationException,
             RepositoryException {
-        this.value = value;
+        // XXX: cast might not be valid
+        setValueInternal((ValueImpl) value);
     }
 
     @Override

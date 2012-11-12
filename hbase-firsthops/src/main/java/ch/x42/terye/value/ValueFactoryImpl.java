@@ -13,6 +13,8 @@ import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 import javax.jcr.ValueFormatException;
 
+import org.apache.hadoop.hbase.util.Bytes;
+
 public class ValueFactoryImpl implements ValueFactory {
 
     @Override
@@ -41,7 +43,8 @@ public class ValueFactoryImpl implements ValueFactory {
 
     @Override
     public Value createValue(Calendar value) {
-        return new ValueImpl(value, PropertyType.DATE);
+        return new ValueImpl((Long) value.getTime().getTime(),
+                PropertyType.DATE);
     }
 
     @Override
@@ -87,6 +90,26 @@ public class ValueFactoryImpl implements ValueFactory {
     @Override
     public Value createValue(String value) {
         return new ValueImpl(value, PropertyType.STRING);
+    }
+
+    public ValueImpl createValue(int type, byte[] bytes) {
+        Value value = null;
+        switch (type) {
+            case PropertyType.BINARY:
+                value = createValue(new BinaryImpl(bytes));
+            case PropertyType.BOOLEAN:
+                value = createValue(Bytes.toBoolean(bytes));
+            case PropertyType.DATE:
+            case PropertyType.LONG:
+                value = createValue(Bytes.toLong(bytes));
+            case PropertyType.DECIMAL:
+                value = createValue(Bytes.toBigDecimal(bytes));
+            case PropertyType.DOUBLE:
+                value = createValue(Bytes.toDouble(bytes));
+            case PropertyType.STRING:
+                value = createValue(Bytes.toString(bytes));
+        }
+        return (ValueImpl) value;
     }
 
 }

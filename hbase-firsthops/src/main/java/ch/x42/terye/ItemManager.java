@@ -9,7 +9,6 @@ import java.util.TreeMap;
 import javax.jcr.ItemExistsException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
-import javax.jcr.Value;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,7 @@ import ch.x42.terye.persistence.PropertyState;
 import ch.x42.terye.persistence.id.ItemId;
 import ch.x42.terye.persistence.id.NodeId;
 import ch.x42.terye.persistence.id.PropertyId;
+import ch.x42.terye.value.ValueImpl;
 
 public class ItemManager {
 
@@ -42,11 +42,13 @@ public class ItemManager {
         this.cache = new TreeMap<String, ItemImpl>();
     }
 
-    private ItemImpl createNewInstance(ItemState state) {
+    private ItemImpl createNewInstance(ItemState state)
+            throws RepositoryException {
         if (state.isNode()) {
             return new NodeImpl(session, (NodeState) state);
+        } else {
+            return new PropertyImpl(session, (PropertyState) state);
         }
-        return null;
     }
 
     public ItemImpl getItem(ItemId id) throws PathNotFoundException,
@@ -155,9 +157,10 @@ public class ItemManager {
         return node;
     }
 
-    public PropertyImpl createProperty(Path path, Value value)
+    public PropertyImpl createProperty(Path path, ValueImpl value)
             throws ItemExistsException, PathNotFoundException,
             RepositoryException {
+        logger.debug("createProperty({})", path);
         // disallow nodes and properties having the same path
         if (nodeExists(path)) {
             throw new ItemExistsException("A node already exists at: " + path);
@@ -165,8 +168,8 @@ public class ItemManager {
 
         // create new property
         PropertyId id = new PropertyId(path.getCanonical().toString());
-        PropertyState state = new PropertyState(id);
-        PropertyImpl property = new PropertyImpl(session, state);
+        PropertyState state = new PropertyState(id, value);
+        PropertyImpl property = new PropertyImpl(session, state, value);
         cache.put(path.toString(), property);
         log.itemAdded(property);
         removed.remove(path.toString());
@@ -177,6 +180,15 @@ public class ItemManager {
         log.itemModified(parent);
 
         return property;
+    }
+
+    /**
+     * @param path canonical path
+     * @param value the new value
+     */
+    public void propertyUpdated(PropertyImpl property)
+            throws RepositoryException {
+        log.itemModified(property);
     }
 
     public void removeItem(Path path) throws RepositoryException {

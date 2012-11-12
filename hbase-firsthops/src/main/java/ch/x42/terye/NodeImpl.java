@@ -48,6 +48,7 @@ import ch.x42.terye.iterator.NodeIteratorImpl;
 import ch.x42.terye.iterator.PropertyIteratorImpl;
 import ch.x42.terye.nodetype.NodeTypeImpl;
 import ch.x42.terye.persistence.NodeState;
+import ch.x42.terye.value.ValueImpl;
 
 public class NodeImpl extends ItemImpl implements Node {
 
@@ -507,8 +508,10 @@ public class NodeImpl extends ItemImpl implements Node {
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         Path path = new Path(getPath()).concat(name);
-        PropertyImpl property = getItemManager().createProperty(path, value);
-        addChild(property);
+        // XXX: cast might not be valid
+        PropertyImpl property = getItemManager().createProperty(path,
+                (ValueImpl) value);
+        // addChild(property);
         return property;
     }
 
