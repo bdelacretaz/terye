@@ -86,6 +86,17 @@ public class HBasePersistenceManager implements PersistenceManager {
         return Bytes.toString(bytes);
     }
 
+    private int getInt(Result result, String qualifier) {
+        byte[] bytes = result.getValue(Bytes.toBytes(Constants.COLUMN_FAMILY),
+                Bytes.toBytes(qualifier));
+        return Bytes.toInt(bytes);
+    }
+
+    private byte[] getBytes(Result result, String qualifier) {
+        return result.getValue(Bytes.toBytes(Constants.COLUMN_FAMILY),
+                Bytes.toBytes(qualifier));
+    }
+
     @Override
     public ItemState loadItem(ItemId id) throws RepositoryException {
         if (id.denotesNode()) {
@@ -116,7 +127,9 @@ public class HBasePersistenceManager implements PersistenceManager {
             if (result.isEmpty()) {
                 return null;
             }
-            return new PropertyState(id);
+            int type = getInt(result, Constants.PROPERTY_COLNAME_TYPE);
+            byte[] bytes = getBytes(result, Constants.PROPERTY_COLNAME_VALUE);
+            return new PropertyState(id, type, bytes);
         } catch (IOException e) {
             throw new RepositoryException("Could not load property " + id, e);
         }
@@ -125,6 +138,8 @@ public class HBasePersistenceManager implements PersistenceManager {
     private void store(ItemState state) throws IOException {
         if (state.isNode()) {
             store((NodeState) state);
+        } else {
+            store((PropertyState) state);
         }
     }
 
@@ -136,6 +151,17 @@ public class HBasePersistenceManager implements PersistenceManager {
         nodeTable.put(put);
     }
 
+    private void store(PropertyState state) throws IOException {
+        Put put = new Put(Bytes.toBytes(state.getId().toString()));
+        put.add(Bytes.toBytes(Constants.COLUMN_FAMILY),
+                Bytes.toBytes(Constants.PROPERTY_COLNAME_TYPE),
+                Bytes.toBytes(state.getType()));
+        put.add(Bytes.toBytes(Constants.COLUMN_FAMILY),
+                Bytes.toBytes(Constants.PROPERTY_COLNAME_VALUE),
+                state.getBytes());
+        propertyTable.put(put);
+    }
+
     @Override
     public void persist(ChangeLog log) throws RepositoryException {
         // XXX: batch processing
@@ -144,7 +170,7 @@ public class HBasePersistenceManager implements PersistenceManager {
         try {
             while (iterator.hasNext()) {
                 Operation op = iterator.next();
-                if (op.isAddOperation()) {
+                if (op.isAddOperation() || op.isModifyOperation()) {
                     store(op.getState());
                 }
             }
