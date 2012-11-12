@@ -117,7 +117,7 @@ public class ItemImpl implements Item {
     public void remove() throws VersionException, LockException,
             ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        getItemManager().removeItem(new Path(getPath()));
+        getItemManager().removeItem(this);
     }
 
     @Override

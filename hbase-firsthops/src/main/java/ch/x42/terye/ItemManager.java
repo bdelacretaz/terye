@@ -68,7 +68,11 @@ public class ItemManager {
         // check if the item is cached
         ItemImpl item = cache.get(path);
         if (item != null) {
-            return item;
+            // check if found item type corresponds with id type
+            if ((item.isNode() && id.denotesNode())
+                    || (!item.isNode() && !id.denotesNode())) {
+                return item;
+            }
         }
 
         // load item state from store
@@ -192,12 +196,19 @@ public class ItemManager {
     }
 
     public void removeItem(Path path) throws RepositoryException {
-        ItemImpl item = getItem(path);
-        cache.remove(path.toString());
+        removeItem(getItem(path));
+    }
+
+    public void removeItem(ItemImpl item) throws RepositoryException {
+        logger.debug("removeItem({})", item.getState().getId());
+        String path = item.getPath();
+        // remove item from cache
+        cache.remove(path);
         // takes care of removing descendants from store
+        // XXX: not the case yet
         log.itemRemoved(item);
         // add to paths removed in this session
-        removed.add(path.toString());
+        removed.add(path);
 
         // remove reference in parent
         NodeImpl parent = (NodeImpl) item.getParent();
@@ -209,11 +220,11 @@ public class ItemManager {
             return;
         }
         // ...remove its descendants from cache
-        Iterator<String> iterator = cache.tailMap(path.toString(), true)
-                .navigableKeySet().iterator();
+        Iterator<String> iterator = cache.tailMap(path, true).navigableKeySet()
+                .iterator();
         while (iterator.hasNext()) {
             String key = iterator.next();
-            if (!key.startsWith(path.toString())) {
+            if (!key.startsWith(path)) {
                 break;
             }
             iterator.remove();
