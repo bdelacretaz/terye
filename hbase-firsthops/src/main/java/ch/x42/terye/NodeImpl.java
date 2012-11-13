@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -55,12 +54,11 @@ public class NodeImpl extends ItemImpl implements Node {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private List<NodeImpl> children;
-    private Set<String> properties;
+    private Set<PropertyImpl> properties;
     private NodeTypeImpl primaryType;
 
     public NodeImpl(SessionImpl session, NodeState state) {
         super(session, state);
-        properties = new LinkedHashSet<String>();
         primaryType = new NodeTypeImpl(state.getNodeTypeName());
     }
 
@@ -69,6 +67,8 @@ public class NodeImpl extends ItemImpl implements Node {
             // XXX: this fetches the children from persistent storage
             getChildren().add((NodeImpl) child);
         } else {
+            // XXX: this fetches the properties from persistent storage
+            getPropertiesInternal().add((PropertyImpl) child);
         }
     }
 
@@ -77,6 +77,8 @@ public class NodeImpl extends ItemImpl implements Node {
             // XXX: this fetches the children from persistent storage
             getChildren().remove(child);
         } else {
+            // XXX: this fetches the properties from persistent storage
+            getPropertiesInternal().remove(child);
         }
     }
 
@@ -238,7 +240,9 @@ public class NodeImpl extends ItemImpl implements Node {
         logger.debug("[{}].getNodes({})", getPath(), Arrays.toString(nameGlobs));
         // filtered range query in order to get direct child node ids
         // iterator calling getItem with id
-        List<NodeImpl> filteredChildren = filterByName(getChildren(), nameGlobs);
+        @SuppressWarnings("unchecked")
+        List<NodeImpl> filteredChildren = (List<NodeImpl>) filterByName(
+                getChildren(), nameGlobs);
         return new NodeIteratorImpl(filteredChildren);
     }
 
@@ -251,22 +255,31 @@ public class NodeImpl extends ItemImpl implements Node {
         return globs.toArray(new String[globs.size()]);
     }
 
-    private List<NodeImpl> filterByName(Iterable<NodeImpl> items,
-            String[] nameGlobs) throws RepositoryException {
-        List<NodeImpl> filteredItems = new LinkedList<NodeImpl>();
-        Iterator<NodeImpl> iterator = items.iterator();
+    private List<? extends ItemImpl> filterByName(
+            Iterable<? extends ItemImpl> items, String[] nameGlobs)
+            throws RepositoryException {
+        List<ItemImpl> filteredItems = new LinkedList<ItemImpl>();
+        Iterator<? extends ItemImpl> iterator = items.iterator();
         while (iterator.hasNext()) {
-            NodeImpl node = iterator.next();
-            Path path = new Path(node.getPath());
+            ItemImpl item = iterator.next();
+            Path path = new Path(item.getPath());
             for (String nameGlob : nameGlobs) {
                 // XXX: simplistic matching (ignoring *)
                 if (path.getLastSegment().matches(nameGlob)) {
-                    filteredItems.add(node);
+                    filteredItems.add(item);
                     break;
                 }
             }
         }
         return filteredItems;
+    }
+
+    private Set<PropertyImpl> getPropertiesInternal()
+            throws RepositoryException {
+        if (properties == null) {
+            properties = getItemManager().getProperties(getState().getId());
+        }
+        return properties;
     }
 
     @Override
@@ -283,7 +296,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public PropertyIterator getProperties() throws RepositoryException {
         logger.debug("[{}].getProperties()", getPath());
-        return new PropertyIteratorImpl(getItemManager(), properties);
+        return new PropertyIteratorImpl(getPropertiesInternal());
     }
 
     @Override
@@ -297,8 +310,10 @@ public class NodeImpl extends ItemImpl implements Node {
             throws RepositoryException {
         logger.debug("[{}].getProperties({})", getPath(),
                 Arrays.toString(nameGlobs));
-        List<String> filteredProperties = filterByName(properties, nameGlobs);
-        return new PropertyIteratorImpl(getItemManager(), filteredProperties);
+        @SuppressWarnings("unchecked")
+        List<PropertyImpl> filteredProperties = (List<PropertyImpl>) filterByName(
+                getPropertiesInternal(), nameGlobs);
+        return new PropertyIteratorImpl(filteredProperties);
     }
 
     @Override
