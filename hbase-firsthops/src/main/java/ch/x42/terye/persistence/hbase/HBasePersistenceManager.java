@@ -70,32 +70,29 @@ public class HBasePersistenceManager implements PersistenceManager {
         HTableDescriptor tableDesc = new HTableDescriptor(
                 Bytes.toBytes(tableName));
         HColumnDescriptor colDesc = new HColumnDescriptor(
-                Bytes.toBytes(Constants.COLUMN_FAMILY));
+                Constants.COLUMN_FAMILY);
         tableDesc.addFamily(colDesc);
         admin.createTable(tableDesc);
     }
 
     private Result getRow(HTable table, String key) throws IOException {
         Get get = new Get(Bytes.toBytes(key));
-        get.addFamily(Bytes.toBytes(Constants.COLUMN_FAMILY));
+        get.addFamily(Constants.COLUMN_FAMILY);
         return table.get(get);
     }
 
-    private String getString(Result result, String qualifier) {
-        byte[] bytes = result.getValue(Bytes.toBytes(Constants.COLUMN_FAMILY),
-                Bytes.toBytes(qualifier));
+    private String getString(Result result, byte[] qualifier) {
+        byte[] bytes = result.getValue(Constants.COLUMN_FAMILY, qualifier);
         return Bytes.toString(bytes);
     }
 
-    private int getInt(Result result, String qualifier) {
-        byte[] bytes = result.getValue(Bytes.toBytes(Constants.COLUMN_FAMILY),
-                Bytes.toBytes(qualifier));
+    private int getInt(Result result, byte[] qualifier) {
+        byte[] bytes = result.getValue(Constants.COLUMN_FAMILY, qualifier);
         return Bytes.toInt(bytes);
     }
 
-    private byte[] getBytes(Result result, String qualifier) {
-        return result.getValue(Bytes.toBytes(Constants.COLUMN_FAMILY),
-                Bytes.toBytes(qualifier));
+    private byte[] getBytes(Result result, byte[] qualifier) {
+        return result.getValue(Constants.COLUMN_FAMILY, qualifier);
     }
 
     @Override
@@ -147,8 +144,7 @@ public class HBasePersistenceManager implements PersistenceManager {
 
     public void store(NodeState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
-        put.add(Bytes.toBytes(Constants.COLUMN_FAMILY),
-                Bytes.toBytes(Constants.NODE_COLNAME_NODETYPE),
+        put.add(Constants.COLUMN_FAMILY, Constants.NODE_COLNAME_NODETYPE,
                 Bytes.toBytes(state.getNodeTypeName()));
         try {
             nodeTable.put(put);
@@ -160,11 +156,9 @@ public class HBasePersistenceManager implements PersistenceManager {
 
     public void store(PropertyState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
-        put.add(Bytes.toBytes(Constants.COLUMN_FAMILY),
-                Bytes.toBytes(Constants.PROPERTY_COLNAME_TYPE),
+        put.add(Constants.COLUMN_FAMILY, Constants.PROPERTY_COLNAME_TYPE,
                 Bytes.toBytes(state.getType()));
-        put.add(Bytes.toBytes(Constants.COLUMN_FAMILY),
-                Bytes.toBytes(Constants.PROPERTY_COLNAME_VALUE),
+        put.add(Constants.COLUMN_FAMILY, Constants.PROPERTY_COLNAME_VALUE,
                 state.getBytes());
         try {
             propertyTable.put(put);
