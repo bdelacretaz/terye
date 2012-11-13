@@ -65,19 +65,19 @@ public class NodeImpl extends ItemImpl implements Node {
     }
 
     protected void addChild(ItemImpl child) throws RepositoryException {
-        // if (child.isNode()) {
-        // children.add(child.getPath());
-        // } else {
-        // properties.add(child.getPath());
-        // }
+        if (child.isNode()) {
+            // XXX: this fetches the children from persistent storage
+            getChildren().add((NodeImpl) child);
+        } else {
+        }
     }
 
     protected void removeChild(ItemImpl child) throws RepositoryException {
-        // if (child.isNode()) {
-        // children.remove(child.getPath());
-        // } else {
-        // properties.remove(child.getPath());
-        // }
+        if (child.isNode()) {
+            // XXX: this fetches the children from persistent storage
+            getChildren().remove(child);
+        } else {
+        }
     }
 
     @Override
@@ -283,7 +283,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public PropertyIterator getProperties() throws RepositoryException {
         logger.debug("[{}].getProperties()", getPath());
-         return new PropertyIteratorImpl(getItemManager(), properties);
+        return new PropertyIteratorImpl(getItemManager(), properties);
     }
 
     @Override
