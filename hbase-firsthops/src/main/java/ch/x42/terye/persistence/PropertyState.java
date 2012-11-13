@@ -1,6 +1,7 @@
 package ch.x42.terye.persistence;
 
 import ch.x42.terye.persistence.id.ItemId;
+import ch.x42.terye.persistence.id.PropertyId;
 import ch.x42.terye.value.ValueImpl;
 
 public class PropertyState extends ItemState {
@@ -20,17 +21,22 @@ public class PropertyState extends ItemState {
         this.bytes = bytes;
     }
 
+    public byte[] getBytes() {
+        return bytes;
+    }
+
     @Override
-    public boolean isNode() {
-        return false;
+    public PropertyId getId() {
+        return (PropertyId) super.getId();
     }
 
     public int getType() {
         return type;
     }
 
-    public byte[] getBytes() {
-        return bytes;
+    @Override
+    public boolean isNode() {
+        return false;
     }
 
 }

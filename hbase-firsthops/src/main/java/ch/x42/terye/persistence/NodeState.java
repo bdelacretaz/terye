@@ -20,6 +20,11 @@ public class NodeState extends ItemState {
     }
 
     @Override
+    public NodeId getId() {
+        return (NodeId) super.getId();
+    }
+
+    @Override
     public boolean isNode() {
         return true;
     }
