@@ -112,10 +112,17 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
-    private NodeState createNewState(Result result) {
+    private NodeState createNewNodeState(Result result) {
         NodeId id = new NodeId(Bytes.toString(result.getRow()));
         String nodeTypeName = getString(result, Constants.NODE_COLNAME_NODETYPE);
         return new NodeState(id, nodeTypeName);
+    }
+
+    private PropertyState createNewPropertyState(Result result) {
+        PropertyId id = new PropertyId(Bytes.toString(result.getRow()));
+        int type = getInt(result, Constants.PROPERTY_COLNAME_TYPE);
+        byte[] bytes = getBytes(result, Constants.PROPERTY_COLNAME_VALUE);
+        return new PropertyState(id, type, bytes);
     }
 
     @Override
@@ -125,27 +132,30 @@ public class HBasePersistenceManager implements PersistenceManager {
             if (result.isEmpty()) {
                 return null;
             }
-            return createNewState(result);
+            return createNewNodeState(result);
         } catch (IOException e) {
             throw new RepositoryException("Could not load node " + id, e);
         }
     }
 
+    @Override
     public List<NodeState> loadNodes(NodeId parentId)
             throws RepositoryException {
         Scan scan = new Scan();
         scan.addFamily(Constants.COLUMN_FAMILY);
 
-        // set range (amounts to a prefix scan)
+        // don't add trailing slash if it is the root node
         String partialKey = parentId.toString()
                 + (parentId.toString().equals(Path.ROOT) ? "" : Path.DELIMITER);
+
+        // set range (amounts to a prefix scan)
         byte[] startRow = Bytes.toBytes(partialKey);
         byte[] stopRow = startRow.clone();
         stopRow[stopRow.length - 1]++;
         scan.setStartRow(startRow);
         scan.setStopRow(stopRow);
 
-        // filter subnodes of the children
+        // filter nodes further down the tree
         String regex = partialKey + "[^/]+";
         Filter filter = new RowFilter(CompareFilter.CompareOp.EQUAL,
                 new RegexStringComparator(regex));
@@ -155,7 +165,7 @@ public class HBasePersistenceManager implements PersistenceManager {
         try {
             ResultScanner scanner = nodeTable.getScanner(scan);
             for (Result result : scanner) {
-                nodes.add(createNewState(result));
+                nodes.add(createNewNodeState(result));
             }
             scanner.close();
             return nodes;
@@ -171,11 +181,45 @@ public class HBasePersistenceManager implements PersistenceManager {
             if (result.isEmpty()) {
                 return null;
             }
-            int type = getInt(result, Constants.PROPERTY_COLNAME_TYPE);
-            byte[] bytes = getBytes(result, Constants.PROPERTY_COLNAME_VALUE);
-            return new PropertyState(id, type, bytes);
+            return createNewPropertyState(result);
         } catch (IOException e) {
             throw new RepositoryException("Could not load property " + id, e);
+        }
+    }
+
+    @Override
+    public List<PropertyState> loadProperties(NodeId parentId)
+            throws RepositoryException {
+        Scan scan = new Scan();
+        scan.addFamily(Constants.COLUMN_FAMILY);
+
+        // don't add trailing slash if it is the root node
+        String partialKey = parentId.toString()
+                + (parentId.toString().equals(Path.ROOT) ? "" : Path.DELIMITER);
+
+        // set range (amounts to a prefix scan)
+        byte[] startRow = Bytes.toBytes(partialKey);
+        byte[] stopRow = startRow.clone();
+        stopRow[stopRow.length - 1]++;
+        scan.setStartRow(startRow);
+        scan.setStopRow(stopRow);
+
+        // filter nodes further down the tree
+        String regex = partialKey + "[^/]+";
+        Filter filter = new RowFilter(CompareFilter.CompareOp.EQUAL,
+                new RegexStringComparator(regex));
+        scan.setFilter(filter);
+
+        List<PropertyState> properties = new LinkedList<PropertyState>();
+        try {
+            ResultScanner scanner = propertyTable.getScanner(scan);
+            for (Result result : scanner) {
+                properties.add(createNewPropertyState(result));
+            }
+            scanner.close();
+            return properties;
+        } catch (IOException e) {
+            throw new RepositoryException("Scan failed", e);
         }
     }
 

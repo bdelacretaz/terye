@@ -19,6 +19,9 @@ public interface PersistenceManager {
 
     public PropertyState loadProperty(PropertyId id) throws RepositoryException;
 
+    public List<PropertyState> loadProperties(NodeId parentId)
+            throws RepositoryException;
+
     public void persist(ChangeLog log) throws RepositoryException;
 
 }
