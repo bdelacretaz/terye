@@ -2,6 +2,8 @@ package ch.x42.terye.persistence.hbase;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.jcr.RepositoryException;
 
@@ -16,8 +18,14 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import ch.x42.terye.Path;
 import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ChangeLog.Operation;
 import ch.x42.terye.persistence.ItemState;
@@ -104,6 +112,12 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
+    private NodeState createNewState(Result result) {
+        NodeId id = new NodeId(Bytes.toString(result.getRow()));
+        String nodeTypeName = getString(result, Constants.NODE_COLNAME_NODETYPE);
+        return new NodeState(id, nodeTypeName);
+    }
+
     @Override
     public NodeState loadNode(NodeId id) throws RepositoryException {
         try {
@@ -111,11 +125,42 @@ public class HBasePersistenceManager implements PersistenceManager {
             if (result.isEmpty()) {
                 return null;
             }
-            String nodeTypeName = getString(result,
-                    Constants.NODE_COLNAME_NODETYPE);
-            return new NodeState(id, nodeTypeName);
+            return createNewState(result);
         } catch (IOException e) {
             throw new RepositoryException("Could not load node " + id, e);
+        }
+    }
+
+    public List<NodeState> loadNodes(NodeId parentId)
+            throws RepositoryException {
+        Scan scan = new Scan();
+        scan.addFamily(Constants.COLUMN_FAMILY);
+
+        // set range (amounts to a prefix scan)
+        String partialKey = parentId.toString()
+                + (parentId.toString().equals(Path.ROOT) ? "" : Path.DELIMITER);
+        byte[] startRow = Bytes.toBytes(partialKey);
+        byte[] stopRow = startRow.clone();
+        stopRow[stopRow.length - 1]++;
+        scan.setStartRow(startRow);
+        scan.setStopRow(stopRow);
+
+        // filter subnodes of the children
+        String regex = partialKey + "[^/]+";
+        Filter filter = new RowFilter(CompareFilter.CompareOp.EQUAL,
+                new RegexStringComparator(regex));
+        scan.setFilter(filter);
+
+        List<NodeState> nodes = new LinkedList<NodeState>();
+        try {
+            ResultScanner scanner = nodeTable.getScanner(scan);
+            for (Result result : scanner) {
+                nodes.add(createNewState(result));
+            }
+            scanner.close();
+            return nodes;
+        } catch (IOException e) {
+            throw new RepositoryException("Scan failed", e);
         }
     }
 

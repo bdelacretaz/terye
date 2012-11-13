@@ -2,6 +2,8 @@ package ch.x42.terye;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
@@ -51,18 +53,26 @@ public class ItemManager {
         }
     }
 
-    public ItemImpl getItem(ItemId id) throws PathNotFoundException,
-            RepositoryException {
-        logger.debug("getItem({})", id);
-        String path = id.toString();
+    private boolean hasBeenRemoved(ItemId id) {
         // check if the item or one of its ancestors has
         // been removed in this session
+        String path = id.toString();
         Iterator<String> iterator = removed.iterator();
         while (iterator.hasNext()) {
             String prefix = iterator.next();
             if (path.startsWith(prefix)) {
-                throw new PathNotFoundException(path);
+                return true;
             }
+        }
+        return false;
+    }
+
+    public ItemImpl getItem(ItemId id) throws PathNotFoundException,
+            RepositoryException {
+        logger.debug("getItem({})", id);
+        String path = id.toString();
+        if (hasBeenRemoved(id)) {
+            throw new PathNotFoundException(path);
         }
 
         // check if the item is cached
@@ -143,7 +153,7 @@ public class ItemManager {
         // create new node
         NodeId id = new NodeId(path.getCanonical().toString());
         NodeState state = new NodeState(id, primaryNodeTypeName);
-        NodeImpl node = new NodeImpl(session, state);
+        NodeImpl node = (NodeImpl) createNewInstance(state);
         cache.put(path.toString(), node);
         log.itemAdded(node);
         removed.remove(path.toString());
@@ -229,6 +239,31 @@ public class ItemManager {
             }
             iterator.remove();
         }
+    }
+
+    public List<NodeImpl> getChildNodes(NodeId id) throws RepositoryException {
+        // don't add trailing slash if it is the root node
+        List<NodeState> states = persistenceManager.loadNodes(id);
+        List<NodeImpl> nodes = new LinkedList<NodeImpl>();
+        Iterator<NodeState> iterator = states.iterator();
+        while (iterator.hasNext()) {
+            NodeState state = iterator.next();
+            // the node might have been removed in this session
+            if (hasBeenRemoved(state.getId())) {
+                continue;
+            }
+            NodeImpl node = null;
+            // cache lookup
+            ItemImpl item = cache.get(state.getId().toString());
+            if (item != null && item.isNode()) {
+                node = (NodeImpl) item;
+            } else {
+                node = (NodeImpl) createNewInstance(state);
+            }
+            cache.put(node.getPath(), node);
+            nodes.add(node);
+        }
+        return nodes;
     }
 
     public void persistChanges() throws RepositoryException {

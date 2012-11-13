@@ -54,32 +54,30 @@ public class NodeImpl extends ItemImpl implements Node {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    // store children and properties as lists of path strings
-    private List<String> children = new LinkedList<String>();
-    private Set<String> properties = new LinkedHashSet<String>();
+    private List<NodeImpl> children;
+    private Set<String> properties;
     private NodeTypeImpl primaryType;
 
     public NodeImpl(SessionImpl session, NodeState state) {
         super(session, state);
-        children = new LinkedList<String>();
         properties = new LinkedHashSet<String>();
         primaryType = new NodeTypeImpl(state.getNodeTypeName());
     }
 
     protected void addChild(ItemImpl child) throws RepositoryException {
-        if (child.isNode()) {
-            children.add(child.getPath());
-        } else {
-            properties.add(child.getPath());
-        }
+        // if (child.isNode()) {
+        // children.add(child.getPath());
+        // } else {
+        // properties.add(child.getPath());
+        // }
     }
 
     protected void removeChild(ItemImpl child) throws RepositoryException {
-        if (child.isNode()) {
-            children.remove(child.getPath());
-        } else {
-            properties.remove(child.getPath());
-        }
+        // if (child.isNode()) {
+        // children.remove(child.getPath());
+        // } else {
+        // properties.remove(child.getPath());
+        // }
     }
 
     @Override
@@ -217,10 +215,17 @@ public class NodeImpl extends ItemImpl implements Node {
         return getItemManager().getNode(absPath);
     }
 
+    private List<NodeImpl> getChildren() throws RepositoryException {
+        if (children == null) {
+            children = getItemManager().getChildNodes(getState().getId());
+        }
+        return children;
+    }
+
     @Override
     public NodeIterator getNodes() throws RepositoryException {
         logger.debug("[{}].getNodes()", getPath());
-        return new NodeIteratorImpl(getItemManager(), children);
+        return new NodeIteratorImpl(getChildren());
     }
 
     @Override
@@ -231,8 +236,10 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public NodeIterator getNodes(String[] nameGlobs) throws RepositoryException {
         logger.debug("[{}].getNodes({})", getPath(), Arrays.toString(nameGlobs));
-        List<String> filteredChildren = filterByName(children, nameGlobs);
-        return new NodeIteratorImpl(getItemManager(), filteredChildren);
+        // filtered range query in order to get direct child node ids
+        // iterator calling getItem with id
+        List<NodeImpl> filteredChildren = filterByName(getChildren(), nameGlobs);
+        return new NodeIteratorImpl(filteredChildren);
     }
 
     private String[] patternToArray(String namePattern) {
@@ -244,15 +251,17 @@ public class NodeImpl extends ItemImpl implements Node {
         return globs.toArray(new String[globs.size()]);
     }
 
-    private List<String> filterByName(Iterable<String> items, String[] nameGlobs) {
-        List<String> filteredItems = new LinkedList<String>();
-        Iterator<String> iterator = items.iterator();
+    private List<NodeImpl> filterByName(Iterable<NodeImpl> items,
+            String[] nameGlobs) throws RepositoryException {
+        List<NodeImpl> filteredItems = new LinkedList<NodeImpl>();
+        Iterator<NodeImpl> iterator = items.iterator();
         while (iterator.hasNext()) {
-            Path path = new Path(iterator.next());
+            NodeImpl node = iterator.next();
+            Path path = new Path(node.getPath());
             for (String nameGlob : nameGlobs) {
                 // XXX: simplistic matching (ignoring *)
                 if (path.getLastSegment().matches(nameGlob)) {
-                    filteredItems.add(path.toString());
+                    filteredItems.add(node);
                     break;
                 }
             }
@@ -274,7 +283,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public PropertyIterator getProperties() throws RepositoryException {
         logger.debug("[{}].getProperties()", getPath());
-        return new PropertyIteratorImpl(getItemManager(), properties);
+         return new PropertyIteratorImpl(getItemManager(), properties);
     }
 
     @Override
@@ -317,6 +326,11 @@ public class NodeImpl extends ItemImpl implements Node {
     public NodeIterator getSharedSet() throws RepositoryException {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public NodeState getState() {
+        return (NodeState) super.getState();
     }
 
     @Override
