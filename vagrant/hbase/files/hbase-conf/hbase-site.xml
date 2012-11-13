@@ -34,4 +34,8 @@
 		<name>hbase.zookeeper.quorum</name>
 		<value>localhost</value>
 	</property>
+	<property>
+		<name>hfile.block.cache.size</name>
+		<value>0</value>
+	</property>
 </configuration>
