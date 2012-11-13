@@ -25,7 +25,7 @@
 export JAVA_HOME=/usr/lib/jvm/jre1.6.0_34/
 
 # Extra Java CLASSPATH elements.  Optional.
-# export HBASE_CLASSPATH=
+export HBASE_CLASSPATH="/files/hbase-firsthops-classes.jar"
 
 # The maximum amount of heap to use, in MB. Default is 1000.
 # export HBASE_HEAPSIZE=1000
