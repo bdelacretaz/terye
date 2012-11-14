@@ -1,10 +1,10 @@
 package ch.x42.terye;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.NavigableMap;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.jcr.ItemExistsException;
 import javax.jcr.PathNotFoundException;
@@ -30,7 +30,7 @@ public class ItemManager {
     private SessionImpl session;
     private PersistenceManager persistenceManager;
     private ChangeLog log;
-    private NavigableMap<String, ItemImpl> cache;
+    private Map<String, ItemImpl> cache;
     // stores paths of items that have been removed in this session
     private Set<String> removed = new HashSet<String>();
 
@@ -39,7 +39,7 @@ public class ItemManager {
         this.persistenceManager = ((WorkspaceImpl) session.getWorkspace())
                 .getPersistenceManager();
         this.log = new ChangeLog();
-        this.cache = new TreeMap<String, ItemImpl>();
+        this.cache = new HashMap<String, ItemImpl>();
     }
 
     private void putToCache(ItemImpl item) {
@@ -263,23 +263,6 @@ public class ItemManager {
         NodeImpl parent = (NodeImpl) item.getParent();
         parent.removeChild(item);
         log.itemModified(parent);
-
-        // if it is a node...
-        if (!item.isNode()) {
-            return;
-        }
-        // ...remove its descendants from cache
-        // XXX: check if really needed?
-        String path = item.getPath();
-        Iterator<String> iterator = cache.tailMap(path, true).navigableKeySet()
-                .iterator();
-        while (iterator.hasNext()) {
-            String key = iterator.next();
-            if (!key.startsWith(path)) {
-                break;
-            }
-            iterator.remove();
-        }
     }
 
     public void persistChanges() throws RepositoryException {
