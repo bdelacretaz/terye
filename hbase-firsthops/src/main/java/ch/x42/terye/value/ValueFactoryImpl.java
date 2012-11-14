@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import javax.jcr.Binary;
 import javax.jcr.Node;
@@ -97,17 +98,27 @@ public class ValueFactoryImpl implements ValueFactory {
         switch (type) {
             case PropertyType.BINARY:
                 value = createValue(new BinaryImpl(bytes));
+                break;
             case PropertyType.BOOLEAN:
                 value = createValue(Bytes.toBoolean(bytes));
+                break;
             case PropertyType.DATE:
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTimeInMillis(Bytes.toLong(bytes));
+                value = createValue(calendar);
+                break;
             case PropertyType.LONG:
                 value = createValue(Bytes.toLong(bytes));
+                break;
             case PropertyType.DECIMAL:
                 value = createValue(Bytes.toBigDecimal(bytes));
+                break;
             case PropertyType.DOUBLE:
                 value = createValue(Bytes.toDouble(bytes));
+                break;
             case PropertyType.STRING:
                 value = createValue(Bytes.toString(bytes));
+                break;
         }
         return (ValueImpl) value;
     }
