@@ -96,15 +96,6 @@ public class HBasePersistenceManager implements PersistenceManager {
         return result.getValue(Constants.COLUMN_FAMILY, qualifier);
     }
 
-    @Override
-    public ItemState loadItem(ItemId id) throws RepositoryException {
-        if (id.denotesNode()) {
-            return loadNode((NodeId) id);
-        } else {
-            return loadProperty((PropertyId) id);
-        }
-    }
-
     private NodeState createNewNodeState(Result result) throws IOException,
             ClassNotFoundException {
         NodeId id = new NodeId(Bytes.toString(result.getRow()));
@@ -122,6 +113,15 @@ public class HBasePersistenceManager implements PersistenceManager {
         int type = getInt(result, Constants.PROPERTY_COLNAME_TYPE);
         byte[] bytes = getBytes(result, Constants.PROPERTY_COLNAME_VALUE);
         return new PropertyState(id, type, bytes);
+    }
+
+    @Override
+    public ItemState loadItem(ItemId id) throws RepositoryException {
+        if (id.denotesNode()) {
+            return loadNode((NodeId) id);
+        } else {
+            return loadProperty((PropertyId) id);
+        }
     }
 
     @Override
@@ -173,7 +173,7 @@ public class HBasePersistenceManager implements PersistenceManager {
             throw new RepositoryException(
                     "Caught exception while serializing children ids", e);
         }
-        // store
+        // store node
         try {
             nodeTable.put(put);
         } catch (IOException e) {
@@ -184,10 +184,13 @@ public class HBasePersistenceManager implements PersistenceManager {
 
     public void store(PropertyState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
+        // type
         put.add(Constants.COLUMN_FAMILY, Constants.PROPERTY_COLNAME_TYPE,
                 Bytes.toBytes(state.getType()));
+        // value as byte array
         put.add(Constants.COLUMN_FAMILY, Constants.PROPERTY_COLNAME_VALUE,
                 state.getBytes());
+        // store property
         try {
             propertyTable.put(put);
         } catch (IOException e) {
