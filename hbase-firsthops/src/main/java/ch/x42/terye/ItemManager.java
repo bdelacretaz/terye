@@ -2,8 +2,6 @@ package ch.x42.terye;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
@@ -239,31 +237,6 @@ public class ItemManager {
             }
             iterator.remove();
         }
-    }
-
-    public Set<PropertyImpl> getProperties(NodeId id)
-            throws RepositoryException {
-        List<PropertyState> states = persistenceManager.loadProperties(id);
-        Set<PropertyImpl> properties = new LinkedHashSet<PropertyImpl>();
-        Iterator<PropertyState> iterator = states.iterator();
-        while (iterator.hasNext()) {
-            PropertyState state = iterator.next();
-            // the property might have been removed in this session
-            if (hasBeenRemoved(state.getId())) {
-                continue;
-            }
-            PropertyImpl property = null;
-            // cache lookup
-            ItemImpl item = cache.get(state.getId().toString());
-            if (item != null && !item.isNode()) {
-                property = (PropertyImpl) item;
-            } else {
-                property = (PropertyImpl) createNewInstance(state);
-            }
-            cache.put(property.getPath(), property);
-            properties.add(property);
-        }
-        return properties;
     }
 
     public void persistChanges() throws RepositoryException {

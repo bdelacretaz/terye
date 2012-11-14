@@ -1,7 +1,5 @@
 package ch.x42.terye.persistence;
 
-import java.util.List;
-
 import javax.jcr.RepositoryException;
 
 import ch.x42.terye.persistence.id.ItemId;
@@ -15,9 +13,6 @@ public interface PersistenceManager {
     public NodeState loadNode(NodeId id) throws RepositoryException;
 
     public PropertyState loadProperty(PropertyId id) throws RepositoryException;
-
-    public List<PropertyState> loadProperties(NodeId parentId)
-            throws RepositoryException;
 
     public void persist(ChangeLog log) throws RepositoryException;
 

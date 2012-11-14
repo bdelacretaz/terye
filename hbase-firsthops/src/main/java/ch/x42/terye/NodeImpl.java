@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.jcr.AccessDeniedException;
@@ -49,13 +48,13 @@ import ch.x42.terye.nodetype.NodeTypeImpl;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.id.ItemId;
 import ch.x42.terye.persistence.id.NodeId;
+import ch.x42.terye.persistence.id.PropertyId;
 import ch.x42.terye.value.ValueImpl;
 
 public class NodeImpl extends ItemImpl implements Node {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Set<PropertyImpl> properties;
     private NodeTypeImpl primaryType;
 
     public NodeImpl(SessionImpl session, NodeState state) {
@@ -67,8 +66,8 @@ public class NodeImpl extends ItemImpl implements Node {
         if (child.isNode()) {
             getState().getChildNodes().add((NodeId) child.getState().getId());
         } else {
-            // XXX: this fetches the properties from persistent storage
-            getPropertiesInternal().add((PropertyImpl) child);
+            getState().getProperties().add(
+                    (PropertyId) child.getState().getId());
         }
     }
 
@@ -76,8 +75,7 @@ public class NodeImpl extends ItemImpl implements Node {
         if (child.isNode()) {
             getState().getChildNodes().remove(child.getState().getId());
         } else {
-            // XXX: this fetches the properties from persistent storage
-            getPropertiesInternal().remove(child);
+            getState().getProperties().remove(child.getState().getId());
         }
     }
 
@@ -267,14 +265,6 @@ public class NodeImpl extends ItemImpl implements Node {
         return filteredItems;
     }
 
-    private Set<PropertyImpl> getPropertiesInternal()
-            throws RepositoryException {
-        if (properties == null) {
-            properties = getItemManager().getProperties(getState().getId());
-        }
-        return properties;
-    }
-
     @Override
     public Item getPrimaryItem() throws ItemNotFoundException,
             RepositoryException {
@@ -289,7 +279,8 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public PropertyIterator getProperties() throws RepositoryException {
         logger.debug("[{}].getProperties()", getPath());
-        return new PropertyIteratorImpl(getPropertiesInternal());
+        return new PropertyIteratorImpl(getItemManager(), getState()
+                .getProperties());
     }
 
     @Override
@@ -304,9 +295,9 @@ public class NodeImpl extends ItemImpl implements Node {
         logger.debug("[{}].getProperties({})", getPath(),
                 Arrays.toString(nameGlobs));
         @SuppressWarnings("unchecked")
-        List<PropertyImpl> filteredProperties = (List<PropertyImpl>) filterByName(
-                getPropertiesInternal(), nameGlobs);
-        return new PropertyIteratorImpl(filteredProperties);
+        List<PropertyId> filteredProperties = (List<PropertyId>) filterByName(
+                getState().getProperties(), nameGlobs);
+        return new PropertyIteratorImpl(getItemManager(), filteredProperties);
     }
 
     @Override
@@ -381,7 +372,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasProperties() throws RepositoryException {
-        return !properties.isEmpty();
+        return !getState().getProperties().isEmpty();
     }
 
     @Override

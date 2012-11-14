@@ -7,6 +7,7 @@ public class Constants {
     public static final String NODE_TABLE_NAME = "nodes";
     public static final byte[] NODE_COLNAME_NODETYPE = Bytes.toBytes("nt");
     public static final byte[] NODE_COLNAME_CHILDNODES = Bytes.toBytes("c");
+    public static final byte[] NODE_COLNAME_PROPERTIES = Bytes.toBytes("p");
 
     public static final String PROPERTY_TABLE_NAME = "properties";
     public static final byte[] PROPERTY_COLNAME_TYPE = Bytes.toBytes("t");

@@ -2,7 +2,6 @@ package ch.x42.terye.persistence.hbase;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -18,14 +17,8 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.filter.CompareFilter;
-import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import ch.x42.terye.Path;
 import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ChangeLog.Operation;
 import ch.x42.terye.persistence.ItemState;
@@ -118,7 +111,10 @@ public class HBasePersistenceManager implements PersistenceManager {
         String nodeTypeName = getString(result, Constants.NODE_COLNAME_NODETYPE);
         List<NodeId> childNodes = Utils.<List<NodeId>> deserialize(getBytes(
                 result, Constants.NODE_COLNAME_CHILDNODES));
-        return new NodeState(id, nodeTypeName, childNodes);
+        List<PropertyId> properties = Utils
+                .<List<PropertyId>> deserialize(getBytes(result,
+                        Constants.NODE_COLNAME_PROPERTIES));
+        return new NodeState(id, nodeTypeName, childNodes, properties);
     }
 
     private PropertyState createNewPropertyState(Result result) {
@@ -154,42 +150,6 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
-    @Override
-    public List<PropertyState> loadProperties(NodeId parentId)
-            throws RepositoryException {
-        Scan scan = new Scan();
-        scan.addFamily(Constants.COLUMN_FAMILY);
-
-        // don't add trailing slash if it is the root node
-        String partialKey = parentId.toString()
-                + (parentId.toString().equals(Path.ROOT) ? "" : Path.DELIMITER);
-
-        // set range (amounts to a prefix scan)
-        byte[] startRow = Bytes.toBytes(partialKey);
-        byte[] stopRow = startRow.clone();
-        stopRow[stopRow.length - 1]++;
-        scan.setStartRow(startRow);
-        scan.setStopRow(stopRow);
-
-        // filter nodes further down the tree
-        String regex = partialKey + "[^/]+";
-        Filter filter = new RowFilter(CompareFilter.CompareOp.EQUAL,
-                new RegexStringComparator(regex));
-        scan.setFilter(filter);
-
-        List<PropertyState> properties = new LinkedList<PropertyState>();
-        try {
-            ResultScanner scanner = propertyTable.getScanner(scan);
-            for (Result result : scanner) {
-                properties.add(createNewPropertyState(result));
-            }
-            scanner.close();
-            return properties;
-        } catch (IOException e) {
-            throw new RepositoryException("Scan failed", e);
-        }
-    }
-
     public void store(ItemState state) throws RepositoryException {
         if (state.isNode()) {
             store((NodeState) state);
@@ -203,13 +163,15 @@ public class HBasePersistenceManager implements PersistenceManager {
         // node type name
         put.add(Constants.COLUMN_FAMILY, Constants.NODE_COLNAME_NODETYPE,
                 Bytes.toBytes(state.getNodeTypeName()));
-        // children
+        // children and properties
         try {
             put.add(Constants.COLUMN_FAMILY, Constants.NODE_COLNAME_CHILDNODES,
                     Utils.serialize(state.getChildNodes()));
+            put.add(Constants.COLUMN_FAMILY, Constants.NODE_COLNAME_PROPERTIES,
+                    Utils.serialize(state.getProperties()));
         } catch (IOException e) {
             throw new RepositoryException(
-                    "Caught exception while serializing child nodes", e);
+                    "Caught exception while serializing children ids", e);
         }
         // store
         try {
