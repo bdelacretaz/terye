@@ -110,6 +110,9 @@ public class ItemManager {
 
         // check if the item is cached
         ItemImpl item = getFromCache(id);
+        if (item != null) {
+            return item;
+        }
 
         // load item state from persistent storage
         ItemState state = persistenceManager.loadItem(id);
