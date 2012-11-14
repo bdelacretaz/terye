@@ -1,5 +1,6 @@
 package ch.x42.terye.value;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -23,69 +24,120 @@ public class ValueImpl implements Value {
         this.type = type;
     }
 
-    private void validate(int expectedType) throws ValueFormatException {
-        if (getType() != expectedType) {
-            throw new ValueFormatException("Expected a "
-                    + PropertyType.nameFromValue(expectedType) + "but found a "
-                    + PropertyType.nameFromValue(getType()));
-        }
-    }
-
     @Override
     public Binary getBinary() throws RepositoryException {
-        validate(PropertyType.BINARY);
-        return (Binary) value;
+        if (PropertyType.BINARY == type) {
+            return (Binary) value;
+        } else {
+            // XXX: todo: convert getString() to binary
+            throw new ValueFormatException(
+                    "Could not convert value to a binary");
+        }
     }
 
     @Override
     public boolean getBoolean() throws ValueFormatException,
             RepositoryException {
-        validate(PropertyType.BOOLEAN);
-        return (Boolean) value;
+        if (PropertyType.BOOLEAN == type) {
+            return (Boolean) value;
+        } else {
+            return Boolean.parseBoolean(getString());
+        }
     }
 
     @Override
     public Calendar getDate() throws ValueFormatException, RepositoryException {
-        validate(PropertyType.DATE);
-        Calendar cal = new GregorianCalendar();
-        cal.setTimeInMillis((Long) value);
-        return cal;
+        if (PropertyType.DATE == type || PropertyType.LONG == type) {
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTimeInMillis((Long) value);
+            return calendar;
+        } else if (PropertyType.DOUBLE == type) {
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTimeInMillis(((Double) value).longValue());
+            return calendar;
+        } else if (PropertyType.DECIMAL == type) {
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTimeInMillis(((BigDecimal) value).longValue());
+            return calendar;
+        } else {
+            // XXX: todo: parse date from getString()
+            throw new ValueFormatException("Could not convert value to a date");
+        }
     }
 
     @Override
     public BigDecimal getDecimal() throws ValueFormatException,
             RepositoryException {
-        validate(PropertyType.DECIMAL);
-        return ((BigDecimal) value);
+        if (PropertyType.DECIMAL == type) {
+            return (BigDecimal) value;
+        } else if (PropertyType.DOUBLE == type) {
+            return new BigDecimal((Double) value);
+        } else if (PropertyType.LONG == type || PropertyType.DATE == type) {
+            return new BigDecimal((Long) value);
+        } else {
+            try {
+                return new BigDecimal(getString());
+            } catch (NumberFormatException e) {
+                throw new ValueFormatException(
+                        "Could not convert value to a decimal");
+            }
+        }
     }
 
     @Override
     public double getDouble() throws ValueFormatException, RepositoryException {
-        validate(PropertyType.DOUBLE);
-        return (Double) value;
+        if (PropertyType.DOUBLE == type) {
+            return (Double) value;
+        } else if (PropertyType.LONG == type || PropertyType.DATE == type) {
+            return ((Long) value).doubleValue();
+        } else if (PropertyType.DECIMAL == type) {
+            return ((BigDecimal) value).doubleValue();
+        } else {
+            try {
+                return Double.parseDouble(getString());
+            } catch (NumberFormatException ex) {
+                throw new ValueFormatException(
+                        "Could not convert value to a double");
+            }
+        }
     }
 
     @Override
     public long getLong() throws ValueFormatException, RepositoryException {
-        switch (getType()) {
-            case PropertyType.LONG:
-            case PropertyType.DATE:
-                return (Long) value;
+        if (PropertyType.LONG == type || PropertyType.DATE == type) {
+            return (Long) value;
+        } else if (PropertyType.DOUBLE == type) {
+            return ((Double) value).longValue();
+        } else if (PropertyType.DECIMAL == type) {
+            return ((BigDecimal) value).longValue();
+        } else {
+            try {
+                return Long.parseLong(getString());
+            } catch (NumberFormatException ex) {
+                throw new ValueFormatException(
+                        "Could not convert value to a long");
+            }
         }
-        throw new ValueFormatException("Couldn't convert value to long");
     }
 
     @Override
     public InputStream getStream() throws RepositoryException {
-        validate(PropertyType.BINARY);
-        return ((Binary) value).getStream();
+        if (PropertyType.BINARY == type) {
+            return ((Binary) value).getStream();
+        } else {
+            return new ByteArrayInputStream(getString().getBytes());
+        }
     }
 
     @Override
     public String getString() throws ValueFormatException,
             IllegalStateException, RepositoryException {
-        validate(PropertyType.STRING);
-        return (String) value;
+        if (type == PropertyType.BINARY) {
+            // XXX: convert binary to string
+            throw new ValueFormatException("Could not convert value to a string");
+        } else {
+            return value.toString();
+        }
     }
 
     @Override
