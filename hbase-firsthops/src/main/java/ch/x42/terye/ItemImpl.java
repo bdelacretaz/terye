@@ -26,14 +26,24 @@ public class ItemImpl implements Item {
 
     private SessionImpl session;
     protected ItemState state;
+    private boolean removed;
 
     public ItemImpl(SessionImpl session, ItemState state) {
         this.session = session;
         this.state = state;
+        this.removed = false;
     }
 
     protected ItemManager getItemManager() {
         return session.getItemManager();
+    }
+
+    protected void sanityCheck() throws RepositoryException {
+        session.check();
+        if (removed) {
+            throw new InvalidItemStateException("Item does not exist anymore: "
+                    + getState().getId());
+        }
     }
 
     public ItemState getState() {
@@ -61,12 +71,14 @@ public class ItemImpl implements Item {
 
     @Override
     public String getName() throws RepositoryException {
+        sanityCheck();
         return new Path(getPath()).getLastSegment();
     }
 
     @Override
     public Node getParent() throws ItemNotFoundException,
             AccessDeniedException, RepositoryException {
+        sanityCheck();
         Path path = new Path(getPath());
         if (path.getParent() == null) {
             throw new ItemNotFoundException("The root node has no parent.");
@@ -76,11 +88,13 @@ public class ItemImpl implements Item {
 
     @Override
     public String getPath() throws RepositoryException {
+        sanityCheck();
         return state.getPath();
     }
 
     @Override
     public Session getSession() throws RepositoryException {
+        sanityCheck();
         return session;
     }
 
@@ -118,6 +132,7 @@ public class ItemImpl implements Item {
             ConstraintViolationException, AccessDeniedException,
             RepositoryException {
         getItemManager().removeItem(this);
+        removed = true;
     }
 
     @Override

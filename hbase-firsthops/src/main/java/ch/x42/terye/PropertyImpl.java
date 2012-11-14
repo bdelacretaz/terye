@@ -46,6 +46,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     public void setValueInternal(ValueImpl value) throws RepositoryException {
+        sanityCheck();
         this.value = value;
         this.state = new PropertyState(getState().getId(), value);
         getItemManager().propertyUpdated(this);
@@ -53,33 +54,39 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     @Override
     public Binary getBinary() throws ValueFormatException, RepositoryException {
+        sanityCheck();
         return value.getBinary();
     }
 
     @Override
     public boolean getBoolean() throws ValueFormatException,
             RepositoryException {
+        sanityCheck();
         return value.getBoolean();
     }
 
     @Override
     public Calendar getDate() throws ValueFormatException, RepositoryException {
+        sanityCheck();
         return value.getDate();
     }
 
     @Override
     public BigDecimal getDecimal() throws ValueFormatException,
             RepositoryException {
+        sanityCheck();
         return value.getDecimal();
     }
 
     @Override
     public PropertyDefinition getDefinition() throws RepositoryException {
+        sanityCheck();
         return new PropertyDefinitionImpl();
     }
 
     @Override
     public double getDouble() throws ValueFormatException, RepositoryException {
+        sanityCheck();
         return value.getDouble();
     }
 
@@ -97,6 +104,7 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     @Override
     public long getLong() throws ValueFormatException, RepositoryException {
+        sanityCheck();
         return value.getLong();
     }
 
@@ -117,22 +125,25 @@ public class PropertyImpl extends ItemImpl implements Property {
     @Override
     public InputStream getStream() throws ValueFormatException,
             RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        sanityCheck();
+        return value.getStream();
     }
 
     @Override
     public String getString() throws ValueFormatException, RepositoryException {
+        sanityCheck();
         return value.getString();
     }
 
     @Override
     public int getType() throws RepositoryException {
+        sanityCheck();
         return value.getType();
     }
 
     @Override
     public Value getValue() throws ValueFormatException, RepositoryException {
+        sanityCheck();
         return value;
     }
 

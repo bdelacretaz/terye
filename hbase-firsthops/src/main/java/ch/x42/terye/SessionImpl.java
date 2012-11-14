@@ -57,6 +57,12 @@ public class SessionImpl implements Session {
         logger.debug("Session created for workspace {}", workspaceName);
     }
 
+    protected void check() throws RepositoryException {
+        if (!isLive()) {
+            throw new RepositoryException("The associated session has been closed");
+        }
+    }
+
     protected ItemManager getItemManager() {
         return itemManager;
     }

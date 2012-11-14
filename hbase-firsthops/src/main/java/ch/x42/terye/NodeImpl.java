@@ -102,6 +102,7 @@ public class NodeImpl extends ItemImpl implements Node {
         Path absPath = new Path(getPath()).concat(relPath);
         NodeImpl node = getItemManager().createNode(absPath,
                 primaryNodeTypeName);
+        sanityCheck();
         // XXX: temporary
         // add jcr:created to all nodes in order to prevent Sling from throwing
         // an exception
@@ -179,6 +180,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public NodeDefinition getDefinition() throws RepositoryException {
+        sanityCheck();
         return new NodeDefinitionImpl();
     }
 
@@ -211,6 +213,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public Node getNode(String relPath) throws PathNotFoundException,
             RepositoryException {
         logger.debug("[{}].getNode({})", getPath(), relPath);
+        sanityCheck();
         Path absPath = new Path(getPath()).concat(relPath);
         return getItemManager().getNode(absPath);
     }
@@ -218,6 +221,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public NodeIterator getNodes() throws RepositoryException {
         logger.debug("[{}].getNodes()", getPath());
+        sanityCheck();
         return new NodeIteratorImpl(getItemManager(), getState()
                 .getChildNodes());
     }
@@ -230,8 +234,7 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public NodeIterator getNodes(String[] nameGlobs) throws RepositoryException {
         logger.debug("[{}].getNodes({})", getPath(), Arrays.toString(nameGlobs));
-        // filtered range query in order to get direct child node ids
-        // iterator calling getItem with id
+        sanityCheck();
         @SuppressWarnings("unchecked")
         List<NodeId> filteredChildren = (List<NodeId>) filterByName(getState()
                 .getChildNodes(), nameGlobs);
@@ -269,17 +272,20 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public Item getPrimaryItem() throws ItemNotFoundException,
             RepositoryException {
+        sanityCheck();
         throw new ItemNotFoundException();
     }
 
     @Override
     public NodeType getPrimaryNodeType() throws RepositoryException {
+        sanityCheck();
         return primaryType;
     }
 
     @Override
     public PropertyIterator getProperties() throws RepositoryException {
         logger.debug("[{}].getProperties()", getPath());
+        sanityCheck();
         return new PropertyIteratorImpl(getItemManager(), getState()
                 .getProperties());
     }
@@ -295,6 +301,7 @@ public class NodeImpl extends ItemImpl implements Node {
             throws RepositoryException {
         logger.debug("[{}].getProperties({})", getPath(),
                 Arrays.toString(nameGlobs));
+        sanityCheck();
         @SuppressWarnings("unchecked")
         List<PropertyId> filteredProperties = (List<PropertyId>) filterByName(
                 getState().getProperties(), nameGlobs);
@@ -305,6 +312,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property getProperty(String relPath) throws PathNotFoundException,
             RepositoryException {
         logger.debug("[{}].getProperty({})", getPath(), relPath);
+        sanityCheck();
         Path absPath = new Path(getPath()).concat(relPath);
         return getItemManager().getProperty(absPath);
     }
@@ -362,22 +370,26 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasNode(String relPath) throws RepositoryException {
+        sanityCheck();
         Path absPath = new Path(getPath()).concat(relPath);
         return getItemManager().nodeExists(absPath);
     }
 
     @Override
     public boolean hasNodes() throws RepositoryException {
+        sanityCheck();
         return !getState().getChildNodes().isEmpty();
     }
 
     @Override
     public boolean hasProperties() throws RepositoryException {
+        sanityCheck();
         return !getState().getProperties().isEmpty();
     }
 
     @Override
     public boolean hasProperty(String relPath) throws RepositoryException {
+        sanityCheck();
         Path absPath = new Path(getPath()).concat(relPath);
         return getItemManager().propertyExists(absPath);
     }
@@ -402,6 +414,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean isNodeType(String nodeTypeName) throws RepositoryException {
+        sanityCheck();
         return primaryType.isNodeType(nodeTypeName);
     }
 
@@ -521,6 +534,7 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, Value value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
+        sanityCheck();
         Path path = new Path(getPath()).concat(name);
         // XXX: cast might not be valid
         PropertyImpl property = getItemManager().createProperty(path,
