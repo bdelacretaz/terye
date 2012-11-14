@@ -130,35 +130,4 @@ public class ItemImpl implements Item {
         getSession().save();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        String thisId = getState().getId().toString();
-        ItemImpl other = (ItemImpl) obj;
-        String thatId = other.getState().getId().toString();
-        if (thisId == null) {
-            if (thatId != null) {
-                return false;
-            }
-        } else if (!thisId.equals(thatId))
-            return false;
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        String id = getState().getId().toString();
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
-    }
 }

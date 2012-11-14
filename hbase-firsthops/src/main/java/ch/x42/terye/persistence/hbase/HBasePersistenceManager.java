@@ -112,10 +112,13 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
-    private NodeState createNewNodeState(Result result) {
+    private NodeState createNewNodeState(Result result) throws IOException,
+            ClassNotFoundException {
         NodeId id = new NodeId(Bytes.toString(result.getRow()));
         String nodeTypeName = getString(result, Constants.NODE_COLNAME_NODETYPE);
-        return new NodeState(id, nodeTypeName);
+        List<NodeId> childNodes = Utils.<List<NodeId>> deserialize(getBytes(
+                result, Constants.NODE_COLNAME_CHILDNODES));
+        return new NodeState(id, nodeTypeName, childNodes);
     }
 
     private PropertyState createNewPropertyState(Result result) {
@@ -133,44 +136,8 @@ public class HBasePersistenceManager implements PersistenceManager {
                 return null;
             }
             return createNewNodeState(result);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RepositoryException("Could not load node " + id, e);
-        }
-    }
-
-    @Override
-    public List<NodeState> loadNodes(NodeId parentId)
-            throws RepositoryException {
-        Scan scan = new Scan();
-        scan.addFamily(Constants.COLUMN_FAMILY);
-
-        // don't add trailing slash if it is the root node
-        String partialKey = parentId.toString()
-                + (parentId.toString().equals(Path.ROOT) ? "" : Path.DELIMITER);
-
-        // set range (amounts to a prefix scan)
-        byte[] startRow = Bytes.toBytes(partialKey);
-        byte[] stopRow = startRow.clone();
-        stopRow[stopRow.length - 1]++;
-        scan.setStartRow(startRow);
-        scan.setStopRow(stopRow);
-
-        // filter nodes further down the tree
-        String regex = partialKey + "[^/]+";
-        Filter filter = new RowFilter(CompareFilter.CompareOp.EQUAL,
-                new RegexStringComparator(regex));
-        scan.setFilter(filter);
-
-        List<NodeState> nodes = new LinkedList<NodeState>();
-        try {
-            ResultScanner scanner = nodeTable.getScanner(scan);
-            for (Result result : scanner) {
-                nodes.add(createNewNodeState(result));
-            }
-            scanner.close();
-            return nodes;
-        } catch (IOException e) {
-            throw new RepositoryException("Scan failed", e);
         }
     }
 
@@ -233,8 +200,18 @@ public class HBasePersistenceManager implements PersistenceManager {
 
     public void store(NodeState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
+        // node type name
         put.add(Constants.COLUMN_FAMILY, Constants.NODE_COLNAME_NODETYPE,
                 Bytes.toBytes(state.getNodeTypeName()));
+        // children
+        try {
+            put.add(Constants.COLUMN_FAMILY, Constants.NODE_COLNAME_CHILDNODES,
+                    Utils.serialize(state.getChildNodes()));
+        } catch (IOException e) {
+            throw new RepositoryException(
+                    "Caught exception while serializing child nodes", e);
+        }
+        // store
         try {
             nodeTable.put(put);
         } catch (IOException e) {

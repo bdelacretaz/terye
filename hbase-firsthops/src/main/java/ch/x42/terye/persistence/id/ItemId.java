@@ -1,6 +1,10 @@
 package ch.x42.terye.persistence.id;
 
-public abstract class ItemId {
+import java.io.Serializable;
+
+public abstract class ItemId implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String uuid;
 
@@ -25,18 +29,23 @@ public abstract class ItemId {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ItemId other = (ItemId) obj;
         if (uuid == null) {
-            if (other.uuid != null)
+            if (other.uuid != null) {
                 return false;
-        } else if (!uuid.equals(other.uuid))
+            }
+        } else if (!uuid.equals(other.uuid)) {
             return false;
+        }
         return true;
     }
 

@@ -47,13 +47,14 @@ import ch.x42.terye.iterator.NodeIteratorImpl;
 import ch.x42.terye.iterator.PropertyIteratorImpl;
 import ch.x42.terye.nodetype.NodeTypeImpl;
 import ch.x42.terye.persistence.NodeState;
+import ch.x42.terye.persistence.id.ItemId;
+import ch.x42.terye.persistence.id.NodeId;
 import ch.x42.terye.value.ValueImpl;
 
 public class NodeImpl extends ItemImpl implements Node {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private List<NodeImpl> children;
     private Set<PropertyImpl> properties;
     private NodeTypeImpl primaryType;
 
@@ -64,8 +65,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     protected void addChild(ItemImpl child) throws RepositoryException {
         if (child.isNode()) {
-            // XXX: this fetches the children from persistent storage
-            getChildren().add((NodeImpl) child);
+            getState().getChildNodes().add((NodeId) child.getState().getId());
         } else {
             // XXX: this fetches the properties from persistent storage
             getPropertiesInternal().add((PropertyImpl) child);
@@ -74,8 +74,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     protected void removeChild(ItemImpl child) throws RepositoryException {
         if (child.isNode()) {
-            // XXX: this fetches the children from persistent storage
-            getChildren().remove(child);
+            getState().getChildNodes().remove(child.getState().getId());
         } else {
             // XXX: this fetches the properties from persistent storage
             getPropertiesInternal().remove(child);
@@ -217,17 +216,11 @@ public class NodeImpl extends ItemImpl implements Node {
         return getItemManager().getNode(absPath);
     }
 
-    private List<NodeImpl> getChildren() throws RepositoryException {
-        if (children == null) {
-            children = getItemManager().getChildNodes(getState().getId());
-        }
-        return children;
-    }
-
     @Override
     public NodeIterator getNodes() throws RepositoryException {
         logger.debug("[{}].getNodes()", getPath());
-        return new NodeIteratorImpl(getChildren());
+        return new NodeIteratorImpl(getItemManager(), getState()
+                .getChildNodes());
     }
 
     @Override
@@ -241,9 +234,9 @@ public class NodeImpl extends ItemImpl implements Node {
         // filtered range query in order to get direct child node ids
         // iterator calling getItem with id
         @SuppressWarnings("unchecked")
-        List<NodeImpl> filteredChildren = (List<NodeImpl>) filterByName(
-                getChildren(), nameGlobs);
-        return new NodeIteratorImpl(filteredChildren);
+        List<NodeId> filteredChildren = (List<NodeId>) filterByName(getState()
+                .getChildNodes(), nameGlobs);
+        return new NodeIteratorImpl(getItemManager(), filteredChildren);
     }
 
     private String[] patternToArray(String namePattern) {
@@ -255,18 +248,18 @@ public class NodeImpl extends ItemImpl implements Node {
         return globs.toArray(new String[globs.size()]);
     }
 
-    private List<? extends ItemImpl> filterByName(
-            Iterable<? extends ItemImpl> items, String[] nameGlobs)
+    private List<? extends ItemId> filterByName(
+            Iterable<? extends ItemId> items, String[] nameGlobs)
             throws RepositoryException {
-        List<ItemImpl> filteredItems = new LinkedList<ItemImpl>();
-        Iterator<? extends ItemImpl> iterator = items.iterator();
+        List<ItemId> filteredItems = new LinkedList<ItemId>();
+        Iterator<? extends ItemId> iterator = items.iterator();
         while (iterator.hasNext()) {
-            ItemImpl item = iterator.next();
-            Path path = new Path(item.getPath());
+            ItemId id = iterator.next();
+            Path path = new Path(id.toString());
             for (String nameGlob : nameGlobs) {
                 // XXX: simplistic matching (ignoring *)
                 if (path.getLastSegment().matches(nameGlob)) {
-                    filteredItems.add(item);
+                    filteredItems.add(id);
                     break;
                 }
             }
@@ -383,7 +376,7 @@ public class NodeImpl extends ItemImpl implements Node {
 
     @Override
     public boolean hasNodes() throws RepositoryException {
-        return !children.isEmpty();
+        return !getState().getChildNodes().isEmpty();
     }
 
     @Override

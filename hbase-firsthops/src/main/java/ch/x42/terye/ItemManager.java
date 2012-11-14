@@ -3,7 +3,6 @@ package ch.x42.terye;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.Set;
@@ -240,30 +239,6 @@ public class ItemManager {
             }
             iterator.remove();
         }
-    }
-
-    public List<NodeImpl> getChildNodes(NodeId id) throws RepositoryException {
-        List<NodeState> states = persistenceManager.loadNodes(id);
-        List<NodeImpl> nodes = new LinkedList<NodeImpl>();
-        Iterator<NodeState> iterator = states.iterator();
-        while (iterator.hasNext()) {
-            NodeState state = iterator.next();
-            // the node might have been removed in this session
-            if (hasBeenRemoved(state.getId())) {
-                continue;
-            }
-            NodeImpl node = null;
-            // cache lookup
-            ItemImpl item = cache.get(state.getId().toString());
-            if (item != null && item.isNode()) {
-                node = (NodeImpl) item;
-            } else {
-                node = (NodeImpl) createNewInstance(state);
-            }
-            cache.put(node.getPath(), node);
-            nodes.add(node);
-        }
-        return nodes;
     }
 
     public Set<PropertyImpl> getProperties(NodeId id)

@@ -4,19 +4,24 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import javax.jcr.RangeIterator;
+import javax.jcr.RepositoryException;
 
-import ch.x42.terye.ItemImpl;
+import ch.x42.terye.ItemManager;
+import ch.x42.terye.persistence.id.ItemId;
 
 public abstract class RangeIteratorImpl implements RangeIterator {
 
-    private Iterator<? extends ItemImpl> iterator;
+    private ItemManager itemManager;
+    private Iterator<? extends ItemId> iterator;
     private long size = -1L;
     private long position = 0L;
 
-    public RangeIteratorImpl(Iterable<? extends ItemImpl> items) {
-        this.iterator = items.iterator();
-        if (items instanceof Collection) {
-            size = ((Collection<? extends ItemImpl>) items).size();
+    public RangeIteratorImpl(ItemManager itemManager,
+            Iterable<? extends ItemId> itemIds) {
+        this.itemManager = itemManager;
+        this.iterator = itemIds.iterator();
+        if (itemIds instanceof Collection) {
+            size = ((Collection<? extends ItemId>) itemIds).size();
         }
     }
 
@@ -28,7 +33,14 @@ public abstract class RangeIteratorImpl implements RangeIterator {
     @Override
     public Object next() {
         position++;
-        return iterator.next();
+        ItemId id = iterator.next();
+        try {
+            return itemManager.getItem(id);
+        } catch (RepositoryException e) {
+            // XXX: what should we do here?
+            // item could have been delete by another session in the meantime
+        }
+        return null;
     }
 
     @Override
@@ -52,7 +64,8 @@ public abstract class RangeIteratorImpl implements RangeIterator {
             throw new IllegalArgumentException("Parameter must be non-negative");
         }
         while (skipNum > 0 && iterator.hasNext()) {
-            next();
+            iterator.next();
+            position++;
             skipNum--;
         }
     }
