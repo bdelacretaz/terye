@@ -656,4 +656,16 @@ public class NodeImpl extends ItemImpl implements Node {
 
     }
 
+    @Override
+    public String toString() {
+        try {
+            String str = "Node [";
+            str += "path=" + getPath();
+            str += "]";
+            return str;
+        } catch (RepositoryException e) {
+            return super.toString();
+        }
+    }
+
 }

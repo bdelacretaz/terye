@@ -245,4 +245,17 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     }
 
+    @Override
+    public String toString() {
+        try {
+            String str = "Property [";
+            str += "path=" + getPath();
+            str += "type=" + getType();
+            str += "]";
+            return str;
+        } catch (RepositoryException e) {
+            return super.toString();
+        }
+    }
+
 }
