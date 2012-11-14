@@ -102,8 +102,9 @@ public class NodeImpl extends ItemImpl implements Node {
         Path absPath = new Path(getPath()).concat(relPath);
         NodeImpl node = getItemManager().createNode(absPath,
                 primaryNodeTypeName);
-        // XXX: temporarily add jcr:created to all nodes in order to prevent
-        // Sling from throwing an exception
+        // XXX: temporary
+        // add jcr:created to all nodes in order to prevent Sling from throwing
+        // an exception
         node.setProperty("jcr:created", Calendar.getInstance());
         return node;
     }
@@ -255,7 +256,7 @@ public class NodeImpl extends ItemImpl implements Node {
             ItemId id = iterator.next();
             Path path = new Path(id.toString());
             for (String nameGlob : nameGlobs) {
-                // XXX: simplistic matching (ignoring *)
+                // XXX: simplistic matching (ignoring wildcard)
                 if (path.getLastSegment().matches(nameGlob)) {
                     filteredItems.add(id);
                     break;
@@ -524,7 +525,6 @@ public class NodeImpl extends ItemImpl implements Node {
         // XXX: cast might not be valid
         PropertyImpl property = getItemManager().createProperty(path,
                 (ValueImpl) value);
-        // addChild(property);
         return property;
     }
 

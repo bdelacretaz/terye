@@ -126,7 +126,8 @@ public class ItemImpl implements Item {
             ReferentialIntegrityException, VersionException, LockException,
             NoSuchNodeTypeException, RepositoryException {
         logger.debug("save()");
-        // XXX: temporarily save the whole session
+        // XXX: temporary
+        // save the whole session
         getSession().save();
     }
 

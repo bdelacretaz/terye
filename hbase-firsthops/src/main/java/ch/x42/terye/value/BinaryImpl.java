@@ -20,19 +20,21 @@ public class BinaryImpl implements Binary {
     private boolean isDisposed;
 
     public BinaryImpl(InputStream stream) throws IOException {
-        // XXX: improve exception handling
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int nRead;
-        byte[] data = new byte[1048576];
-        while ((nRead = stream.read(data, 0, data.length)) != -1) {
-            buffer.write(data, 0, nRead);
+        try {
+            int nRead;
+            byte[] data = new byte[1048576];
+            while ((nRead = stream.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+            buffer.flush();
+            this.data = buffer.toByteArray();
+            streams = new LinkedList<InputStream>();
+            isDisposed = false;
+        } finally {
+            buffer.close();
+            stream.close();
         }
-        buffer.flush();
-        this.data = buffer.toByteArray();
-        buffer.close();
-        stream.close();
-        streams = new LinkedList<InputStream>();
-        isDisposed = false;
     }
 
     public BinaryImpl(byte[] data) {
@@ -59,11 +61,13 @@ public class BinaryImpl implements Binary {
     public int read(byte[] b, long position) throws IOException,
             RepositoryException {
         checkDisposed();
-        // XXX: improve exception handling
         ByteArrayInputStream is = (ByteArrayInputStream) getStream();
-        int res = is.read(b, (int) position, b.length);
-        is.close();
-        return res;
+        try {
+            int res = is.read(b, (int) position, b.length);
+            return res;
+        } finally {
+            is.close();
+        }
     }
 
     @Override

@@ -17,12 +17,8 @@ public class Utils {
             oos.writeObject(obj);
             bytes = bos.toByteArray();
         } finally {
-            if (oos != null) {
-                oos.close();
-            }
-            if (bos != null) {
-                bos.close();
-            }
+            oos.close();
+            bos.close();
         }
         return bytes;
     }
@@ -37,12 +33,8 @@ public class Utils {
             ois = new ObjectInputStream(bis);
             obj = (T) ois.readObject();
         } finally {
-            if (ois != null) {
-                ois.close();
-            }
-            if (bis != null) {
-                bis.close();
-            }
+            ois.close();
+            bis.close();
         }
         return obj;
     }

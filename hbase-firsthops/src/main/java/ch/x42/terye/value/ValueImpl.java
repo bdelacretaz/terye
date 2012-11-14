@@ -98,7 +98,6 @@ public class ValueImpl implements Value {
     }
 
     public byte[] getBytes() {
-        // XXX: getType or instanceof?
         switch (getType()) {
             case PropertyType.BINARY:
                 return ((BinaryImpl) value).getByteArray();

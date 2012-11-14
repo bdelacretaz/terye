@@ -6,6 +6,7 @@ import java.util.List;
 
 import ch.x42.terye.ItemImpl;
 
+// XXX: make log more intelligent
 public class ChangeLog {
 
     public static abstract class Operation {

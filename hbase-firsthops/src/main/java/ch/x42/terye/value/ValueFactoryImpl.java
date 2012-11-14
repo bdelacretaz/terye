@@ -58,7 +58,6 @@ public class ValueFactoryImpl implements ValueFactory {
         try {
             return new ValueImpl(createBinary(value), PropertyType.BINARY);
         } catch (RepositoryException e) {
-            // XXX: other exception?
             throw new RuntimeException("Couldn't create binary value", e);
         }
     }

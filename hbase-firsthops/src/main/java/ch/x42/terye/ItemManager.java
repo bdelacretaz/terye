@@ -129,13 +129,12 @@ public class ItemManager {
 
     public ItemImpl getItem(Path path) throws PathNotFoundException,
             RepositoryException {
-        // XXX: not elegant
         // we don't know what item type to expect, thus...
         try {
-            // ...try to get a node at that path
+            // ...try getting a node at that path
             return getNode(path);
         } catch (PathNotFoundException e) {
-            // ...there was no node, try getting a property
+            // ...there was no node so try getting a property
             return getProperty(path);
         }
     }
@@ -253,8 +252,8 @@ public class ItemManager {
 
         // remove item from cache
         removeFromCache(item.getState().getId());
-        // takes care of removing descendants from store
         // XXX: not the case yet
+        // takes care of removing descendants from store
         log.itemRemoved(item);
         // add to paths removed in this session
         markRemoved(item.getState().getId());
