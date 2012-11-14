@@ -37,10 +37,10 @@ public abstract class RangeIteratorImpl implements RangeIterator {
         try {
             return itemManager.getItem(id);
         } catch (RepositoryException e) {
-            // XXX: what should we do here?
-            // item could have been delete by another session in the meantime
+            // XXX: better handling?
+            throw new RuntimeException("Stale reference to child node " + id
+                    + ". Node has been removed in this session");
         }
-        return null;
     }
 
     @Override

@@ -2,6 +2,7 @@ package ch.x42.terye.persistence;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import ch.x42.terye.persistence.id.NodeId;
 import ch.x42.terye.persistence.id.PropertyId;
@@ -21,7 +22,7 @@ public class NodeState extends ItemState {
     }
 
     public NodeState(NodeId id, String nodeTypeName) {
-        this(id, nodeTypeName, new LinkedList<NodeId>(),
+        this(id, nodeTypeName, new CopyOnWriteArrayList<NodeId>(),
                 new LinkedList<PropertyId>());
     }
 
