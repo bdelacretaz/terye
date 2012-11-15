@@ -66,8 +66,7 @@ public class NodeImpl extends ItemImpl implements Node {
         if (child.isNode()) {
             getState().getChildNodes().add((NodeId) child.getId());
         } else {
-            getState().getProperties().add(
-                    (PropertyId) child.getId());
+            getState().getProperties().add((PropertyId) child.getId());
         }
     }
 
@@ -415,6 +414,10 @@ public class NodeImpl extends ItemImpl implements Node {
     public boolean isLocked() throws RepositoryException {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    public boolean isRoot() {
+        return getId().toString().equals(Path.ROOT);
     }
 
     @Override

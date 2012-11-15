@@ -252,9 +252,13 @@ public class ItemManager {
 
         // remove item from cache
         removeFromCache(item.getId());
-        // XXX: not the case yet
-        // takes care of removing descendants from store
-        log.itemRemoved(item);
+        if (item.isNode()) {
+            // takes care of removing descendants from store
+            log.rangeRemoved(item.getId().toString());
+        } else {
+            // only remove single property
+            log.itemRemoved(item);
+        }
         // add to paths removed in this session
         markRemoved(item.getId());
 
