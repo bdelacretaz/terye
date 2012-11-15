@@ -8,7 +8,7 @@ Usage example:
 
 You can control which tests are executed by editing the files:
 
-* [excludes.txt](src/main/resources/excludes.txt)
-* [exceptions.txt](src/main/resources/exceptions.txt)
+* [excludes.txt](https://github.com/bdelacretaz/terye/tree/master/jcr-tck-testsuite/src/main/resources/excludes.txt)
+* [exceptions.txt](https://github.com/bdelacretaz/terye/tree/master/jcr-tck-testsuite/src/main/resources/exceptions.txt)
 
 Test specified in 'excludes.txt' are not executed, unless contained in 'exceptions.txt'. This allows e.g. to exclude a whole test case but one test of that test case. You can specify packages, test cases (classes) or single tests (methods).
