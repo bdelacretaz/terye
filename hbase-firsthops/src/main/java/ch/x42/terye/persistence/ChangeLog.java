@@ -13,6 +13,10 @@ public class ChangeLog {
 
         private ItemState state;
 
+        private Operation() {
+
+        }
+
         private Operation(ItemState state) {
             this.state = state;
         }
@@ -26,15 +30,19 @@ public class ChangeLog {
         }
 
         public boolean isAddOperation() {
-            return false;
+            return (this instanceof ChangeLog.AddOperation);
         }
 
         public boolean isModifyOperation() {
-            return false;
+            return (this instanceof ChangeLog.ModifyOperation);
         }
 
         public boolean isRemoveOperation() {
-            return false;
+            return (this instanceof ChangeLog.RemoveOperation);
+        }
+
+        public boolean isRemoveRangeOperation() {
+            return (this instanceof ChangeLog.RemoveRangeOperation);
         }
 
     }
@@ -45,20 +53,12 @@ public class ChangeLog {
             super(item);
         }
 
-        public boolean isAddOperation() {
-            return true;
-        }
-
     }
 
     public static class ModifyOperation extends ChangeLog.Operation {
 
         private ModifyOperation(ItemImpl item) {
             super(item);
-        }
-
-        public boolean isModifyOperation() {
-            return true;
         }
 
     }
@@ -69,8 +69,18 @@ public class ChangeLog {
             super(item);
         }
 
-        public boolean isRemoveOperation() {
-            return true;
+    }
+
+    public static class RemoveRangeOperation extends ChangeLog.Operation {
+
+        private String partialKey;
+
+        private RemoveRangeOperation(String partialKey) {
+            this.partialKey = partialKey;
+        }
+
+        public String getPartialKey() {
+            return partialKey;
         }
 
     }
@@ -87,6 +97,10 @@ public class ChangeLog {
 
     public void itemRemoved(ItemImpl item) {
         operations.add(new RemoveOperation(item));
+    }
+
+    public void rangeRemoved(String partialKey) {
+        operations.add(new RemoveRangeOperation(partialKey));
     }
 
     public Iterable<Operation> getOperations() {

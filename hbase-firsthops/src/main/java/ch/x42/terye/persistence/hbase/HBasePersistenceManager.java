@@ -17,6 +17,8 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import ch.x42.terye.persistence.ChangeLog;
@@ -150,6 +152,7 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
+    @Override
     public void store(ItemState state) throws RepositoryException {
         if (state.isNode()) {
             store((NodeState) state);
@@ -158,6 +161,7 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
+    @Override
     public void store(NodeState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
         // node type name
@@ -182,6 +186,7 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
+    @Override
     public void store(PropertyState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
         // type
@@ -199,6 +204,7 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
+    @Override
     public void delete(ItemId id) throws RepositoryException {
         if (id.denotesNode()) {
             delete((NodeId) id);
@@ -207,6 +213,7 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
+    @Override
     public void delete(NodeId id) throws RepositoryException {
         Delete delete = new Delete(Bytes.toBytes(id.toString()));
         try {
@@ -216,12 +223,54 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
+    @Override
     public void delete(PropertyId id) throws RepositoryException {
         Delete delete = new Delete(Bytes.toBytes(id.toString()));
         try {
             propertyTable.delete(delete);
         } catch (IOException e) {
             throw new RepositoryException("Could not delete property " + id, e);
+        }
+    }
+
+    @Override
+    public void deleteRange(String partialKey) throws RepositoryException {
+        // XXX: very inefficient (HBase does not support range deletes)
+
+        // 1) do a range scan on the node table
+        // 2) remove each matching row singly
+        // 3) do a range scan on the property table
+        // 4) remove each matching row singly
+
+        // scan range (amounts to a prefix scan)
+        byte[] startRow = Bytes.toBytes(partialKey);
+        byte[] stopRow = startRow.clone();
+        stopRow[stopRow.length - 1]++;
+
+        try {
+            // nodes
+            Scan nodeScan = new Scan();
+            nodeScan.addFamily(Constants.COLUMN_FAMILY);
+            nodeScan.setStartRow(startRow);
+            nodeScan.setStopRow(stopRow);
+            ResultScanner nodeScanner = nodeTable.getScanner(nodeScan);
+            for (Result result : nodeScanner) {
+                delete(createNewNodeState(result).getId());
+            }
+            nodeScanner.close();
+            // properties
+            Scan propertyScan = new Scan();
+            propertyScan.addFamily(Constants.COLUMN_FAMILY);
+            propertyScan.setStartRow(startRow);
+            propertyScan.setStopRow(stopRow);
+            ResultScanner propertyScanner = propertyTable
+                    .getScanner(propertyScan);
+            for (Result result : propertyScanner) {
+                delete(createNewPropertyState(result).getId());
+            }
+            propertyScanner.close();
+        } catch (Exception e) {
+            throw new RepositoryException("Range delete failed", e);
         }
     }
 
@@ -237,6 +286,9 @@ public class HBasePersistenceManager implements PersistenceManager {
                     store(op.getState());
                 } else if (op.isRemoveOperation()) {
                     delete(op.getState().getId());
+                } else if (op.isRemoveRangeOperation()) {
+                    deleteRange(((ChangeLog.RemoveRangeOperation) op)
+                            .getPartialKey());
                 }
             }
         } catch (RepositoryException e) {

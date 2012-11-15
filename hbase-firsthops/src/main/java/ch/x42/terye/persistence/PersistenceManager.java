@@ -14,6 +14,23 @@ public interface PersistenceManager {
 
     public PropertyState loadProperty(PropertyId id) throws RepositoryException;
 
+    public void store(ItemState state) throws RepositoryException;
+
+    public void store(NodeState state) throws RepositoryException;
+
+    public void store(PropertyState state) throws RepositoryException;
+
+    public void delete(ItemId id) throws RepositoryException;
+
+    public void delete(NodeId id) throws RepositoryException;
+
+    public void delete(PropertyId id) throws RepositoryException;
+
+    /**
+     * Deletes all rows (in node and property tables) with matching row key.
+     */
+    public void deleteRange(String partialKey) throws RepositoryException;
+
     public void persist(ChangeLog log) throws RepositoryException;
 
 }
