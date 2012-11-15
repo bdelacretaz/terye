@@ -17,6 +17,7 @@ import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
 import ch.x42.terye.persistence.PropertyState;
+import ch.x42.terye.persistence.id.PropertyId;
 import ch.x42.terye.value.ValueFactoryImpl;
 import ch.x42.terye.value.ValueImpl;
 
@@ -48,7 +49,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValueInternal(ValueImpl value) throws RepositoryException {
         sanityCheck();
         this.value = value;
-        this.state = new PropertyState(getState().getId(), value);
+        this.state = new PropertyState(getId(), value);
         getItemManager().propertyUpdated(this);
     }
 
@@ -88,6 +89,11 @@ public class PropertyImpl extends ItemImpl implements Property {
     public double getDouble() throws ValueFormatException, RepositoryException {
         sanityCheck();
         return value.getDouble();
+    }
+
+    @Override
+    public PropertyId getId() {
+        return (PropertyId) super.getId();
     }
 
     @Override

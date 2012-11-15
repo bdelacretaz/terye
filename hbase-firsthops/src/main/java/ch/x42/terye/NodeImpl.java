@@ -64,18 +64,18 @@ public class NodeImpl extends ItemImpl implements Node {
 
     protected void addChild(ItemImpl child) throws RepositoryException {
         if (child.isNode()) {
-            getState().getChildNodes().add((NodeId) child.getState().getId());
+            getState().getChildNodes().add((NodeId) child.getId());
         } else {
             getState().getProperties().add(
-                    (PropertyId) child.getState().getId());
+                    (PropertyId) child.getId());
         }
     }
 
     protected void removeChild(ItemImpl child) throws RepositoryException {
         if (child.isNode()) {
-            getState().getChildNodes().remove(child.getState().getId());
+            getState().getChildNodes().remove(child.getId());
         } else {
-            getState().getProperties().remove(child.getState().getId());
+            getState().getProperties().remove(child.getId());
         }
     }
 
@@ -182,6 +182,11 @@ public class NodeImpl extends ItemImpl implements Node {
     public NodeDefinition getDefinition() throws RepositoryException {
         sanityCheck();
         return new NodeDefinitionImpl();
+    }
+
+    @Override
+    public NodeId getId() {
+        return (NodeId) super.getId();
     }
 
     @Override

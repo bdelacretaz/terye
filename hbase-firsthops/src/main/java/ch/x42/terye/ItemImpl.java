@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.x42.terye.persistence.ItemState;
+import ch.x42.terye.persistence.id.ItemId;
 
 public class ItemImpl implements Item {
 
@@ -34,20 +35,12 @@ public class ItemImpl implements Item {
         this.removed = false;
     }
 
-    protected ItemManager getItemManager() {
-        return session.getItemManager();
-    }
-
     protected void sanityCheck() throws RepositoryException {
         session.check();
         if (removed) {
             throw new InvalidItemStateException("Item does not exist anymore: "
-                    + getState().getId());
+                    + getId());
         }
-    }
-
-    public ItemState getState() {
-        return state;
     }
 
     @Override
@@ -67,6 +60,14 @@ public class ItemImpl implements Item {
     public int getDepth() throws RepositoryException {
         // TODO Auto-generated method stub
         return 0;
+    }
+
+    public ItemId getId() {
+        return getState().getId();
+    }
+
+    protected ItemManager getItemManager() {
+        return session.getItemManager();
     }
 
     @Override
@@ -96,6 +97,10 @@ public class ItemImpl implements Item {
     public Session getSession() throws RepositoryException {
         sanityCheck();
         return session;
+    }
+
+    public ItemState getState() {
+        return state;
     }
 
     @Override

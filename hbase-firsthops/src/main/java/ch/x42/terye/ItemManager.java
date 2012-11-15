@@ -43,7 +43,7 @@ public class ItemManager {
     }
 
     private void putToCache(ItemImpl item) {
-        cache.put(item.getState().getId().toString(), item);
+        cache.put(item.getId().toString(), item);
     }
 
     /**
@@ -248,15 +248,15 @@ public class ItemManager {
     }
 
     public void removeItem(ItemImpl item) throws RepositoryException {
-        logger.debug("removeItem({})", item.getState().getId());
+        logger.debug("removeItem({})", item.getId());
 
         // remove item from cache
-        removeFromCache(item.getState().getId());
+        removeFromCache(item.getId());
         // XXX: not the case yet
         // takes care of removing descendants from store
         log.itemRemoved(item);
         // add to paths removed in this session
-        markRemoved(item.getState().getId());
+        markRemoved(item.getId());
 
         // remove reference in parent
         NodeImpl parent = (NodeImpl) item.getParent();
