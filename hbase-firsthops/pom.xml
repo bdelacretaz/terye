@@ -72,7 +72,7 @@
                       <Private-Package>
                         ch.x42.terye.*
                       </Private-Package>
-                      <Embed-Dependency>*</Embed-Dependency>
+                      <Embed-Dependency>*;artifactId=!jcr|slf4j-simple|org.apache.sling.jcr.api|org.apache.sling.jcr.baseorg.osgi.core|org.osgi.compendium|org.apache.felix.scr.annotations</Embed-Dependency>
                       <Embed-Transitive>true</Embed-Transitive>
                       <Import-Package>
                         !com.ibm.uvm.tools.*,
@@ -104,7 +104,7 @@
                         !javax.jmdns.*,
                         !javax.jms.*,
                         !javax.mail.*,
-                        !javax.microedition.*,
+<!--                        !javax.microedition.*,-->
 
                         !javax.persistence.*,
                         !javax.servlet.annotation.*,
@@ -114,7 +114,7 @@
                         !org.apache.bsf.*,
                         !org.apache.commons.daemon.*,
                         !org.apache.commons.jxpath.*,
-                        !org.apache.felix.scrplugin.*,
+<!--                        !org.apache.felix.scrplugin.*,-->
                         !org.apache.log.*,
                         !org.apache.tools.ant.taskdefs.*,
                         !org.apache.tools.ant.*,
@@ -130,6 +130,7 @@
                         !org.jgrapht.*,
                         !org.jvnet.fastinfoset.*,
                         !org.jvnet.staxex.*,
+                        !org.osgi.service.prefs.*,
                         !sun.misc.*,
                         !sun.net.dns.*,
                         !sun.net.util.*,
