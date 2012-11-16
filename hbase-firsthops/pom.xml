@@ -70,6 +70,17 @@
               <configuration>
                   <instructions>
                       <Private-Package>ch.x42.terye.*</Private-Package>
+                      <Embed-Dependency>*;artifactId=!log4j|jets3t|jruby-complete|rt</Embed-Dependency>
+                      <Embed-Transitive>true</Embed-Transitive>
+                      <Import-Package>
+                        !com.sun.management.*,
+                        !com.sun.net.httpserver.*,
+                        !com.sun.org.apache.xalan.internal.res.*,
+                        !com.sun.org.apache.xml.internal.utils.*,
+                        !com.sun.*,
+                        !com.thoughtworks.paranamer.*,
+                        *
+                      </Import-Package>
                   </instructions>
               </configuration>
           </plugin>
@@ -93,6 +104,7 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.0.7</version>
+        <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
