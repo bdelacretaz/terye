@@ -19,10 +19,6 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Component
-/*@Properties({
-@Property(name="service.vendor", value="The Apache Software Foundation"),
-@Property(name="service.description", value="Factory for embedded Jackrabbit Repository Instances")
-})*/
 public class SlingServerRepository implements Repository, SlingRepository {
 
     private final Logger log = LoggerFactory.getLogger(getClass());

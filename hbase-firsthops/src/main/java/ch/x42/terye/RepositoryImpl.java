@@ -8,8 +8,13 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 
-public class RepositoryImpl implements Repository
-{
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class RepositoryImpl implements Repository {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     @Override
     public String[] getDescriptorKeys() {
         return null;
@@ -49,6 +54,7 @@ public class RepositoryImpl implements Repository
     public Session login(Credentials credentials, String workspaceName)
             throws LoginException, NoSuchWorkspaceException,
             RepositoryException {
+        logger.debug("login()");
         return new SessionImpl(this, "default");
     }
 

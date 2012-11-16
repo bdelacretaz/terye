@@ -40,14 +40,22 @@ public class HBasePersistenceManager implements PersistenceManager {
     private HTable propertyTable;
 
     private HBasePersistenceManager() throws RepositoryException {
-        config = HBaseConfiguration.create();
+        ClassLoader ocl = Thread.currentThread().getContextClassLoader();
         try {
+            // temporarily switch context class loader (needed so that
+            // HBaseConfiguration can find hbase-default.xml and hbase-site.xml
+            // in the bundle jar file
+            Thread.currentThread().setContextClassLoader(
+                    HBaseConfiguration.class.getClassLoader());
+            config = HBaseConfiguration.create();
             admin = new HBaseAdmin(config);
             nodeTable = getOrCreateTable(Constants.NODE_TABLE_NAME);
             propertyTable = getOrCreateTable(Constants.PROPERTY_TABLE_NAME);
         } catch (Exception e) {
             throw new RepositoryException(
                     "Could not instantiate HBase persistence manager", e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(ocl);
         }
 
     }
