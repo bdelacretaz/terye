@@ -70,15 +70,28 @@
               <configuration>
                   <instructions>
                       <Private-Package>ch.x42.terye.*</Private-Package>
-                      <Embed-Dependency>*;artifactId=!log4j|jets3t|jruby-complete|rt</Embed-Dependency>
+                      <Embed-Dependency>*</Embed-Dependency>
                       <Embed-Transitive>true</Embed-Transitive>
                       <Import-Package>
+                        !com.ibm.uvm.tools.*,
+                        !com.jamesmurty.utils.*,
+                        !com.kenai.jnr.x86asm.*,
+                        !com.sun.java.browser.net.*,
+                        !com.sun.jdmk.comm.*,
                         !com.sun.management.*,
+                        !com.sun.mirror.apt.*,
+                        !com.sun.mirror.declaration.*,
+                        !com.sun.mirror.*,
                         !com.sun.net.httpserver.*,
                         !com.sun.org.apache.xalan.internal.res.*,
                         !com.sun.org.apache.xml.internal.utils.*,
+                        !com.sun.org.apache.*,
                         !com.sun.*,
                         !com.thoughtworks.paranamer.*,
+                        !com.werken.xpath.*,
+                        !javax.*,
+                        !org.apache.avalon.framework.logger.*,
+                        !org.apache.axis.*,
                         *
                       </Import-Package>
                   </instructions>
