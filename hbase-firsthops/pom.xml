@@ -69,77 +69,9 @@
               <extensions>true</extensions>
               <configuration>
                   <instructions>
-                      <Private-Package>
-                        ch.x42.terye.*
-                      </Private-Package>
-                      <Embed-Dependency>*;artifactId=!jcr|slf4j-simple|org.apache.sling.jcr.api|org.apache.sling.jcr.baseorg.osgi.core|org.osgi.compendium|org.apache.felix.scr.annotations</Embed-Dependency>
-                      <Embed-Transitive>true</Embed-Transitive>
-                      <Import-Package>
-                        !com.ibm.uvm.tools.*,
-                        !com.jamesmurty.utils.*,
-                        !com.kenai.jnr.x86asm.*,
-                        !com.sun.java.browser.net.*,
-                        !com.sun.jdmk.comm.*,
-                        !com.sun.management.*,
-                        !com.sun.mirror.apt.*,
-                        !com.sun.mirror.declaration.*,
-                        !com.sun.mirror.*,
-
-                        !com.sun.net.httpserver.*,
-                        !com.sun.org.apache.xalan.internal.res.*,
-                        !com.sun.org.apache.xml.internal.utils.*,
-                        !com.sun.xml.fastinfoset.sax.*,
-                        !com.sun.xml.fastinfoset.stax.*,
-                        !com.sun.org.apache.xpath.internal.*,
-                        !com.thoughtworks.paranamer.*,
-                        !com.werken.xpath.*,
-                        !javax.annotation.security.*,
-                        !javax.ejb.*,
-                        !javax.enterprise.context.*,
-                        !javax.enterprise.event.*,
-                        !javax.enterprise.inject.*,
-                        !javax.enterprise.util.*,
-                        !javax.inject.*,
-                        !javax.interceptor.*,
-                        !javax.jmdns.*,
-                        !javax.jms.*,
-                        !javax.mail.*,
-<!--                        !javax.microedition.*,-->
-
-                        !javax.persistence.*,
-                        !javax.servlet.annotation.*,
-                        !javax.xml.rpc.*,
-                        !org.apache.avalon.framework.logger.*,
-                        !org.apache.axis.*,
-                        !org.apache.bsf.*,
-                        !org.apache.commons.daemon.*,
-                        !org.apache.commons.jxpath.*,
-<!--                        !org.apache.felix.scrplugin.*,-->
-                        !org.apache.log.*,
-                        !org.apache.tools.ant.taskdefs.*,
-                        !org.apache.tools.ant.*,
-
-                        !org.bouncycastle.jce.provider.*,
-                        !org.codehaus.commons.compiler.*,
-                        !org.codehaus.janino.*,
-                        !org.eclipse.core.resources.*,
-                        !org.eclipse.*,
-
-                        !org.jboss.logging.*,
-                        !org.jdom.*,
-                        !org.jgrapht.*,
-                        !org.jvnet.fastinfoset.*,
-                        !org.jvnet.staxex.*,
-                        !org.osgi.service.prefs.*,
-                        !sun.misc.*,
-                        !sun.net.dns.*,
-                        !sun.net.util.*,
-                        !sun.plugin.protocol.*,
-                        !sun.reflect.*,
-                        !sun.security.action.*,
-                        !sun.security.krb5.*,
-                        *
-                      </Import-Package>
+                      <Include-Resource>
+                          OSGI-INF/serviceComponents.xml=target/scr-plugin-generated/OSGI-INF/serviceComponents.xml
+                      </Include-Resource>
                   </instructions>
               </configuration>
           </plugin>
