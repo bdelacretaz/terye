@@ -443,6 +443,11 @@
         -->
         <bundle>
             <groupId>ch.x42.terye</groupId>
+            <artifactId>hbase-bundle</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </bundle>
+        <bundle>
+            <groupId>ch.x42.terye</groupId>
             <artifactId>hbase-firsthops</artifactId>
             <version>1.0-SNAPSHOT</version>
         </bundle>
