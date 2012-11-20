@@ -132,10 +132,12 @@ public class ValueImpl implements Value {
     @Override
     public String getString() throws ValueFormatException,
             IllegalStateException, RepositoryException {
-        if (type == PropertyType.BINARY) {
+        if (PropertyType.BINARY == type) {
             // XXX: convert binary to string
             throw new ValueFormatException(
                     "Could not convert value to a string");
+        } else if (PropertyType.STRING == type) {
+            return (String) value;
         } else {
             return value.toString();
         }
