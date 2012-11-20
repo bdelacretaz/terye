@@ -544,9 +544,19 @@ public class NodeImpl extends ItemImpl implements Node {
             ConstraintViolationException, RepositoryException {
         sanityCheck();
         Path path = new Path(getPath()).concat(name);
-        // XXX: cast might not be valid
-        PropertyImpl property = getItemManager().createProperty(path,
-                (ValueImpl) value);
+        PropertyImpl property = null;
+        // setting a value to null amounts to removing it
+        if (value == null) {
+            try {
+                getItemManager().removeItem(path);
+            } catch (RepositoryException e) {
+                // property might not exist yet, in which case we catch a
+                // PathNotFoundException and do nothing
+            }
+        } else {
+            // XXX: cast might not be valid
+            property = getItemManager().createProperty(path, (ValueImpl) value);
+        }
         return property;
     }
 

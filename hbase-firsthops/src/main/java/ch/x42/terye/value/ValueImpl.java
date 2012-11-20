@@ -20,6 +20,9 @@ public class ValueImpl implements Value {
     private int type;
 
     protected ValueImpl(Object value, int type) {
+        if (value == null) {
+            throw new IllegalArgumentException("Null values are not allowed");
+        }
         this.value = value;
         this.type = type;
     }

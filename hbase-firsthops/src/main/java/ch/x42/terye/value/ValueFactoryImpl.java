@@ -18,6 +18,14 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public class ValueFactoryImpl implements ValueFactory {
 
+    private ValueImpl createNewValue(Object value, int type) {
+        try {
+            return new ValueImpl(value, type);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     @Override
     public Binary createBinary(InputStream stream) throws RepositoryException {
         try {
@@ -29,34 +37,34 @@ public class ValueFactoryImpl implements ValueFactory {
 
     @Override
     public Value createValue(BigDecimal value) {
-        return new ValueImpl(value, PropertyType.DECIMAL);
+        return createNewValue(value, PropertyType.DECIMAL);
     }
 
     @Override
     public Value createValue(Binary value) {
-        return new ValueImpl(value, PropertyType.BINARY);
+        return createNewValue(value, PropertyType.BINARY);
     }
 
     @Override
     public Value createValue(boolean value) {
-        return new ValueImpl(value, PropertyType.BOOLEAN);
+        return createNewValue(value, PropertyType.BOOLEAN);
     }
 
     @Override
     public Value createValue(Calendar value) {
-        return new ValueImpl((Long) value.getTime().getTime(),
+        return createNewValue((Long) value.getTime().getTime(),
                 PropertyType.DATE);
     }
 
     @Override
     public Value createValue(double value) {
-        return new ValueImpl(value, PropertyType.DOUBLE);
+        return createNewValue(value, PropertyType.DOUBLE);
     }
 
     @Override
     public Value createValue(InputStream value) {
         try {
-            return new ValueImpl(createBinary(value), PropertyType.BINARY);
+            return createNewValue(createBinary(value), PropertyType.BINARY);
         } catch (RepositoryException e) {
             throw new RuntimeException("Couldn't create binary value", e);
         }
@@ -64,7 +72,7 @@ public class ValueFactoryImpl implements ValueFactory {
 
     @Override
     public Value createValue(long value) {
-        return new ValueImpl(value, PropertyType.LONG);
+        return createNewValue(value, PropertyType.LONG);
     }
 
     @Override
@@ -89,7 +97,7 @@ public class ValueFactoryImpl implements ValueFactory {
 
     @Override
     public Value createValue(String value) {
-        return new ValueImpl(value, PropertyType.STRING);
+        return createNewValue(value, PropertyType.STRING);
     }
 
     public ValueImpl createValue(int type, byte[] bytes) {
