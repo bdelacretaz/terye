@@ -134,7 +134,8 @@ public class ValueImpl implements Value {
             IllegalStateException, RepositoryException {
         if (type == PropertyType.BINARY) {
             // XXX: convert binary to string
-            throw new ValueFormatException("Could not convert value to a string");
+            throw new ValueFormatException(
+                    "Could not convert value to a string");
         } else {
             return value.toString();
         }
@@ -150,6 +151,10 @@ public class ValueImpl implements Value {
     }
 
     public byte[] getBytes() {
+        if (value == null) {
+            return null;
+        }
+
         switch (getType()) {
             case PropertyType.BINARY:
                 return ((BinaryImpl) value).getByteArray();
@@ -165,6 +170,7 @@ public class ValueImpl implements Value {
             case PropertyType.STRING:
                 return Bytes.toBytes((String) value);
         }
-        return new byte[0];
+
+        return null;
     }
 }
