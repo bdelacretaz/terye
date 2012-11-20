@@ -16,7 +16,7 @@ public class BinaryImpl implements Binary {
     // store contents in memory
     private byte[] data;
     // keep track of the opened input streams
-    private List<InputStream> streams;
+    private List<InputStream> streams = new LinkedList<InputStream>();
     private boolean isDisposed;
 
     public BinaryImpl(InputStream stream) throws IOException {
@@ -29,7 +29,6 @@ public class BinaryImpl implements Binary {
             }
             buffer.flush();
             this.data = buffer.toByteArray();
-            streams = new LinkedList<InputStream>();
             isDisposed = false;
         } finally {
             buffer.close();
