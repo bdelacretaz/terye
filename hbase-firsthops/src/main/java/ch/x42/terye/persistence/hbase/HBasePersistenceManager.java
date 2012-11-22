@@ -1,7 +1,6 @@
 package ch.x42.terye.persistence.hbase;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -25,7 +24,6 @@ import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import ch.x42.terye.persistence.ChangeLog;
-import ch.x42.terye.persistence.ChangeLog.Operation;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.PersistenceManager;
@@ -297,19 +295,18 @@ public class HBasePersistenceManager implements PersistenceManager {
     @Override
     public void persist(ChangeLog log) throws RepositoryException {
         // XXX: batch processing
-        Iterable<Operation> operations = log.getOperations();
-        Iterator<Operation> iterator = operations.iterator();
         try {
-            while (iterator.hasNext()) {
-                Operation op = iterator.next();
-                if (op.isAddOperation() || op.isModifyOperation()) {
-                    store(op.getState());
-                } else if (op.isRemoveOperation()) {
-                    delete(op.getState().getId());
-                } else if (op.isRemoveRangeOperation()) {
-                    deleteRange(((ChangeLog.RemoveRangeOperation) op)
-                            .getPartialKey());
-                }
+            // add new states
+            for (ItemState state : log.getAddedStates()) {
+                store(state);
+            }
+            // modify existing states
+            for (ItemState state : log.getModifiedStates()) {
+                store(state);
+            }
+            // delete removed states
+            for (ItemState state : log.getRemovedStates()) {
+                deleteRange(state.getId().toString());
             }
         } catch (RepositoryException e) {
             throw new RepositoryException("Error persisting change log", e);

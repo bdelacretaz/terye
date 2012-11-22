@@ -192,7 +192,7 @@ public class ItemManager {
         NodeState state = new NodeState(id, primaryNodeTypeName);
         NodeImpl node = (NodeImpl) createNewInstance(state);
         putToCache(node);
-        log.itemAdded(node);
+        log.added(node);
         unmarkRemoved(id);
 
         // add to parent
@@ -203,7 +203,7 @@ public class ItemManager {
         }
         NodeImpl parent = getNode(parentPath);
         parent.addChild(node);
-        log.itemModified(parent);
+        log.modified(parent);
 
         return node;
     }
@@ -223,13 +223,13 @@ public class ItemManager {
         PropertyState state = new PropertyState(id, value);
         PropertyImpl property = new PropertyImpl(session, state, value);
         putToCache(property);
-        log.itemAdded(property);
+        log.added(property);
         unmarkRemoved(id);
 
         // add to parent
         NodeImpl parent = getNode(path.getParent());
         parent.addChild(property);
-        log.itemModified(parent);
+        log.modified(parent);
 
         return property;
     }
@@ -240,7 +240,7 @@ public class ItemManager {
      */
     public void propertyUpdated(PropertyImpl property)
             throws RepositoryException {
-        log.itemModified(property);
+        log.modified(property);
     }
 
     public void removeItem(Path path) throws RepositoryException {
@@ -252,20 +252,15 @@ public class ItemManager {
 
         // remove item from cache
         removeFromCache(item.getId());
-        if (item.isNode()) {
-            // takes care of removing descendants from store
-            log.rangeRemoved(item.getId().toString());
-        } else {
-            // only remove single property
-            log.itemRemoved(item);
-        }
+        // takes care of removing descendants from store
+        log.removed(item);
         // add to paths removed in this session
         markRemoved(item.getId());
 
         // remove reference in parent
         NodeImpl parent = (NodeImpl) item.getParent();
         parent.removeChild(item);
-        log.itemModified(parent);
+        log.modified(parent);
     }
 
     public void persistChanges() throws RepositoryException {

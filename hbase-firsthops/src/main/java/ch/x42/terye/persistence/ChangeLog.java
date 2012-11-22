@@ -1,126 +1,56 @@
 package ch.x42.terye.persistence;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import ch.x42.terye.ItemImpl;
+import ch.x42.terye.persistence.id.ItemId;
 
-// XXX: make log more intelligent
 public class ChangeLog {
 
-    public static abstract class Operation {
+    private Map<ItemId, ItemState> addedStates = new LinkedHashMap<ItemId, ItemState>();
+    private Map<ItemId, ItemState> modifiedStates = new LinkedHashMap<ItemId, ItemState>();
+    private Map<ItemId, ItemState> removedStates = new LinkedHashMap<ItemId, ItemState>();
 
-        private ItemState state;
-
-        private Operation() {
-
-        }
-
-        private Operation(ItemState state) {
-            this.state = state;
-        }
-
-        private Operation(ItemImpl item) {
-            this(item.getState());
-        }
-
-        public ItemState getState() {
-            return state;
-        }
-
-        public boolean isAddOperation() {
-            return (this instanceof ChangeLog.AddOperation);
-        }
-
-        public boolean isModifyOperation() {
-            return (this instanceof ChangeLog.ModifyOperation);
-        }
-
-        public boolean isRemoveOperation() {
-            return (this instanceof ChangeLog.RemoveOperation);
-        }
-
-        public boolean isRemoveRangeOperation() {
-            return (this instanceof ChangeLog.RemoveRangeOperation);
-        }
-
+    public void added(ItemImpl item) {
+        addedStates.put(item.getId(), item.getState());
     }
 
-    public static class AddOperation extends ChangeLog.Operation {
-
-        private AddOperation(ItemImpl item) {
-            super(item);
+    public void modified(ItemImpl item) {
+        if (!addedStates.containsKey(item.getId())) {
+            modifiedStates.put(item.getId(), item.getState());
         }
-
     }
 
-    public static class ModifyOperation extends ChangeLog.Operation {
-
-        private ModifyOperation(ItemImpl item) {
-            super(item);
+    public void removed(ItemImpl item) {
+        if (addedStates.remove(item.getId()) == null) {
+            modifiedStates.remove(item.getId());
+            removedStates.put(item.getId(), item.getState());
         }
-
     }
 
-    public static class RemoveOperation extends ChangeLog.Operation {
-
-        private RemoveOperation(ItemImpl item) {
-            super(item);
-        }
-
+    public Collection<ItemState> getAddedStates() {
+        return addedStates.values();
     }
 
-    public static class RemoveRangeOperation extends ChangeLog.Operation {
-
-        private String partialKey;
-
-        private RemoveRangeOperation(String partialKey) {
-            this.partialKey = partialKey;
-        }
-
-        public String getPartialKey() {
-            return partialKey;
-        }
-
+    public Collection<ItemState> getModifiedStates() {
+        return modifiedStates.values();
     }
 
-    private List<Operation> operations = new LinkedList<Operation>();
-
-    public void itemAdded(ItemImpl item) {
-        operations.add(new AddOperation(item));
-    }
-
-    public void itemModified(ItemImpl item) {
-        operations.add(new ModifyOperation(item));
-    }
-
-    public void itemRemoved(ItemImpl item) {
-        operations.add(new RemoveOperation(item));
-    }
-
-    public void rangeRemoved(String partialKey) {
-        operations.add(new RemoveRangeOperation(partialKey));
-    }
-
-    public Iterable<Operation> getOperations() {
-        return operations;
+    public Collection<ItemState> getRemovedStates() {
+        return removedStates.values();
     }
 
     public boolean isEmpty() {
-        return operations.isEmpty();
+        return !(addedStates.isEmpty() && modifiedStates.isEmpty() && removedStates
+                .isEmpty());
     }
 
     public void purge() {
-        operations = new LinkedList<Operation>();
-    }
-
-    public int size() {
-        return operations.size();
-    }
-
-    public Iterator<Operation> iterator() {
-        return operations.iterator();
+        addedStates.clear();
+        modifiedStates.clear();
+        removedStates.clear();
     }
 
 }
