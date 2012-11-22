@@ -19,6 +19,9 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import ch.x42.terye.persistence.ChangeLog;
@@ -36,25 +39,24 @@ public class HBasePersistenceManager implements PersistenceManager {
     private static HBasePersistenceManager instance;
     private Configuration config;
     private HBaseAdmin admin;
-    private HTable nodeTable;
-    private HTable propertyTable;
+    private HTable items;
 
     private HBasePersistenceManager() throws RepositoryException {
         ClassLoader ocl = Thread.currentThread().getContextClassLoader();
         try {
             // temporarily switch context class loader (needed so that
             // HBaseConfiguration can find hbase-default.xml and hbase-site.xml
-            // in the bundle jar file
+            // in the hbase bundle jar file
             Thread.currentThread().setContextClassLoader(
                     HBaseConfiguration.class.getClassLoader());
             config = HBaseConfiguration.create();
             admin = new HBaseAdmin(config);
-            nodeTable = getOrCreateTable(Constants.NODE_TABLE_NAME);
-            propertyTable = getOrCreateTable(Constants.PROPERTY_TABLE_NAME);
+            items = getOrCreateTable(Constants.ITEMS_TABLE_NAME);
         } catch (Exception e) {
             throw new RepositoryException(
                     "Could not instantiate HBase persistence manager", e);
         } finally {
+            // switch back class loader
             Thread.currentThread().setContextClassLoader(ocl);
         }
 
@@ -81,47 +83,56 @@ public class HBasePersistenceManager implements PersistenceManager {
         HTableDescriptor tableDesc = new HTableDescriptor(
                 Bytes.toBytes(tableName));
         HColumnDescriptor colDesc = new HColumnDescriptor(
-                Constants.COLUMN_FAMILY);
+                Constants.ITEMS_CFNAME_DATA);
         tableDesc.addFamily(colDesc);
         admin.createTable(tableDesc);
     }
 
-    private Result getRow(HTable table, String key) throws IOException {
+    private Result getItemRow(String key, Filter filter) throws IOException {
         Get get = new Get(Bytes.toBytes(key));
-        get.addFamily(Constants.COLUMN_FAMILY);
-        return table.get(get);
+        get.addFamily(Constants.ITEMS_CFNAME_DATA);
+        if (filter != null) {
+            get.setFilter(filter);
+        }
+        return items.get(get);
+    }
+
+    private void deleteItemRow(String key) throws IOException {
+        Delete delete = new Delete(Bytes.toBytes(key));
+        items.delete(delete);
     }
 
     private String getString(Result result, byte[] qualifier) {
-        byte[] bytes = result.getValue(Constants.COLUMN_FAMILY, qualifier);
+        byte[] bytes = result.getValue(Constants.ITEMS_CFNAME_DATA, qualifier);
         return Bytes.toString(bytes);
     }
 
     private int getInt(Result result, byte[] qualifier) {
-        byte[] bytes = result.getValue(Constants.COLUMN_FAMILY, qualifier);
+        byte[] bytes = result.getValue(Constants.ITEMS_CFNAME_DATA, qualifier);
         return Bytes.toInt(bytes);
     }
 
     private byte[] getBytes(Result result, byte[] qualifier) {
-        return result.getValue(Constants.COLUMN_FAMILY, qualifier);
+        return result.getValue(Constants.ITEMS_CFNAME_DATA, qualifier);
     }
 
     private NodeState createNewNodeState(Result result) throws IOException,
             ClassNotFoundException {
         NodeId id = new NodeId(Bytes.toString(result.getRow()));
-        String nodeTypeName = getString(result, Constants.NODE_COLNAME_NODETYPE);
+        String nodeTypeName = getString(result,
+                Constants.ITEMS_COLNAME_NODETYPE);
         List<NodeId> childNodes = Utils.<List<NodeId>> deserialize(getBytes(
-                result, Constants.NODE_COLNAME_CHILDNODES));
+                result, Constants.ITEMS_COLNAME_CHILDNODES));
         List<PropertyId> properties = Utils
                 .<List<PropertyId>> deserialize(getBytes(result,
-                        Constants.NODE_COLNAME_PROPERTIES));
+                        Constants.ITEMS_COLNAME_PROPERTIES));
         return new NodeState(id, nodeTypeName, childNodes, properties);
     }
 
     private PropertyState createNewPropertyState(Result result) {
         PropertyId id = new PropertyId(Bytes.toString(result.getRow()));
-        int type = getInt(result, Constants.PROPERTY_COLNAME_TYPE);
-        byte[] bytes = getBytes(result, Constants.PROPERTY_COLNAME_VALUE);
+        int type = getInt(result, Constants.ITEMS_COLNAME_TYPE);
+        byte[] bytes = getBytes(result, Constants.ITEMS_COLNAME_VALUE);
         return new PropertyState(id, type, bytes);
     }
 
@@ -137,7 +148,11 @@ public class HBasePersistenceManager implements PersistenceManager {
     @Override
     public NodeState loadNode(NodeId id) throws RepositoryException {
         try {
-            Result result = getRow(nodeTable, id.toString());
+            SingleColumnValueFilter filter = new SingleColumnValueFilter(
+                    Constants.ITEMS_CFNAME_DATA,
+                    Constants.ITEMS_COLNAME_ITEMTYPE, CompareOp.EQUAL,
+                    Bytes.toBytes(0));
+            Result result = getItemRow(id.toString(), filter);
             if (result.isEmpty()) {
                 return null;
             }
@@ -150,7 +165,11 @@ public class HBasePersistenceManager implements PersistenceManager {
     @Override
     public PropertyState loadProperty(PropertyId id) throws RepositoryException {
         try {
-            Result result = getRow(propertyTable, id.toString());
+            SingleColumnValueFilter filter = new SingleColumnValueFilter(
+                    Constants.ITEMS_CFNAME_DATA,
+                    Constants.ITEMS_COLNAME_ITEMTYPE, CompareOp.EQUAL,
+                    Bytes.toBytes(1));
+            Result result = getItemRow(id.toString(), filter);
             if (result.isEmpty()) {
                 return null;
             }
@@ -172,14 +191,19 @@ public class HBasePersistenceManager implements PersistenceManager {
     @Override
     public void store(NodeState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
+        // item type
+        put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_ITEMTYPE,
+                Bytes.toBytes(0));
         // node type name
-        put.add(Constants.COLUMN_FAMILY, Constants.NODE_COLNAME_NODETYPE,
+        put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_NODETYPE,
                 Bytes.toBytes(state.getNodeTypeName()));
         // children and properties
         try {
-            put.add(Constants.COLUMN_FAMILY, Constants.NODE_COLNAME_CHILDNODES,
+            put.add(Constants.ITEMS_CFNAME_DATA,
+                    Constants.ITEMS_COLNAME_CHILDNODES,
                     Utils.serialize(state.getChildNodes()));
-            put.add(Constants.COLUMN_FAMILY, Constants.NODE_COLNAME_PROPERTIES,
+            put.add(Constants.ITEMS_CFNAME_DATA,
+                    Constants.ITEMS_COLNAME_PROPERTIES,
                     Utils.serialize(state.getProperties()));
         } catch (IOException e) {
             throw new RepositoryException(
@@ -187,7 +211,7 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
         // store node
         try {
-            nodeTable.put(put);
+            items.put(put);
         } catch (IOException e) {
             throw new RepositoryException("Could not store node "
                     + state.getId(), e);
@@ -197,15 +221,18 @@ public class HBasePersistenceManager implements PersistenceManager {
     @Override
     public void store(PropertyState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
+        // item type
+        put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_ITEMTYPE,
+                Bytes.toBytes(1));
         // type
-        put.add(Constants.COLUMN_FAMILY, Constants.PROPERTY_COLNAME_TYPE,
+        put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_TYPE,
                 Bytes.toBytes(state.getType()));
         // value as byte array
-        put.add(Constants.COLUMN_FAMILY, Constants.PROPERTY_COLNAME_VALUE,
+        put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_VALUE,
                 state.getBytes());
         // store property
         try {
-            propertyTable.put(put);
+            items.put(put);
         } catch (IOException e) {
             throw new RepositoryException("Could not store property "
                     + state.getId(), e);
@@ -223,9 +250,9 @@ public class HBasePersistenceManager implements PersistenceManager {
 
     @Override
     public void delete(NodeId id) throws RepositoryException {
-        Delete delete = new Delete(Bytes.toBytes(id.toString()));
         try {
-            nodeTable.delete(delete);
+            // XXX: make sure we really delete a node
+            deleteItemRow(id.toString());
         } catch (IOException e) {
             throw new RepositoryException("Could not delete node " + id, e);
         }
@@ -233,9 +260,9 @@ public class HBasePersistenceManager implements PersistenceManager {
 
     @Override
     public void delete(PropertyId id) throws RepositoryException {
-        Delete delete = new Delete(Bytes.toBytes(id.toString()));
         try {
-            propertyTable.delete(delete);
+            // XXX: make sure we really delete a property
+            deleteItemRow(id.toString());
         } catch (IOException e) {
             throw new RepositoryException("Could not delete property " + id, e);
         }
@@ -243,12 +270,9 @@ public class HBasePersistenceManager implements PersistenceManager {
 
     @Override
     public void deleteRange(String partialKey) throws RepositoryException {
-        // XXX: very inefficient (HBase does not support range deletes)
-
-        // 1) do a range scan on the node table
+        // XXX: inefficient (HBase does not support range deletes)
+        // 1) do a range scan
         // 2) remove each matching row singly
-        // 3) do a range scan on the property table
-        // 4) remove each matching row singly
 
         // scan range (amounts to a prefix scan)
         byte[] startRow = Bytes.toBytes(partialKey);
@@ -256,27 +280,15 @@ public class HBasePersistenceManager implements PersistenceManager {
         stopRow[stopRow.length - 1]++;
 
         try {
-            // nodes
-            Scan nodeScan = new Scan();
-            nodeScan.addFamily(Constants.COLUMN_FAMILY);
-            nodeScan.setStartRow(startRow);
-            nodeScan.setStopRow(stopRow);
-            ResultScanner nodeScanner = nodeTable.getScanner(nodeScan);
-            for (Result result : nodeScanner) {
-                delete(createNewNodeState(result).getId());
+            Scan scan = new Scan();
+            scan.addFamily(Constants.ITEMS_CFNAME_DATA);
+            scan.setStartRow(startRow);
+            scan.setStopRow(stopRow);
+            ResultScanner scanner = items.getScanner(scan);
+            for (Result result : scanner) {
+                deleteItemRow(Bytes.toString(result.getRow()));
             }
-            nodeScanner.close();
-            // properties
-            Scan propertyScan = new Scan();
-            propertyScan.addFamily(Constants.COLUMN_FAMILY);
-            propertyScan.setStartRow(startRow);
-            propertyScan.setStopRow(stopRow);
-            ResultScanner propertyScanner = propertyTable
-                    .getScanner(propertyScan);
-            for (Result result : propertyScanner) {
-                delete(createNewPropertyState(result).getId());
-            }
-            propertyScanner.close();
+            scanner.close();
         } catch (Exception e) {
             throw new RepositoryException("Range delete failed", e);
         }
