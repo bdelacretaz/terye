@@ -104,36 +104,36 @@
         <scope>provided</scope>
     </dependency>
     <dependency>
-        <groupId>org.apache.sling</groupId>
-        <artifactId>org.apache.sling.jcr.api</artifactId>
-        <version>2.1.0</version>
-        <scope>provided</scope>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.jcr.api</artifactId>
+      <version>2.1.0</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-        <groupId>org.apache.sling</groupId>
-        <artifactId>org.apache.sling.jcr.base</artifactId>
-        <version>2.1.0</version>
-        <scope>provided</scope>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.jcr.base</artifactId>
+      <version>2.1.0</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- OSGi Libraries -->
     <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.core</artifactId>
-        <version>4.1.0</version>
-        <scope>provided</scope>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.1.0</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.compendium</artifactId>
-        <version>4.1.0</version>
-        <scope>provided</scope>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <version>4.1.0</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.apache.felix.scr.annotations</artifactId>
-        <version>1.7.0</version>
-        <scope>provided</scope>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.scr.annotations</artifactId>
+      <version>1.7.0</version>
+      <scope>provided</scope>
     </dependency>
     
     <dependency>
@@ -146,5 +146,33 @@
       <artifactId>hadoop-core</artifactId>
       <version>1.0.3</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.lilyproject</groupId>
+      <artifactId>lily-rowlog-api</artifactId>
+      <version>1.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.lilyproject</groupId>
+      <artifactId>lily-rowlog-impl</artifactId>
+      <version>1.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.lilyproject</groupId>
+      <artifactId>lily-rowlog-admin-cli</artifactId>
+      <version>1.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.lilyproject</groupId>
+      <artifactId>lily-rowlog-module</artifactId>
+      <version>1.3</version>
+    </dependency>
   </dependencies>
+  
+  <repositories>
+    <repository>
+      <id>lilyproject</id>
+      <url>http://lilyproject.org/maven/maven2/deploy</url>
+    </repository>
+  </repositories>
 </project>
