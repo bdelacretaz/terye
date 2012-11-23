@@ -43,7 +43,7 @@ public class ChangeLog {
     }
 
     public boolean isEmpty() {
-        return !(addedStates.isEmpty() && modifiedStates.isEmpty() && removedStates
+        return (addedStates.isEmpty() && modifiedStates.isEmpty() && removedStates
                 .isEmpty());
     }
 
