@@ -1,6 +1,6 @@
 # README for using the hbase Vagrant box
 
-Use the standard Vagrant commands (vagrant up / halt / ...) for running and stopping the box.
+This is a Vagrant box that runs an installation of HBase 0.94.2 on top of Hadoop 1.0.4 in pseudo-distributed mode. Use the standard Vagrant commands (vagrant up / halt / ...) for running and stopping the box.
 
 The virtual machine is assigned the following...
 * static address IP: 192.168.50.4
