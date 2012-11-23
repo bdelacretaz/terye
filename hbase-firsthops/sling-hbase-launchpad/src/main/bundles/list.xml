@@ -448,7 +448,7 @@
         </bundle>
         <bundle>
             <groupId>ch.x42.terye</groupId>
-            <artifactId>hbase-firsthops</artifactId>
+            <artifactId>sling-hbase-repository</artifactId>
             <version>1.0-SNAPSHOT</version>
         </bundle>
         <!--
