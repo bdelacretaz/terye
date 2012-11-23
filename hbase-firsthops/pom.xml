@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project 
+    xmlns="http://maven.apache.org/POM/4.0.0" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ch.x42.terye</groupId>
+    <artifactId>hbase-firsthops</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>hbase-firsthops</name>
+    <url>http://maven.apache.org</url>
+
+    <prerequisites>
+        <maven>3.0.3</maven>
+    </prerequisites>
+    
+    <modules>
+        <module>hbase-bundle</module>
+        <module>sling-hbase-repository</module>
+        <module>sling-hbase-launchpad</module>
+    </modules>
+
+</project>
