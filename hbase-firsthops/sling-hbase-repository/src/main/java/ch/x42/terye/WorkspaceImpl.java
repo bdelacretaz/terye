@@ -46,7 +46,7 @@ public class WorkspaceImpl implements Workspace {
         this.session = session;
         this.persistenceManager = HBasePersistenceManager.getInstance();
         this.queryManager = new QueryManagerImpl();
-        this.observationManager = new ObservationManagerImpl();
+        this.observationManager = new ObservationManagerImpl(session);
     }
 
     protected PersistenceManager getPersistenceManager() {

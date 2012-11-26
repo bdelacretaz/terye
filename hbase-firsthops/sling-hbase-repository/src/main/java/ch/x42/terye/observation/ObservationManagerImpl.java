@@ -1,25 +1,36 @@
 package ch.x42.terye.observation;
+
 import javax.jcr.RepositoryException;
 import javax.jcr.observation.EventJournal;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.EventListenerIterator;
 import javax.jcr.observation.ObservationManager;
 
+import ch.x42.terye.SessionImpl;
+
 public class ObservationManagerImpl implements ObservationManager {
+
+    private SessionImpl session;
+    private ObservationDispatcher dispatcher;
+
+    public ObservationManagerImpl(SessionImpl session) {
+        this.session = session;
+        this.dispatcher = new ObservationDispatcher();
+    }
 
     @Override
     public void addEventListener(EventListener listener, int eventTypes,
             String absPath, boolean isDeep, String[] uuid,
             String[] nodeTypeName, boolean noLocal) throws RepositoryException {
-        // TODO Auto-generated method stub
-
+        EventConsumer consumer = new EventConsumer(session, listener);
+        dispatcher.addConsumer(consumer);
     }
 
     @Override
     public void removeEventListener(EventListener listener)
             throws RepositoryException {
-        // TODO Auto-generated method stub
-
+        EventConsumer consumer = new EventConsumer(session, listener);
+        dispatcher.removeConsumer(consumer);
     }
 
     @Override
