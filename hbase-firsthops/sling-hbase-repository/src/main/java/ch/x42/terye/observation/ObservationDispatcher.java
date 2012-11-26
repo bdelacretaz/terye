@@ -1,5 +1,6 @@
 package ch.x42.terye.observation;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,18 +12,22 @@ public class ObservationDispatcher {
         this.consumers = new HashSet<EventConsumer>();
     }
 
-    protected synchronized void addConsumer(EventConsumer consumer) {
+    protected void addConsumer(EventConsumer consumer) {
         consumers.add(consumer);
     }
 
-    protected synchronized void removeConsumer(EventConsumer consumer) {
+    protected void removeConsumer(EventConsumer consumer) {
         consumers.remove(consumer);
     }
 
-    protected synchronized void dispatchEvents(EventCollection events) {
+    protected void dispatchEvents(EventCollection events) {
         for (EventConsumer consumer : consumers) {
             consumer.consume(events);
         }
+    }
+
+    protected Set<EventConsumer> getConsumers() {
+        return Collections.unmodifiableSet(consumers);
     }
 
 }

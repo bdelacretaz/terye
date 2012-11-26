@@ -40,8 +40,7 @@ public class ObservationManagerImpl implements ObservationManager {
     @Override
     public EventListenerIterator getRegisteredEventListeners()
             throws RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        return new EventListenerIteratorImpl(dispatcher.getConsumers());
     }
 
     @Override
