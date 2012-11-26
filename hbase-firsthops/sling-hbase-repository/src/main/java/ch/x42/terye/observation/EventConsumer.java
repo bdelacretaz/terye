@@ -14,6 +14,10 @@ public class EventConsumer {
         this.listener = listener;
     }
 
+    protected void consume(EventCollection events) {
+
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;

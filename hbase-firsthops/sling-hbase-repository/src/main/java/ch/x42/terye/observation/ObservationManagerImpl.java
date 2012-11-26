@@ -26,6 +26,10 @@ public class ObservationManagerImpl implements ObservationManager {
         dispatcher.addConsumer(consumer);
     }
 
+    public void dispatchEvents(EventCollection events) {
+        dispatcher.dispatchEvents(events);
+    }
+
     @Override
     public void removeEventListener(EventListener listener)
             throws RepositoryException {

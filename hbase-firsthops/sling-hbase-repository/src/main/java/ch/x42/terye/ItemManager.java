@@ -13,6 +13,8 @@ import javax.jcr.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.x42.terye.observation.EventCollection;
+import ch.x42.terye.observation.ObservationManagerImpl;
 import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
@@ -29,15 +31,18 @@ public class ItemManager {
 
     private SessionImpl session;
     private PersistenceManager persistenceManager;
+    private ObservationManagerImpl observationManager;
     private ChangeLog log;
     private Map<String, ItemImpl> cache;
     // stores paths of items that have been removed in this session
     private Set<String> removed = new HashSet<String>();
 
-    protected ItemManager(SessionImpl session) {
+    protected ItemManager(SessionImpl session,
+            ObservationManagerImpl observationManager) {
         this.session = session;
         this.persistenceManager = ((WorkspaceImpl) session.getWorkspace())
                 .getPersistenceManager();
+        this.observationManager = observationManager;
         this.log = new ChangeLog();
         this.cache = new HashMap<String, ItemImpl>();
     }
@@ -265,6 +270,7 @@ public class ItemManager {
 
     public void persistChanges() throws RepositoryException {
         persistenceManager.persist(log);
+        observationManager.dispatchEvents(new EventCollection(log));
         log.purge();
     }
 

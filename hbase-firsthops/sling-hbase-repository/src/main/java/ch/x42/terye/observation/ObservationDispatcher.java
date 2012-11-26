@@ -19,4 +19,10 @@ public class ObservationDispatcher {
         consumers.remove(consumer);
     }
 
+    protected synchronized void dispatchEvents(EventCollection events) {
+        for (EventConsumer consumer : consumers) {
+            consumer.consume(events);
+        }
+    }
+
 }

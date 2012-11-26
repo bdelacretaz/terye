@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import ch.x42.terye.observation.ObservationManagerImpl;
 import ch.x42.terye.value.ValueFactoryImpl;
 
 public class SessionImpl implements Session {
@@ -52,14 +53,16 @@ public class SessionImpl implements Session {
             throws RepositoryException {
         this.repository = repository;
         workspace = new WorkspaceImpl(workspaceName, this);
-        itemManager = new ItemManager(this);
+        itemManager = new ItemManager(this,
+                (ObservationManagerImpl) workspace.getObservationManager());
         valueFactory = new ValueFactoryImpl();
         logger.debug("Session created for workspace {}", workspaceName);
     }
 
     protected void check() throws RepositoryException {
         if (!isLive()) {
-            throw new RepositoryException("The associated session has been closed");
+            throw new RepositoryException(
+                    "The associated session has been closed");
         }
     }
 
