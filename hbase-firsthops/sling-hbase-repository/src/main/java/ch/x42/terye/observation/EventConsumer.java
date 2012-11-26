@@ -15,7 +15,7 @@ public class EventConsumer {
     }
 
     protected void consume(EventCollection events) {
-
+        listener.onEvent(new EventIteratorImpl(events));
     }
 
     @Override
