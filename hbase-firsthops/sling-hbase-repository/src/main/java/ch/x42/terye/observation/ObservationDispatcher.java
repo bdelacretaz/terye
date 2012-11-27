@@ -16,21 +16,27 @@ public class ObservationDispatcher implements Runnable {
     private Thread thread;
     private BlockingQueue<EventCollection> queue;
     private Set<EventConsumer> consumers;
+    private Object lock;
 
     protected ObservationDispatcher() {
         thread = new Thread(this, "ObservationManager");
         thread.setDaemon(true);
         queue = new LinkedBlockingQueue<EventCollection>();
         consumers = new HashSet<EventConsumer>();
+        lock = new Object();
         thread.start();
     }
 
     protected void addConsumer(EventConsumer consumer) {
-        consumers.add(consumer);
+        synchronized (lock) {
+            consumers.add(consumer);
+        }
     }
 
     protected void removeConsumer(EventConsumer consumer) {
-        consumers.remove(consumer);
+        synchronized (lock) {
+            consumers.remove(consumer);
+        }
     }
 
     protected void dispatchEvents(EventCollection events) {
@@ -50,11 +56,14 @@ public class ObservationDispatcher implements Runnable {
         while (true) {
             try {
                 EventCollection events = queue.take();
-                for (EventConsumer consumer : consumers) {
-                    try {
-                        consumer.consume(events);
-                    } catch (Throwable e) {
-                        logger.warn("Consumer threw an exception");
+                // XXX: improve
+                synchronized (lock) {
+                    for (EventConsumer consumer : consumers) {
+                        try {
+                            consumer.consume(events);
+                        } catch (Throwable e) {
+                            logger.warn("Consumer threw an exception");
+                        }
                     }
                 }
             } catch (InterruptedException e) {
@@ -62,5 +71,4 @@ public class ObservationDispatcher implements Runnable {
             }
         }
     }
-
 }
