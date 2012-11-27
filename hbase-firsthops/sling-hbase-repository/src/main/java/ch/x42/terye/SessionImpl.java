@@ -77,8 +77,7 @@ public class SessionImpl implements Session {
 
     @Override
     public String getUserID() {
-        // TODO Auto-generated method stub
-        return null;
+        return "anonymous";
     }
 
     @Override

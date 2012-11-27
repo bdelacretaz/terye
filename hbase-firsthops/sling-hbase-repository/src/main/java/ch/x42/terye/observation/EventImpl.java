@@ -40,8 +40,7 @@ public class EventImpl implements Event {
 
     @Override
     public String getUserID() {
-        // TODO Auto-generated method stub
-        return null;
+        return session.getUserID();
     }
 
     @Override

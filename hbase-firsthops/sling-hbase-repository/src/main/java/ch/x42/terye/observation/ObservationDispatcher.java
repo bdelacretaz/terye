@@ -62,7 +62,7 @@ public class ObservationDispatcher implements Runnable {
                         try {
                             consumer.consume(events);
                         } catch (Throwable e) {
-                            logger.warn("Consumer threw an exception");
+                            logger.warn("Consumer threw an exception: {}", e);
                         }
                     }
                 }

@@ -2,9 +2,14 @@ package ch.x42.terye.observation;
 
 import javax.jcr.observation.EventListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.x42.terye.SessionImpl;
 
 public class EventConsumer {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private SessionImpl session;
     private EventListener listener;
@@ -18,6 +23,7 @@ public class EventConsumer {
     }
 
     protected void consume(EventCollection events) {
+        logger.debug("Calling listener {}", listener.getClass());
         listener.onEvent(new FilteredEventIterator(events, filter));
     }
 
