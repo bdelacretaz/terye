@@ -194,6 +194,7 @@ public class SessionImpl implements Session {
     @Override
     public void refresh(boolean keepChanges) throws RepositoryException {
         logger.debug("refresh({})", keepChanges);
+        getItemManager().refresh();
     }
 
     @Override

@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import ch.x42.terye.iterator.NodeIteratorImpl;
 import ch.x42.terye.iterator.PropertyIteratorImpl;
 import ch.x42.terye.nodetype.NodeTypeImpl;
+import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.id.ItemId;
 import ch.x42.terye.persistence.id.NodeId;
@@ -57,9 +58,17 @@ public class NodeImpl extends ItemImpl implements Node {
 
     private NodeTypeImpl primaryType;
 
-    public NodeImpl(SessionImpl session, NodeState state) {
+    public NodeImpl(SessionImpl session, NodeState state)
+            throws RepositoryException {
         super(session, state);
-        primaryType = new NodeTypeImpl(state.getNodeTypeName());
+        setState(state);
+    }
+
+    @Override
+    protected void setState(ItemState state) throws RepositoryException {
+        super.setState(state);
+        NodeState nodeState = (NodeState) state;
+        primaryType = new NodeTypeImpl(nodeState.getNodeTypeName());
     }
 
     protected void addChild(ItemImpl child) throws RepositoryException {

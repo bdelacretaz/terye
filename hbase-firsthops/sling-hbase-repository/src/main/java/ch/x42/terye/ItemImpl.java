@@ -43,6 +43,10 @@ public class ItemImpl implements Item {
         }
     }
 
+    protected void setState(ItemState state) throws RepositoryException {
+        this.state = state;
+    }
+
     @Override
     public void accept(ItemVisitor visitor) throws RepositoryException {
         // TODO Auto-generated method stub

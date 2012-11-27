@@ -274,6 +274,22 @@ public class ItemManager {
         log.purge();
     }
 
+    public void refresh() throws RepositoryException {
+        Set<ItemImpl> toRemove = new HashSet<ItemImpl>();
+        for (ItemImpl item : cache.values()) {
+            if (!isMarkedRemoved(item.getId())) {
+                ItemState state = persistenceManager.loadItem(item.getId());
+                if (state == null) {
+                    toRemove.add(item);
+                } else {
+                    item.setState(state);
+                }
+            }
+        }
+        // remove items that don't exist anymore
+        // XXX: implement
+    }
+
     public boolean hasPendingChanges() {
         return !log.isEmpty();
     }

@@ -16,6 +16,7 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
+import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.PropertyState;
 import ch.x42.terye.persistence.id.PropertyId;
 import ch.x42.terye.value.ValueFactoryImpl;
@@ -42,8 +43,15 @@ public class PropertyImpl extends ItemImpl implements Property {
             throws RepositoryException {
         // TODO: validate name
         super(session, state);
-        this.value = ((ValueFactoryImpl) session.getValueFactory())
-                .createValue(state.getType(), state.getBytes());
+        setState(state);
+    }
+
+    @Override
+    protected void setState(ItemState state) throws RepositoryException {
+        super.setState(state);
+        PropertyState propertyState = (PropertyState) state;
+        this.value = ((ValueFactoryImpl) getSession().getValueFactory())
+                .createValue(propertyState.getType(), propertyState.getBytes());
     }
 
     public void setValueInternal(ValueImpl value) throws RepositoryException {
