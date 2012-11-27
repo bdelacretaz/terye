@@ -8,14 +8,17 @@ public class EventConsumer {
 
     private SessionImpl session;
     private EventListener listener;
+    private EventFilter filter;
 
-    protected EventConsumer(SessionImpl session, EventListener listener) {
+    protected EventConsumer(SessionImpl session, EventListener listener,
+            EventFilter filter) {
         this.session = session;
         this.listener = listener;
+        this.filter = filter;
     }
 
     protected void consume(EventCollection events) {
-        listener.onEvent(new EventIteratorImpl(events));
+        listener.onEvent(new FilteredEventIterator(events, filter));
     }
 
     protected EventListener getEventListener() {

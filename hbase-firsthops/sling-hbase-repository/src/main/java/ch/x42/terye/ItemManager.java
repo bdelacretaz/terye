@@ -270,7 +270,7 @@ public class ItemManager {
 
     public void persistChanges() throws RepositoryException {
         persistenceManager.persist(log);
-        observationManager.dispatchEvents(new EventCollection(log));
+        observationManager.dispatchEvents(new EventCollection(log, session));
         log.purge();
     }
 

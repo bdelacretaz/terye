@@ -6,18 +6,22 @@ import java.util.Map;
 import javax.jcr.RepositoryException;
 import javax.jcr.observation.Event;
 
+import ch.x42.terye.SessionImpl;
+
 public class EventImpl implements Event {
 
     private int type;
     private long date;
     private String path;
     private Map<String, String> info;
+    private SessionImpl session;
 
-    protected EventImpl(int type, long date, String path) {
+    protected EventImpl(int type, long date, String path, SessionImpl session) {
         this.type = type;
         this.date = date;
         this.path = path;
         this.info = new HashMap<String, String>();
+        this.session = session;
     }
 
     @Override
@@ -28,6 +32,10 @@ public class EventImpl implements Event {
     @Override
     public String getPath() throws RepositoryException {
         return path;
+    }
+    
+    protected SessionImpl getSession() {
+        return session;
     }
 
     @Override

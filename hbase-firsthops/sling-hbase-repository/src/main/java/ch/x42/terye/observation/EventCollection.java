@@ -6,14 +6,17 @@ import java.util.List;
 
 import javax.jcr.observation.Event;
 
+import ch.x42.terye.SessionImpl;
 import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ItemState;
 
 public class EventCollection {
 
+    private SessionImpl session;
     private List<EventImpl> events;
 
-    public EventCollection(ChangeLog log) {
+    public EventCollection(ChangeLog log, SessionImpl session) {
+        this.session = session;
         createEvents(log);
     }
 
@@ -27,12 +30,12 @@ public class EventCollection {
                 type = Event.PROPERTY_ADDED;
             }
             events.add(new EventImpl(type, System.currentTimeMillis(), state
-                    .getPath()));
+                    .getPath(), session));
         }
         for (ItemState state : log.getModifiedStates()) {
             if (!state.isNode()) {
                 events.add(new EventImpl(Event.PROPERTY_CHANGED, System
-                        .currentTimeMillis(), state.getPath()));
+                        .currentTimeMillis(), state.getPath(), session));
             }
         }
         for (ItemState state : log.getRemovedStates()) {
@@ -43,7 +46,7 @@ public class EventCollection {
                 type = Event.PROPERTY_REMOVED;
             }
             events.add(new EventImpl(type, System.currentTimeMillis(), state
-                    .getPath()));
+                    .getPath(), session));
         }
     }
 

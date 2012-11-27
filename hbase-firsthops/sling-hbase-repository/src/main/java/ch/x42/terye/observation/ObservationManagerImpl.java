@@ -22,7 +22,9 @@ public class ObservationManagerImpl implements ObservationManager {
     public void addEventListener(EventListener listener, int eventTypes,
             String absPath, boolean isDeep, String[] uuid,
             String[] nodeTypeName, boolean noLocal) throws RepositoryException {
-        EventConsumer consumer = new EventConsumer(session, listener);
+        EventFilter filter = new EventFilter(eventTypes, absPath, isDeep, uuid,
+                nodeTypeName, noLocal, session);
+        EventConsumer consumer = new EventConsumer(session, listener, filter);
         dispatcher.addConsumer(consumer);
     }
 
@@ -33,7 +35,7 @@ public class ObservationManagerImpl implements ObservationManager {
     @Override
     public void removeEventListener(EventListener listener)
             throws RepositoryException {
-        EventConsumer consumer = new EventConsumer(session, listener);
+        EventConsumer consumer = new EventConsumer(session, listener, null);
         dispatcher.removeConsumer(consumer);
     }
 
