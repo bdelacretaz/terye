@@ -18,7 +18,7 @@ public class ObservationDispatcher implements Runnable {
     private Set<EventConsumer> consumers;
     private Object lock;
 
-    protected ObservationDispatcher() {
+    public ObservationDispatcher() {
         thread = new Thread(this, "ObservationManager");
         thread.setDaemon(true);
         queue = new LinkedBlockingQueue<EventCollection>();
@@ -56,7 +56,7 @@ public class ObservationDispatcher implements Runnable {
         while (true) {
             try {
                 EventCollection events = queue.take();
-                // XXX: improve
+                // XXX: don't lock during whole notification process?
                 synchronized (lock) {
                     for (EventConsumer consumer : consumers) {
                         try {

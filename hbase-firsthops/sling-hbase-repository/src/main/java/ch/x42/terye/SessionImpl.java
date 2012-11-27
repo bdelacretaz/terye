@@ -49,14 +49,14 @@ public class SessionImpl implements Session {
     private ValueFactoryImpl valueFactory;
     private boolean live = true;
 
-    public SessionImpl(RepositoryImpl repository, String workspaceName)
+    public SessionImpl(RepositoryImpl repository, WorkspaceContext wsContext)
             throws RepositoryException {
         this.repository = repository;
-        workspace = new WorkspaceImpl(workspaceName, this);
+        workspace = new WorkspaceImpl(wsContext, this);
         itemManager = new ItemManager(this,
                 (ObservationManagerImpl) workspace.getObservationManager());
         valueFactory = new ValueFactoryImpl();
-        logger.debug("Session created for workspace {}", workspaceName);
+        logger.debug("Session created for workspace {}", workspace.getName());
     }
 
     protected void check() throws RepositoryException {

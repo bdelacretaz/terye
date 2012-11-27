@@ -1,5 +1,8 @@
 package ch.x42.terye;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
@@ -13,7 +16,20 @@ import org.slf4j.LoggerFactory;
 
 public class RepositoryImpl implements Repository {
 
+    private static final String DEFAULT_WORKSPACE = "default";
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private Map<String, WorkspaceContext> wsContexts = new HashMap<String, WorkspaceContext>();
+
+    private void createWorkspaceContext(String name) throws RepositoryException {
+        WorkspaceContext wsContext = new WorkspaceContext(name);
+        wsContexts.put(name, wsContext);
+    }
+
+    private WorkspaceContext getWorkspaceContext(String name) {
+        return wsContexts.get(name);
+    }
 
     @Override
     public String[] getDescriptorKeys() {
@@ -54,8 +70,18 @@ public class RepositoryImpl implements Repository {
     public Session login(Credentials credentials, String workspaceName)
             throws LoginException, NoSuchWorkspaceException,
             RepositoryException {
-        logger.debug("login()");
-        return new SessionImpl(this, "default");
+        if (workspaceName == null) {
+            workspaceName = RepositoryImpl.DEFAULT_WORKSPACE;
+        }
+        WorkspaceContext wsContext;
+        synchronized (wsContexts) {
+            if (!wsContexts.containsKey(workspaceName)) {
+                createWorkspaceContext(workspaceName);
+            }
+            wsContext = getWorkspaceContext(workspaceName);
+        }
+        logger.debug("login(" + workspaceName + ")");
+        return new SessionImpl(this, wsContext);
     }
 
     @Override

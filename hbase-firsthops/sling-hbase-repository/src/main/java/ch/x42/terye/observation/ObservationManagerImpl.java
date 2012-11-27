@@ -13,9 +13,10 @@ public class ObservationManagerImpl implements ObservationManager {
     private SessionImpl session;
     private ObservationDispatcher dispatcher;
 
-    public ObservationManagerImpl(SessionImpl session) {
+    public ObservationManagerImpl(SessionImpl session,
+            ObservationDispatcher dispatcher) {
         this.session = session;
-        this.dispatcher = new ObservationDispatcher();
+        this.dispatcher = dispatcher;
     }
 
     @Override

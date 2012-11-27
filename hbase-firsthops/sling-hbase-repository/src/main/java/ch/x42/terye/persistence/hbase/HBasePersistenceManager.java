@@ -34,12 +34,11 @@ import ch.x42.terye.persistence.id.PropertyId;
 
 public class HBasePersistenceManager implements PersistenceManager {
 
-    private static HBasePersistenceManager instance;
     private Configuration config;
     private HBaseAdmin admin;
     private HTable items;
 
-    private HBasePersistenceManager() throws RepositoryException {
+    public HBasePersistenceManager() throws RepositoryException {
         ClassLoader ocl = Thread.currentThread().getContextClassLoader();
         try {
             // temporarily switch context class loader (needed so that
@@ -58,14 +57,6 @@ public class HBasePersistenceManager implements PersistenceManager {
             Thread.currentThread().setContextClassLoader(ocl);
         }
 
-    }
-
-    public static synchronized HBasePersistenceManager getInstance()
-            throws RepositoryException {
-        if (instance == null) {
-            instance = new HBasePersistenceManager();
-        }
-        return instance;
     }
 
     private HTable getOrCreateTable(String tableName) throws IOException {
@@ -135,7 +126,8 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public ItemState loadItem(ItemId id) throws RepositoryException {
+    public synchronized ItemState loadItem(ItemId id)
+            throws RepositoryException {
         if (id.denotesNode()) {
             return loadNode((NodeId) id);
         } else {
@@ -144,7 +136,8 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public NodeState loadNode(NodeId id) throws RepositoryException {
+    public synchronized NodeState loadNode(NodeId id)
+            throws RepositoryException {
         try {
             SingleColumnValueFilter filter = new SingleColumnValueFilter(
                     Constants.ITEMS_CFNAME_DATA,
@@ -161,7 +154,8 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public PropertyState loadProperty(PropertyId id) throws RepositoryException {
+    public synchronized PropertyState loadProperty(PropertyId id)
+            throws RepositoryException {
         try {
             SingleColumnValueFilter filter = new SingleColumnValueFilter(
                     Constants.ITEMS_CFNAME_DATA,
@@ -178,7 +172,7 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public void store(ItemState state) throws RepositoryException {
+    public synchronized void store(ItemState state) throws RepositoryException {
         if (state.isNode()) {
             store((NodeState) state);
         } else {
@@ -187,7 +181,7 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public void store(NodeState state) throws RepositoryException {
+    public synchronized void store(NodeState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
         // item type
         put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_ITEMTYPE,
@@ -217,7 +211,8 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public void store(PropertyState state) throws RepositoryException {
+    public synchronized void store(PropertyState state)
+            throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
         // item type
         put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_ITEMTYPE,
@@ -238,7 +233,7 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public void delete(ItemId id) throws RepositoryException {
+    public synchronized void delete(ItemId id) throws RepositoryException {
         if (id.denotesNode()) {
             delete((NodeId) id);
         } else {
@@ -247,7 +242,7 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public void delete(NodeId id) throws RepositoryException {
+    public synchronized void delete(NodeId id) throws RepositoryException {
         try {
             // XXX: make sure we really delete a node
             deleteItemRow(id.toString());
@@ -257,7 +252,7 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public void delete(PropertyId id) throws RepositoryException {
+    public synchronized void delete(PropertyId id) throws RepositoryException {
         try {
             // XXX: make sure we really delete a property
             deleteItemRow(id.toString());
@@ -267,7 +262,8 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public void deleteRange(String partialKey) throws RepositoryException {
+    public synchronized void deleteRange(String partialKey)
+            throws RepositoryException {
         // XXX: inefficient (HBase does not support range deletes)
         // 1) do a range scan
         // 2) remove each matching row singly
@@ -293,7 +289,7 @@ public class HBasePersistenceManager implements PersistenceManager {
     }
 
     @Override
-    public void persist(ChangeLog log) throws RepositoryException {
+    public synchronized void persist(ChangeLog log) throws RepositoryException {
         // XXX: batch processing
         try {
             // add new states

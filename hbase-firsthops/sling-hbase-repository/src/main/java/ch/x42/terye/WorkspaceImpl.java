@@ -29,28 +29,26 @@ import org.xml.sax.ContentHandler;
 import ch.x42.terye.nodetype.NodeTypeManagerImpl;
 import ch.x42.terye.observation.ObservationManagerImpl;
 import ch.x42.terye.persistence.PersistenceManager;
-import ch.x42.terye.persistence.hbase.HBasePersistenceManager;
 import ch.x42.terye.query.QueryManagerImpl;
 
 public class WorkspaceImpl implements Workspace {
 
-    private final String name;
+    private final WorkspaceContext context;
     private final SessionImpl session;
-    private final PersistenceManager persistenceManager;
     private final QueryManager queryManager;
     private final ObservationManagerImpl observationManager;
 
-    public WorkspaceImpl(String name, SessionImpl session)
+    public WorkspaceImpl(WorkspaceContext context, SessionImpl session)
             throws RepositoryException {
-        this.name = name;
+        this.context = context;
         this.session = session;
-        this.persistenceManager = HBasePersistenceManager.getInstance();
         this.queryManager = new QueryManagerImpl();
-        this.observationManager = new ObservationManagerImpl(session);
+        this.observationManager = new ObservationManagerImpl(session,
+                context.getObservationDispatcher());
     }
 
     protected PersistenceManager getPersistenceManager() {
-        return persistenceManager;
+        return context.getPersistenceManager();
     }
 
     @Override
@@ -60,7 +58,7 @@ public class WorkspaceImpl implements Workspace {
 
     @Override
     public String getName() {
-        return name;
+        return context.getName();
     }
 
     @Override
