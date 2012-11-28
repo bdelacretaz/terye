@@ -18,6 +18,8 @@ import javax.jcr.version.VersionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.x42.terye.path.Path;
+import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.id.ItemId;
 
@@ -77,16 +79,16 @@ public class ItemImpl implements Item {
     @Override
     public String getName() throws RepositoryException {
         sanityCheck();
-        return new Path(getPath()).getLastSegment();
+        return PathFactory.create(getPath()).getLastElement();
     }
 
     @Override
     public Node getParent() throws ItemNotFoundException,
             AccessDeniedException, RepositoryException {
         sanityCheck();
-        Path path = new Path(getPath());
+        Path path = PathFactory.create(getPath());
         if (path.getParent() == null) {
-            throw new ItemNotFoundException("The root node has no parent.");
+            throw new ItemNotFoundException("The root node has no parent");
         }
         return getItemManager().getNode(path.getParent());
     }

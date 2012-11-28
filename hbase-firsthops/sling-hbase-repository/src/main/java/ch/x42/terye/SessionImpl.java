@@ -37,6 +37,8 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 import ch.x42.terye.observation.ObservationManagerImpl;
+import ch.x42.terye.path.Path;
+import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.value.ValueFactoryImpl;
 
 public class SessionImpl implements Session {
@@ -99,7 +101,7 @@ public class SessionImpl implements Session {
 
     @Override
     public Node getRootNode() throws RepositoryException {
-        Path root = new Path("/");
+        Path root = PathFactory.create("/");
         try {
             return getItemManager().getNode(root);
         } catch (PathNotFoundException e) {
@@ -131,27 +133,27 @@ public class SessionImpl implements Session {
     @Override
     public Item getItem(String absPath) throws PathNotFoundException,
             RepositoryException {
-        Path path = new Path(absPath).getCanonical();
+        Path path = PathFactory.create(absPath);
         return getItemManager().getItem(path);
     }
 
     @Override
     public Node getNode(String absPath) throws PathNotFoundException,
             RepositoryException {
-        Path path = new Path(absPath).getCanonical();
+        Path path = PathFactory.create(absPath);
         return getItemManager().getNode(path);
     }
 
     @Override
     public Property getProperty(String absPath) throws PathNotFoundException,
             RepositoryException {
-        Path path = new Path(absPath).getCanonical();
+        Path path = PathFactory.create(absPath);
         return getItemManager().getProperty(path);
     }
 
     @Override
     public boolean itemExists(String absPath) throws RepositoryException {
-        Path path = new Path(absPath).getCanonical();
+        Path path = PathFactory.create(absPath);
         return getItemManager().itemExists(path);
     }
 
@@ -178,7 +180,7 @@ public class SessionImpl implements Session {
     public void removeItem(String absPath) throws VersionException,
             LockException, ConstraintViolationException, AccessDeniedException,
             RepositoryException {
-        Path path = new Path(absPath).getCanonical();
+        Path path = PathFactory.create(absPath);
         getItemManager().removeItem(path);
     }
 

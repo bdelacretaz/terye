@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.x42.terye.observation.EventCollection;
 import ch.x42.terye.observation.ObservationManagerImpl;
+import ch.x42.terye.path.Path;
 import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
@@ -146,12 +147,12 @@ public class ItemManager {
 
     public NodeImpl getNode(Path path) throws PathNotFoundException,
             RepositoryException {
-        NodeId id = new NodeId(path.getCanonical().toString());
+        NodeId id = new NodeId(path.getCanonicalPath().toString());
         return (NodeImpl) getItem(id);
     }
 
     public PropertyImpl getProperty(Path path) throws RepositoryException {
-        PropertyId id = new PropertyId(path.getCanonical().toString());
+        PropertyId id = new PropertyId(path.getCanonicalPath().toString());
         return (PropertyImpl) getItem(id);
     }
 
@@ -193,7 +194,7 @@ public class ItemManager {
         }
 
         // create new node
-        NodeId id = new NodeId(path.getCanonical().toString());
+        NodeId id = new NodeId(path.getCanonicalPath().toString());
         NodeState state = new NodeState(id, primaryNodeTypeName);
         NodeImpl node = (NodeImpl) createNewInstance(state);
         putToCache(node);
@@ -224,7 +225,7 @@ public class ItemManager {
         }
 
         // create new property
-        PropertyId id = new PropertyId(path.getCanonical().toString());
+        PropertyId id = new PropertyId(path.getCanonicalPath().toString());
         PropertyState state = new PropertyState(id, value);
         PropertyImpl property = new PropertyImpl(session, state, value);
         putToCache(property);

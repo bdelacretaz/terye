@@ -45,6 +45,8 @@ import org.slf4j.LoggerFactory;
 import ch.x42.terye.iterator.NodeIteratorImpl;
 import ch.x42.terye.iterator.PropertyIteratorImpl;
 import ch.x42.terye.nodetype.NodeTypeImpl;
+import ch.x42.terye.path.Path;
+import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
 import ch.x42.terye.persistence.id.ItemId;
@@ -107,9 +109,8 @@ public class NodeImpl extends ItemImpl implements Node {
             throws ItemExistsException, PathNotFoundException,
             NoSuchNodeTypeException, LockException, VersionException,
             ConstraintViolationException, RepositoryException {
-        Path absPath = new Path(getPath()).concat(relPath);
-        NodeImpl node = getItemManager().createNode(absPath,
-                primaryNodeTypeName);
+        Path path = PathFactory.create(getPath(), relPath);
+        NodeImpl node = getItemManager().createNode(path, primaryNodeTypeName);
         sanityCheck();
         // XXX: temporary
         // add jcr:created to all nodes in order to prevent Sling from throwing
@@ -227,8 +228,8 @@ public class NodeImpl extends ItemImpl implements Node {
             RepositoryException {
         logger.debug("[{}].getNode({})", getPath(), relPath);
         sanityCheck();
-        Path absPath = new Path(getPath()).concat(relPath);
-        return getItemManager().getNode(absPath);
+        Path path = PathFactory.create(getPath(), relPath);
+        return getItemManager().getNode(path);
     }
 
     @Override
@@ -270,10 +271,10 @@ public class NodeImpl extends ItemImpl implements Node {
         Iterator<? extends ItemId> iterator = items.iterator();
         while (iterator.hasNext()) {
             ItemId id = iterator.next();
-            Path path = new Path(id.toString());
+            Path path = PathFactory.create(id.toString());
             for (String nameGlob : nameGlobs) {
                 // XXX: simplistic matching (ignoring wildcard)
-                if (path.getLastSegment().matches(nameGlob)) {
+                if (path.getLastElement().matches(nameGlob)) {
                     filteredItems.add(id);
                     break;
                 }
@@ -326,8 +327,8 @@ public class NodeImpl extends ItemImpl implements Node {
             RepositoryException {
         logger.debug("[{}].getProperty({})", getPath(), relPath);
         sanityCheck();
-        Path absPath = new Path(getPath()).concat(relPath);
-        return getItemManager().getProperty(absPath);
+        Path path = PathFactory.create(getPath(), relPath);
+        return getItemManager().getProperty(path);
     }
 
     @Override
@@ -384,8 +385,8 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public boolean hasNode(String relPath) throws RepositoryException {
         sanityCheck();
-        Path absPath = new Path(getPath()).concat(relPath);
-        return getItemManager().nodeExists(absPath);
+        Path path = PathFactory.create(getPath(), relPath);
+        return getItemManager().nodeExists(path);
     }
 
     @Override
@@ -403,8 +404,8 @@ public class NodeImpl extends ItemImpl implements Node {
     @Override
     public boolean hasProperty(String relPath) throws RepositoryException {
         sanityCheck();
-        Path absPath = new Path(getPath()).concat(relPath);
-        return getItemManager().propertyExists(absPath);
+        Path path = PathFactory.create(getPath(), relPath);
+        return getItemManager().propertyExists(path);
     }
 
     @Override
@@ -552,7 +553,7 @@ public class NodeImpl extends ItemImpl implements Node {
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
         sanityCheck();
-        Path path = new Path(getPath()).concat(name);
+        Path path = PathFactory.create(getPath(), name);
         PropertyImpl property = null;
         // setting a value to null amounts to removing it
         if (value == null) {

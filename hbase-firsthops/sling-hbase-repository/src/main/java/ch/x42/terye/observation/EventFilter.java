@@ -2,8 +2,9 @@ package ch.x42.terye.observation;
 
 import javax.jcr.RepositoryException;
 
-import ch.x42.terye.Path;
 import ch.x42.terye.SessionImpl;
+import ch.x42.terye.path.Path;
+import ch.x42.terye.path.PathFactory;
 
 public class EventFilter {
 
@@ -19,7 +20,7 @@ public class EventFilter {
             String[] ids, String[] nodeTypeNames, boolean noLocal,
             SessionImpl session) throws RepositoryException {
         this.eventTypes = eventTypes;
-        this.absPath = new Path(absPath);
+        this.absPath = PathFactory.create(absPath);
         if (this.absPath.isRelative()) {
             throw new RepositoryException("Path must be absolute");
         }
