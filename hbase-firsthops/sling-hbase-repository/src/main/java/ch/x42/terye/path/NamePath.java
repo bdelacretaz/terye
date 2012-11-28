@@ -8,7 +8,7 @@ import javax.jcr.RepositoryException;
  */
 public final class NamePath extends AbstractPath {
 
-    public NamePath(Path parent, String name) {
+    NamePath(Path parent, String name) {
         super(parent, name);
     }
 

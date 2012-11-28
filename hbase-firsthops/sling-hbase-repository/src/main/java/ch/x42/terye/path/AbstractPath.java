@@ -10,7 +10,7 @@ public abstract class AbstractPath implements Path {
     private final int length;
     private String pathString;
 
-    public AbstractPath(Path parent, String name) {
+    AbstractPath(Path parent, String name) {
         this.parent = parent;
         this.name = name;
         int depth = 0;

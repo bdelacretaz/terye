@@ -8,7 +8,7 @@ import javax.jcr.RepositoryException;
  */
 public final class CurrentPath extends AbstractPath {
 
-    public CurrentPath(Path parent) {
+    CurrentPath(Path parent) {
         super(parent, Path.CURRENT);
     }
 
