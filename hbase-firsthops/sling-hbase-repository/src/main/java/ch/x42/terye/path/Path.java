@@ -25,6 +25,11 @@ public interface Path {
     int getDepth();
 
     /**
+     * Returns the length (number of elements) of the path.
+     */
+    int getLength();
+
+    /**
      * Returns the ancestor ('degree' steps up) of the normalized path.
      */
     Path getAncestor(int degree) throws RepositoryException;
@@ -34,6 +39,10 @@ public interface Path {
     Path getNormalizedPath() throws RepositoryException;
 
     Path getCanonicalPath() throws RepositoryException;
+
+    Path resolve(Path relative);
+
+    Path resolve(String element);
 
     boolean isEquivalentTo(Path path) throws RepositoryException;
 

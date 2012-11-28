@@ -7,6 +7,7 @@ public abstract class AbstractPath implements Path {
     private final Path parent;
     private final String name;
     private final int depth;
+    private final int length;
     private String pathString;
 
     public AbstractPath(Path parent, String name) {
@@ -17,6 +18,11 @@ public abstract class AbstractPath implements Path {
             depth += parent.getDepth();
         }
         this.depth = depth + getDepthIncrease();
+        int length = 0;
+        if (parent != null) {
+            length += parent.getLength();
+        }
+        this.length = length + 1;
     }
 
     @Override
@@ -52,6 +58,11 @@ public abstract class AbstractPath implements Path {
     }
 
     @Override
+    public int getLength() {
+        return length;
+    }
+
+    @Override
     public Path getAncestor(int degree) throws RepositoryException {
         if (degree < 0) {
             throw new IllegalArgumentException(
@@ -78,6 +89,32 @@ public abstract class AbstractPath implements Path {
                     "Cannot make a relative path canonical");
         }
         return getNormalizedPath();
+    }
+
+    @Override
+    public Path resolve(Path relative) {
+        if (relative.isAbsolute()) {
+            throw new IllegalArgumentException("Argument must be relative");
+        }
+        String last = relative.getLastElement();
+        Path path = this;
+        if (relative.getLength() > 1) {
+            Path parent = relative.getParent();
+            path = resolve(parent);
+        }
+        return path.resolve(last);
+    }
+
+    @Override
+    public Path resolve(String element) {
+        // XXX: validate element
+        if (Path.CURRENT.equals(element)) {
+            return new CurrentPath(this);
+        } else if (Path.PARENT.equals(element)) {
+            return new ParentPath(this);
+        } else {
+            return new NamePath(this, element);
+        }
     }
 
     @Override
