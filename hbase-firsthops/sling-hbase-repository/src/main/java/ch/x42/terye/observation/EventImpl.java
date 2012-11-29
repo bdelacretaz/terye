@@ -94,7 +94,7 @@ public class EventImpl implements Event {
                 str += "PROPERTY_ADDED";
                 break;
             case Event.PROPERTY_CHANGED:
-                str += "PROPERTY_ADDED";
+                str += "PROPERTY_CHANGED";
                 break;
             case Event.PROPERTY_REMOVED:
                 str += "PROPERTY_REMOVED";

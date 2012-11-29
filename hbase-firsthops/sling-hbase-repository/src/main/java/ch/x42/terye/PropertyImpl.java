@@ -16,6 +16,8 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
+import ch.x42.terye.path.Path;
+import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.PropertyState;
 import ch.x42.terye.persistence.id.PropertyId;
@@ -46,6 +48,11 @@ public class PropertyImpl extends ItemImpl implements Property {
         setState(state);
     }
 
+    public void setValue(ValueImpl value) {
+        this.value = value;
+        this.state = new PropertyState(getId(), getParentId(), value);
+    }
+
     @Override
     protected void setState(ItemState state) throws RepositoryException {
         super.setState(state);
@@ -54,11 +61,20 @@ public class PropertyImpl extends ItemImpl implements Property {
                 .createValue(propertyState.getType(), propertyState.getBytes());
     }
 
-    public void setValueInternal(ValueImpl value) throws RepositoryException {
+    private void setValueInternal(ValueImpl value) throws RepositoryException {
         sanityCheck();
-        this.value = value;
-        this.state = new PropertyState(getId(), getParentId(), value);
-        getItemManager().propertyUpdated(this);
+        Path path = PathFactory.create(getPath());
+        // setting a value to null amounts to removing it
+        if (value == null) {
+            try {
+                getItemManager().removeItem(path);
+            } catch (RepositoryException e) {
+                // property might not exist, in which case we catch a
+                // PathNotFoundException and do nothing
+            }
+        } else {
+            getItemManager().updateProperty(path, value);
+        }
     }
 
     @Override

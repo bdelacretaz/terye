@@ -540,6 +540,29 @@ public class NodeImpl extends ItemImpl implements Node {
 
     }
 
+    private PropertyImpl setPropertyInternal(String name, ValueImpl value)
+            throws RepositoryException {
+        sanityCheck();
+        Path path = PathFactory.create(getPath(), name);
+        PropertyImpl property = null;
+        // setting a value to null amounts to removing it
+        if (value == null) {
+            try {
+                getItemManager().removeItem(path);
+            } catch (RepositoryException e) {
+                // property might not exist, in which case we catch a
+                // PathNotFoundException and do nothing
+            }
+        } else {
+            if (getItemManager().propertyExists(path)) {
+                property = getItemManager().updateProperty(path, value);
+            } else {
+                property = getItemManager().createProperty(path, value);
+            }
+        }
+        return property;
+    }
+
     @Override
     public Property setProperty(String name, String[] values)
             throws ValueFormatException, VersionException, LockException,
@@ -552,22 +575,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, Value value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        sanityCheck();
-        Path path = PathFactory.create(getPath(), name);
-        PropertyImpl property = null;
-        // setting a value to null amounts to removing it
-        if (value == null) {
-            try {
-                getItemManager().removeItem(path);
-            } catch (RepositoryException e) {
-                // property might not exist yet, in which case we catch a
-                // PathNotFoundException and do nothing
-            }
-        } else {
-            // XXX: cast might not be valid
-            property = getItemManager().createProperty(path, (ValueImpl) value);
-        }
-        return property;
+        // XXX: cast to ValueImpl might not be valid
+        return setPropertyInternal(name, (ValueImpl) value);
     }
 
     @Override
@@ -582,64 +591,64 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, String value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name,
-                getSession().getValueFactory().createValue(value));
+        return setPropertyInternal(name, (ValueImpl) getSession()
+                .getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, InputStream value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name,
-                getSession().getValueFactory().createBinary(value));
+        return setPropertyInternal(name, (ValueImpl) getSession()
+                .getValueFactory().createBinary(value));
     }
 
     @Override
     public Property setProperty(String name, Binary value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name,
-                getSession().getValueFactory().createValue(value));
+        return setPropertyInternal(name, (ValueImpl) getSession()
+                .getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, boolean value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name,
-                getSession().getValueFactory().createValue(value));
+        return setPropertyInternal(name, (ValueImpl) getSession()
+                .getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, double value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name,
-                getSession().getValueFactory().createValue(value));
+        return setPropertyInternal(name, (ValueImpl) getSession()
+                .getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, BigDecimal value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name,
-                getSession().getValueFactory().createValue(value));
+        return setPropertyInternal(name, (ValueImpl) getSession()
+                .getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, long value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name,
-                getSession().getValueFactory().createValue(value));
+        return setPropertyInternal(name, (ValueImpl) getSession()
+                .getValueFactory().createValue(value));
     }
 
     @Override
     public Property setProperty(String name, Calendar value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setProperty(name,
-                getSession().getValueFactory().createValue(value));
+        return setPropertyInternal(name, (ValueImpl) getSession()
+                .getValueFactory().createValue(value));
     }
 
     @Override

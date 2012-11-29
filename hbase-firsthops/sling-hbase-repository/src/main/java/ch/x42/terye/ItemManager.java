@@ -245,13 +245,12 @@ public class ItemManager {
         return property;
     }
 
-    /**
-     * @param path canonical path
-     * @param value the new value
-     */
-    public void propertyUpdated(PropertyImpl property)
+    public PropertyImpl updateProperty(Path path, ValueImpl value)
             throws RepositoryException {
+        PropertyImpl property = getProperty(path);
+        property.setValue(value);
         log.modified(property);
+        return property;
     }
 
     public void removeItem(Path path) throws RepositoryException {
