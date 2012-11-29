@@ -6,7 +6,7 @@ import javax.jcr.NodeIterator;
 import ch.x42.terye.ItemManager;
 import ch.x42.terye.persistence.id.NodeId;
 
-public class NodeIteratorImpl extends RangeIteratorImpl implements NodeIterator {
+public class NodeIteratorImpl extends ItemIteratorImpl implements NodeIterator {
 
     public NodeIteratorImpl(ItemManager itemManager, Iterable<NodeId> nodeIds) {
         super(itemManager, nodeIds);

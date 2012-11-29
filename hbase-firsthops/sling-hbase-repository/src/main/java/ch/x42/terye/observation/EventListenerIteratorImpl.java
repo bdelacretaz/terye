@@ -1,57 +1,23 @@
 package ch.x42.terye.observation;
 
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.EventListenerIterator;
 
-public class EventListenerIteratorImpl implements EventListenerIterator {
+import ch.x42.terye.iterator.RangeIteratorImpl;
 
-    private Iterator<EventConsumer> iterator;
-    private long position;
+public class EventListenerIteratorImpl extends RangeIteratorImpl<EventConsumer>
+        implements EventListenerIterator {
 
     public EventListenerIteratorImpl(Set<EventConsumer> consumers) {
-        iterator = consumers.iterator();
-        position = 0;
-    }
-
-    @Override
-    public void skip(long skipNum) {
-        if (skipNum < 0) {
-            throw new IllegalArgumentException("Parameter must be non-negative");
-        }
-        while (skipNum > 0 && iterator.hasNext()) {
-            iterator.next();
-            position++;
-            skipNum--;
-        }
-    }
-
-    @Override
-    public long getSize() {
-        return -1;
-    }
-
-    @Override
-    public long getPosition() {
-        return position;
-    }
-
-    @Override
-    public boolean hasNext() {
-        return iterator.hasNext();
+        super(consumers);
+        this.size = consumers.size();
     }
 
     @Override
     public Object next() {
-        position++;
-        return ((EventConsumer) iterator.next()).getEventListener();
-    }
-
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException();
+        return ((EventConsumer) super.next()).getEventListener();
     }
 
     @Override

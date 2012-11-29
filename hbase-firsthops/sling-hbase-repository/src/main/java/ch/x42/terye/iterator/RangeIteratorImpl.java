@@ -1,28 +1,18 @@
 package ch.x42.terye.iterator;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import javax.jcr.RangeIterator;
-import javax.jcr.RepositoryException;
 
-import ch.x42.terye.ItemManager;
-import ch.x42.terye.persistence.id.ItemId;
+public abstract class RangeIteratorImpl<T> implements RangeIterator {
 
-public abstract class RangeIteratorImpl implements RangeIterator {
+    protected final Iterator<T> iterator;
+    protected long position = 0L;
+    protected long size = -1L;
 
-    private ItemManager itemManager;
-    private Iterator<? extends ItemId> iterator;
-    private long size = -1L;
-    private long position = 0L;
-
-    public RangeIteratorImpl(ItemManager itemManager,
-            Iterable<? extends ItemId> itemIds) {
-        this.itemManager = itemManager;
-        this.iterator = itemIds.iterator();
-        if (itemIds instanceof Collection) {
-            size = ((Collection<? extends ItemId>) itemIds).size();
-        }
+    public RangeIteratorImpl(Iterable<T> iterable) {
+        this.iterator = iterable.iterator();
+        this.position = 0;
     }
 
     @Override
@@ -33,29 +23,12 @@ public abstract class RangeIteratorImpl implements RangeIterator {
     @Override
     public Object next() {
         position++;
-        ItemId id = iterator.next();
-        try {
-            return itemManager.getItem(id);
-        } catch (RepositoryException e) {
-            // XXX: better handling?
-            throw new RuntimeException("Stale reference to child node " + id
-                    + ". Node has been removed in this session");
-        }
+        return iterator.next();
     }
 
     @Override
     public void remove() {
         iterator.remove();
-    }
-
-    @Override
-    public long getPosition() {
-        return position;
-    }
-
-    @Override
-    public long getSize() {
-        return size;
     }
 
     @Override
@@ -68,6 +41,16 @@ public abstract class RangeIteratorImpl implements RangeIterator {
             position++;
             skipNum--;
         }
+    }
+
+    @Override
+    public long getSize() {
+        return size;
+    }
+
+    @Override
+    public long getPosition() {
+        return position;
     }
 
 }
