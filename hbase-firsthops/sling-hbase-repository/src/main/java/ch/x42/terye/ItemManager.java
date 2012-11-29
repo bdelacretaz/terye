@@ -194,20 +194,25 @@ public class ItemManager {
         }
 
         // create new node
+        Path parentPath = path.getParent();
+        NodeImpl parent = null;
+        NodeId parentId = null;
+        if (parentPath != null) {
+            parent = getNode(parentPath);
+            parentId = parent.getId();
+        }
         NodeId id = new NodeId(path.getCanonicalPath().toString());
-        NodeState state = new NodeState(id, primaryNodeTypeName);
+        NodeState state = new NodeState(id, parentId, primaryNodeTypeName);
         NodeImpl node = (NodeImpl) createNewInstance(state);
         putToCache(node);
         log.added(node);
         unmarkRemoved(id);
 
         // add to parent
-        Path parentPath = path.getParent();
-        if (parentPath == null) {
+        if (parent == null) {
             // only the case for the root node
             return node;
         }
-        NodeImpl parent = getNode(parentPath);
         parent.addChild(node);
         log.modified(parent);
 
@@ -225,15 +230,15 @@ public class ItemManager {
         }
 
         // create new property
+        NodeImpl parent = getNode(path.getParent());
         PropertyId id = new PropertyId(path.getCanonicalPath().toString());
-        PropertyState state = new PropertyState(id, value);
+        PropertyState state = new PropertyState(id, parent.getId(), value);
         PropertyImpl property = new PropertyImpl(session, state, value);
         putToCache(property);
         log.added(property);
         unmarkRemoved(id);
 
         // add to parent
-        NodeImpl parent = getNode(path.getParent());
         parent.addChild(property);
         log.modified(parent);
 

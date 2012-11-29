@@ -2,14 +2,19 @@ package ch.x42.terye.observation;
 
 import javax.jcr.RepositoryException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ch.x42.terye.SessionImpl;
 import ch.x42.terye.path.Path;
 import ch.x42.terye.path.PathFactory;
 
 public class EventFilter {
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private int eventTypes;
-    private Path absPath;
+    private Path path;
     private boolean isDeep;
     private String[] ids;
     private String[] nodeTypeNames;
@@ -20,8 +25,8 @@ public class EventFilter {
             String[] ids, String[] nodeTypeNames, boolean noLocal,
             SessionImpl session) throws RepositoryException {
         this.eventTypes = eventTypes;
-        this.absPath = PathFactory.create(absPath);
-        if (this.absPath.isRelative()) {
+        this.path = PathFactory.create(absPath);
+        if (this.path.isRelative()) {
             throw new RepositoryException("Path must be absolute");
         }
         this.isDeep = isDeep;
@@ -36,18 +41,25 @@ public class EventFilter {
         if ((eventTypes & event.getType()) == 0) {
             return true;
         }
-
         // locality
         if (noLocal && !session.equals(event.getSession())) {
             return true;
         }
-
-        // XXX: check path
-
+        // check path
+        Path eventPath = PathFactory.create(event.getParentId().toString());
+        boolean match = eventPath.equals(path);
+        if (!match && isDeep) {
+            try {
+                match = eventPath.isDescendantOf(path);
+            } catch (RepositoryException e) {
+                logger.warn("Caught exception while applying event filter", e);
+            }
+        }
+        if (!match) {
+            return true;
+        }
         // XXX: check ids
-
         // XXX: check node types
-
         return false;
     }
 

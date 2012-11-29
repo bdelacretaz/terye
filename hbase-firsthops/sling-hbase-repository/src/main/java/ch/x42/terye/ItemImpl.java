@@ -22,6 +22,7 @@ import ch.x42.terye.path.Path;
 import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.id.ItemId;
+import ch.x42.terye.persistence.id.NodeId;
 
 public class ItemImpl implements Item {
 
@@ -91,6 +92,10 @@ public class ItemImpl implements Item {
             throw new ItemNotFoundException("The root node has no parent");
         }
         return getItemManager().getNode(path.getParent());
+    }
+
+    protected NodeId getParentId() {
+        return state.getParentId();
     }
 
     @Override

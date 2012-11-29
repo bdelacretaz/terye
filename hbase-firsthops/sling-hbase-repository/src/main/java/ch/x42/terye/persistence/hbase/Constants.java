@@ -10,6 +10,7 @@ public class Constants {
 
     // common columns
     public static final byte[] ITEMS_COLNAME_ITEMTYPE = Bytes.toBytes("it");
+    public static final byte[] ITEMS_COLNAME_PARENTID = Bytes.toBytes("pi");
 
     // node columns
     public static final byte[] ITEMS_COLNAME_NODETYPE = Bytes.toBytes("nt");

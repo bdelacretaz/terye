@@ -57,7 +57,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     public void setValueInternal(ValueImpl value) throws RepositoryException {
         sanityCheck();
         this.value = value;
-        this.state = new PropertyState(getId(), value);
+        this.state = new PropertyState(getId(), getParentId(), value);
         getItemManager().propertyUpdated(this);
     }
 
