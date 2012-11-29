@@ -94,6 +94,8 @@ From http://www.day.com/maven/jsr170/javadocs/jcr-2.0/javax/jcr/observation/Obse
 
 Indexing and search
 
+Transient space (Session.save(), etc.)
+
 Locking
 
 ## Maybe...
