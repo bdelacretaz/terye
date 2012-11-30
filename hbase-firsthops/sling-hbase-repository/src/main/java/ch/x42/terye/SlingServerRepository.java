@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class SlingServerRepository implements Repository, SlingRepository {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private Repository repository;
+    private RepositoryImpl repository;
 
     @Activate
     public void activate(ComponentContext ctx) {
@@ -31,9 +31,9 @@ public class SlingServerRepository implements Repository, SlingRepository {
     }
 
     @Deactivate
-    public void deactivate(ComponentContext ctx) {
+    public void deactivate(ComponentContext ctx) throws Exception {
         log.debug("Deactivated", repository);
-        repository = null;
+        repository.dispose();
     }
 
     public String[] getDescriptorKeys() {

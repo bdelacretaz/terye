@@ -102,4 +102,13 @@ public class RepositoryImpl implements Repository {
     public Session login() throws LoginException, RepositoryException {
         return login(null, null);
     }
+
+    public void dispose() throws Exception {
+        synchronized (wsContexts) {
+            for (WorkspaceContext wsContext : wsContexts.values()) {
+                wsContext.getPersistenceManager().dispose();
+            }
+        }
+
+    }
 }

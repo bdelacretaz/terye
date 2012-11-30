@@ -324,4 +324,10 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
+    @Override
+    public void dispose() throws IOException {
+        items.close();
+        admin.close();
+    }
+
 }

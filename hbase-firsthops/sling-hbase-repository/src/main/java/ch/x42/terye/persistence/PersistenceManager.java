@@ -33,4 +33,6 @@ public interface PersistenceManager {
 
     public void persist(ChangeLog log) throws RepositoryException;
 
+    public void dispose() throws Exception;
+
 }
