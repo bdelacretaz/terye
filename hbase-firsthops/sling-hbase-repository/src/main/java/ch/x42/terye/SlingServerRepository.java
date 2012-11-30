@@ -62,8 +62,7 @@ public class SlingServerRepository implements Repository, SlingRepository {
     }
 
     public String getDescriptor(String key) {
-        // TODO Auto-generated method stub
-        return null;
+        return repository.getDescriptor(key);
     }
 
     public Session login(Credentials credentials, String workspaceName)

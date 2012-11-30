@@ -62,8 +62,10 @@ public class RepositoryImpl implements Repository {
 
     @Override
     public String getDescriptor(String key) {
-        // TODO Auto-generated method stub
-        return null;
+        if (key.equals(Repository.OPTION_OBSERVATION_SUPPORTED)) {
+            return "true";
+        }
+        return "false";
     }
 
     @Override
