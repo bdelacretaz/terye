@@ -599,8 +599,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, InputStream value)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        return setPropertyInternal(name, (ValueImpl) getSession()
-                .getValueFactory().createBinary(value));
+        return setProperty(name,
+                getSession().getValueFactory().createBinary(value));
     }
 
     @Override
