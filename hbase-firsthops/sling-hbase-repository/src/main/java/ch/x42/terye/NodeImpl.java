@@ -236,8 +236,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public NodeIterator getNodes() throws RepositoryException {
         logger.debug("[{}].getNodes()", getPath());
         sanityCheck();
-        return new NodeIteratorImpl(getItemManager(), getState()
-                .getChildNodes());
+        return new NodeIteratorImpl(getItemManager(), new LinkedList<NodeId>(
+                getState().getChildNodes()));
     }
 
     @Override
@@ -300,8 +300,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public PropertyIterator getProperties() throws RepositoryException {
         logger.debug("[{}].getProperties()", getPath());
         sanityCheck();
-        return new PropertyIteratorImpl(getItemManager(), getState()
-                .getProperties());
+        return new PropertyIteratorImpl(getItemManager(),
+                new LinkedList<PropertyId>(getState().getProperties()));
     }
 
     @Override

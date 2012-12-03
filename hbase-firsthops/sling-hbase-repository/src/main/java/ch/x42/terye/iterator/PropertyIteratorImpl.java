@@ -6,7 +6,7 @@ import javax.jcr.PropertyIterator;
 import ch.x42.terye.ItemManager;
 import ch.x42.terye.persistence.id.PropertyId;
 
-public class PropertyIteratorImpl extends ItemIteratorImpl implements
+public class PropertyIteratorImpl extends ItemIterator implements
         PropertyIterator {
 
     public PropertyIteratorImpl(ItemManager itemManager,

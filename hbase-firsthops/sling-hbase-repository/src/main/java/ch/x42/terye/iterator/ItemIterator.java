@@ -7,12 +7,12 @@ import javax.jcr.RepositoryException;
 import ch.x42.terye.ItemManager;
 import ch.x42.terye.persistence.id.ItemId;
 
-public abstract class ItemIteratorImpl extends RangeIteratorImpl<ItemId> {
+public abstract class ItemIterator extends RangeIteratorImpl<ItemId> {
 
     private ItemManager itemManager;
 
     @SuppressWarnings("unchecked")
-    public ItemIteratorImpl(ItemManager itemManager,
+    public ItemIterator(ItemManager itemManager,
             Iterable<? extends ItemId> itemIds) {
         super((Iterable<ItemId>) itemIds);
         this.itemManager = itemManager;
@@ -30,6 +30,10 @@ public abstract class ItemIteratorImpl extends RangeIteratorImpl<ItemId> {
             // XXX: better handling?
             throw new RuntimeException("Stale reference to child node " + id);
         }
+    }
+
+    public void remove() {
+        throw new UnsupportedOperationException("remove");
     }
 
 }

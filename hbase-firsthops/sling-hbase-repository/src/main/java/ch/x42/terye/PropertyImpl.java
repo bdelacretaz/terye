@@ -291,7 +291,7 @@ public class PropertyImpl extends ItemImpl implements Property {
         try {
             String str = "Property [";
             str += "path=" + getPath();
-            str += "type=" + getType();
+            str += ", type=" + getType();
             str += "]";
             return str;
         } catch (RepositoryException e) {

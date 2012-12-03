@@ -2,12 +2,13 @@ package ch.x42.terye;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.ItemExistsException;
+import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
 import org.slf4j.Logger;
@@ -81,15 +82,7 @@ public class ItemManager {
      * this session.
      */
     private boolean isMarkedRemoved(ItemId id) {
-        String path = id.toString();
-        Iterator<String> iterator = removed.iterator();
-        while (iterator.hasNext()) {
-            String prefix = iterator.next();
-            if (path.startsWith(prefix)) {
-                return true;
-            }
-        }
-        return false;
+        return removed.contains(id.toString());
     }
 
     private void unmarkRemoved(ItemId id) {
@@ -259,6 +252,18 @@ public class ItemManager {
 
     public void removeItem(ItemImpl item) throws RepositoryException {
         logger.debug("removeItem({})", item.getId());
+
+        // remove child nodes and properties recursively
+        if (item.isNode()) {
+            PropertyIterator pIterator = ((NodeImpl) item).getProperties();
+            while (pIterator.hasNext()) {
+                pIterator.nextProperty().remove();
+            }
+            NodeIterator nIterator = ((NodeImpl) item).getNodes();
+            while (nIterator.hasNext()) {
+                nIterator.nextNode().remove();
+            }
+        }
 
         // remove item from cache
         removeFromCache(item.getId());

@@ -22,6 +22,8 @@ import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ItemState;
@@ -33,6 +35,8 @@ import ch.x42.terye.persistence.id.NodeId;
 import ch.x42.terye.persistence.id.PropertyId;
 
 public class HBasePersistenceManager implements PersistenceManager {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private Configuration config;
     private HBaseAdmin admin;
@@ -309,15 +313,18 @@ public class HBasePersistenceManager implements PersistenceManager {
         try {
             // add new states
             for (ItemState state : log.getAddedStates()) {
+                logger.debug("Add: " + state.getPath());
                 store(state);
             }
             // modify existing states
             for (ItemState state : log.getModifiedStates()) {
+                logger.debug("Modify: " + state.getPath());
                 store(state);
             }
             // delete removed states
             for (ItemState state : log.getRemovedStates()) {
-                deleteRange(state.getId().toString());
+                logger.debug("Delete: " + state.getPath());
+                delete(state.getId());
             }
         } catch (RepositoryException e) {
             throw new RepositoryException("Error persisting change log", e);
