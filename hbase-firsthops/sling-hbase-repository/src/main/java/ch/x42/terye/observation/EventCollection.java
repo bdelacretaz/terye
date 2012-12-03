@@ -7,7 +7,6 @@ import java.util.List;
 import javax.jcr.observation.Event;
 
 import ch.x42.terye.SessionImpl;
-import ch.x42.terye.path.Path;
 import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ItemState;
 
@@ -26,10 +25,6 @@ public class EventCollection {
         for (ItemState state : log.getAddedStates()) {
             int type;
             if (state.isNode()) {
-                // don't generate events for the root node
-                if (state.getPath().equals(Path.DELIMITER)) {
-                    continue;
-                }
                 type = Event.NODE_ADDED;
             } else {
                 type = Event.PROPERTY_ADDED;

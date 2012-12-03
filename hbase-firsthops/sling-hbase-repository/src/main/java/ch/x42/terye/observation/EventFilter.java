@@ -46,18 +46,25 @@ public class EventFilter {
             return true;
         }
         // check path
-        Path eventPath = PathFactory.create(event.getParentId().toString());
-        boolean match = eventPath.equals(path);
-        if (!match && isDeep) {
-            try {
-                match = eventPath.isDescendantOf(path);
-            } catch (RepositoryException e) {
-                logger.warn("Caught exception while applying event filter", e);
+        if (event.getParentId() != null) {
+            Path eventPath = PathFactory.create(event.getParentId().toString());
+            boolean match = eventPath.equals(path);
+            if (!match && isDeep) {
+                try {
+                    match = eventPath.isDescendantOf(path);
+                } catch (RepositoryException e) {
+                    logger.warn("Caught exception while applying event filter",
+                            e);
+                }
             }
-        }
-        if (!match) {
+            if (!match) {
+                return true;
+            }
+        } else {
+            // filter root node
             return true;
         }
+
         // XXX: check ids
         // XXX: check node types
         return false;
