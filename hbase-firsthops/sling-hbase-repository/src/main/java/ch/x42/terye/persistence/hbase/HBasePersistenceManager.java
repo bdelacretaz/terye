@@ -184,7 +184,6 @@ public class HBasePersistenceManager implements PersistenceManager {
         } else {
             return createPut((PropertyState) state);
         }
-
     }
 
     private Put createPut(NodeState state) throws RepositoryException {
@@ -332,24 +331,29 @@ public class HBasePersistenceManager implements PersistenceManager {
 
     @Override
     public synchronized void persist(ChangeLog log) throws RepositoryException {
-        List<Row> batch = new LinkedList<Row>();
+        List<Row> deleteBatch = new LinkedList<Row>();
+        // delete removed states
+        for (ItemState state : log.getRemovedStates()) {
+            logger.debug("Delete: " + state.getPath());
+            deleteBatch.add(createDelete(state.getId()));
+        }
+        List<Row> putBatch = new LinkedList<Row>();
         // add new states
         for (ItemState state : log.getAddedStates()) {
             logger.debug("Add: " + state.getPath());
-            batch.add(createPut(state));
+            putBatch.add(createPut(state));
         }
         // modify existing states
         for (ItemState state : log.getModifiedStates()) {
             logger.debug("Modify: " + state.getPath());
-            batch.add(createPut(state));
-        }
-        // delete removed states
-        for (ItemState state : log.getRemovedStates()) {
-            logger.debug("Delete: " + state.getPath());
-            batch.add(createDelete(state.getId()));
+            putBatch.add(createPut(state));
         }
         try {
-            items.batch(batch);
+            // we need to first execute the delete batch, as items might have
+            // been removed and readded and the batch method does not provide
+            // any ordering guarantees
+            items.batch(deleteBatch);
+            items.batch(putBatch);
         } catch (Exception e) {
             throw new RepositoryException(
                     "An error occurred persisting change log", e);
