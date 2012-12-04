@@ -7,8 +7,17 @@ import javax.jcr.RepositoryException;
  */
 public final class RootPath extends AbstractPath {
 
-    RootPath() {
+    private static RootPath instance;
+
+    private RootPath() {
         super(null, Path.ROOT);
+    }
+
+    public static RootPath getInstance() {
+        if (instance == null) {
+            instance = new RootPath();
+        }
+        return instance;
     }
 
     @Override

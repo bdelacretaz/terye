@@ -11,7 +11,7 @@ public class PathFactory {
 
         Path path = null;
         if (pathString.startsWith(Path.DELIMITER)) {
-            path = new RootPath();
+            path = RootPath.getInstance();
         }
 
         StringTokenizer tokenizer = new StringTokenizer(pathString,
@@ -37,6 +37,10 @@ public class PathFactory {
         }
         Path absPath = create(absPathString);
         return absPath.resolve(relPath);
+    }
+
+    public static RootPath createRootPath() {
+        return RootPath.getInstance();
     }
 
 }

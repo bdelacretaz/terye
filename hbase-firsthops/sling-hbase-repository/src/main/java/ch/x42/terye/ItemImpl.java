@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.x42.terye.path.Path;
-import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.id.ItemId;
 import ch.x42.terye.persistence.id.NodeId;
@@ -80,18 +79,17 @@ public class ItemImpl implements Item {
     @Override
     public String getName() throws RepositoryException {
         sanityCheck();
-        return PathFactory.create(getPath()).getLastElement();
+        return getPathInternal().getLastElement();
     }
 
     @Override
     public Node getParent() throws ItemNotFoundException,
             AccessDeniedException, RepositoryException {
         sanityCheck();
-        Path path = PathFactory.create(getPath());
-        if (path.getParent() == null) {
+        if (getParentId() == null) {
             throw new ItemNotFoundException("The root node has no parent");
         }
-        return getItemManager().getNode(path.getParent());
+        return (NodeImpl) getItemManager().getItem(getParentId());
     }
 
     protected NodeId getParentId() {
@@ -102,6 +100,10 @@ public class ItemImpl implements Item {
     public String getPath() throws RepositoryException {
         sanityCheck();
         return state.getPath();
+    }
+
+    public Path getPathInternal() throws RepositoryException {
+        return state.getPathInternal();
     }
 
     @Override
@@ -141,8 +143,7 @@ public class ItemImpl implements Item {
     public void refresh(boolean arg0) throws InvalidItemStateException,
             RepositoryException {
         logger.debug("[{}].refresh({})", getPath(), arg0);
-        Path path = PathFactory.create(getPath());
-        getItemManager().refresh(path);
+        getItemManager().refresh(getPathInternal());
     }
 
     protected void markRemoved() {
@@ -162,7 +163,7 @@ public class ItemImpl implements Item {
             ReferentialIntegrityException, VersionException, LockException,
             NoSuchNodeTypeException, RepositoryException {
         logger.debug("[{}].save()", getPath());
-        getItemManager().persistChanges(PathFactory.create(getPath()));
+        getItemManager().persistChanges(getPathInternal());
     }
 
 }

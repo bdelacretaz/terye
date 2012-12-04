@@ -16,8 +16,6 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
-import ch.x42.terye.path.Path;
-import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.PropertyState;
 import ch.x42.terye.persistence.id.PropertyId;
@@ -63,17 +61,16 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     private void setValueInternal(ValueImpl value) throws RepositoryException {
         sanityCheck();
-        Path path = PathFactory.create(getPath());
         // setting a value to null amounts to removing it
         if (value == null) {
             try {
-                getItemManager().removeItem(path);
+                getItemManager().removeItem(getPathInternal());
             } catch (RepositoryException e) {
                 // property might not exist, in which case we catch a
                 // PathNotFoundException and do nothing
             }
         } else {
-            getItemManager().updateProperty(path, value);
+            getItemManager().updateProperty(getPathInternal(), value);
         }
     }
 

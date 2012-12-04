@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import ch.x42.terye.observation.EventCollection;
 import ch.x42.terye.observation.ObservationManagerImpl;
 import ch.x42.terye.path.Path;
-import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
@@ -302,7 +301,7 @@ public class ItemManager {
         Set<ItemImpl> removed = new HashSet<ItemImpl>();
         // loop through all items of this session
         for (ItemImpl item : cache.values()) {
-            Path path = PathFactory.create(item.getPath());
+            Path path = item.getPathInternal();
             // check that the item is a descendant of the specified root and
             // that it hasn't been removed in this session
             if ((path.isEquivalentTo(root) || path.isDescendantOf(root))
@@ -326,10 +325,9 @@ public class ItemManager {
             // check if parent node has been loaded in this session
             NodeImpl parent = (NodeImpl) getFromCache(item.getParentId());
             if (parent != null) {
-                Path parentPath = PathFactory.create(parent.getPath());
                 // if the parent has not been refreshed during this call
-                if (!(parentPath.isEquivalentTo(root) || parentPath
-                        .isDescendantOf(root))) {
+                if (!(parent.getPathInternal().isEquivalentTo(root) || parent
+                        .getPathInternal().isDescendantOf(root))) {
                     // remove the stale reference from its children
                     parent.removeChild(item);
                 }

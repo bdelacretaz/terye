@@ -101,7 +101,7 @@ public class SessionImpl implements Session {
 
     @Override
     public Node getRootNode() throws RepositoryException {
-        Path root = PathFactory.create("/");
+        Path root = PathFactory.createRootPath();
         try {
             return getItemManager().getNode(root);
         } catch (PathNotFoundException e) {
@@ -190,13 +190,13 @@ public class SessionImpl implements Session {
             InvalidItemStateException, VersionException, LockException,
             NoSuchNodeTypeException, RepositoryException {
         logger.debug("save()");
-        getItemManager().persistChanges(PathFactory.create(Path.DELIMITER));
+        getItemManager().persistChanges(PathFactory.createRootPath());
     }
 
     @Override
     public void refresh(boolean keepChanges) throws RepositoryException {
         logger.debug("refresh({})", keepChanges);
-        getItemManager().refresh(PathFactory.create(Path.DELIMITER));
+        getItemManager().refresh(PathFactory.createRootPath());
     }
 
     @Override
