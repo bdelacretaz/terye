@@ -41,6 +41,7 @@ if [ $? -gt 0 ]; then
 	cp -rf /files/hadoop-conf/* /home/vagrant/hadoop-1.0.4/conf/ > /dev/null 2>&1
 	# format namenode dir
 	./hadoop-1.0.4/bin/hadoop namenode -format  > /dev/null 2>&1
+	rm hadoop-1.0.4.tar.gz
 	echo "Starting Hadoop"
 	./hadoop-1.0.4/bin/start-all.sh
 
@@ -53,6 +54,7 @@ if [ $? -gt 0 ]; then
 	mkdir /data/zookeeper
 	# overwrite conf files
 	cp -rf /files/hbase-conf/* /home/vagrant/hbase-0.94.2/conf/ > /dev/null 2>&1
+	rm hbase-0.94.2.tar.gz
 	echo "Starting HBase"
 	./hbase-0.94.2/bin/start-hbase.sh
 fi
