@@ -190,7 +190,7 @@ public class SessionImpl implements Session {
             InvalidItemStateException, VersionException, LockException,
             NoSuchNodeTypeException, RepositoryException {
         logger.debug("save()");
-        getItemManager().persistChanges();
+        getItemManager().persistChanges(PathFactory.create(Path.DELIMITER));
     }
 
     @Override

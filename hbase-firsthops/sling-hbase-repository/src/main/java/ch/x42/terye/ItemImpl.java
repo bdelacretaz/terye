@@ -144,7 +144,7 @@ public class ItemImpl implements Item {
         Path path = PathFactory.create(getPath());
         getItemManager().refresh(path);
     }
-    
+
     protected void markRemoved() {
         removed = true;
     }
@@ -161,10 +161,8 @@ public class ItemImpl implements Item {
             ConstraintViolationException, InvalidItemStateException,
             ReferentialIntegrityException, VersionException, LockException,
             NoSuchNodeTypeException, RepositoryException {
-        logger.debug("save()");
-        // XXX: temporary
-        // save the whole session
-        getSession().save();
+        logger.debug("[{}].save()", getPath());
+        getItemManager().persistChanges(PathFactory.create(getPath()));
     }
 
 }

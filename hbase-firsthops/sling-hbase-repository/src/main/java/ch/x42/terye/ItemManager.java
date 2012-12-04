@@ -280,12 +280,23 @@ public class ItemManager {
         item.markRemoved();
     }
 
-    public void persistChanges() throws RepositoryException {
-        persistenceManager.persist(log);
-        observationManager.dispatchEvents(new EventCollection(log, session));
+    /**
+     * Saves all changes that are at path 'root' or below.
+     */
+    public void persistChanges(Path root) throws RepositoryException {
+        ChangeLog changes = log;
+        if (!root.isRoot()) {
+            changes = log.split(root);
+        }
+        persistenceManager.persist(changes);
+        observationManager
+                .dispatchEvents(new EventCollection(changes, session));
         log.purge();
     }
 
+    /**
+     * Refreshes all items that are at path 'root' or below.
+     */
     public void refresh(Path root) throws RepositoryException {
         // list of items that have been removed by another session
         Set<ItemImpl> removed = new HashSet<ItemImpl>();
