@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import ch.x42.terye.observation.EventCollection;
 import ch.x42.terye.observation.ObservationManagerImpl;
 import ch.x42.terye.path.Path;
+import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.persistence.ChangeLog;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
@@ -265,17 +266,18 @@ public class ItemManager {
             }
         }
 
+        // remove reference in parent
+        NodeImpl parent = (NodeImpl) item.getParent();
+        parent.removeChild(item);
+        log.modified(parent);
         // remove item from cache
         removeFromCache(item.getId());
         // takes care of removing descendants from store
         log.removed(item);
         // add to paths removed in this session
         markRemoved(item.getId());
-
-        // remove reference in parent
-        NodeImpl parent = (NodeImpl) item.getParent();
-        parent.removeChild(item);
-        log.modified(parent);
+        // mark item removed
+        item.markRemoved();
     }
 
     public void persistChanges() throws RepositoryException {
@@ -284,20 +286,46 @@ public class ItemManager {
         log.purge();
     }
 
-    public void refresh() throws RepositoryException {
-        Set<ItemImpl> toRemove = new HashSet<ItemImpl>();
+    public void refresh(Path root) throws RepositoryException {
+        // list of items that have been removed by another session
+        Set<ItemImpl> removed = new HashSet<ItemImpl>();
+        // loop through all items of this session
         for (ItemImpl item : cache.values()) {
-            if (!isMarkedRemoved(item.getId())) {
+            Path path = PathFactory.create(item.getPath());
+            // check that the item is a descendant of the specified root and
+            // that it hasn't been removed in this session
+            if ((path.isEquivalentTo(root) || path.isDescendantOf(root))
+                    && !isMarkedRemoved(item.getId())) {
+                // load current persistent state
                 ItemState state = persistenceManager.loadItem(item.getId());
                 if (state == null) {
-                    toRemove.add(item);
+                    removed.add(item);
                 } else {
+                    // set loaded state
                     item.setState(state);
                 }
             }
         }
-        // remove items that don't exist anymore
-        // XXX: implement
+        // mark removed items
+        for (ItemImpl item : removed) {
+            // remove item from cache
+            removeFromCache(item.getId());
+            // mark item removed
+            item.markRemoved();
+            // check if parent node has been loaded in this session
+            NodeImpl parent = (NodeImpl) getFromCache(item.getParentId());
+            if (parent != null) {
+                Path parentPath = PathFactory.create(parent.getPath());
+                // if the parent has not been refreshed during this call
+                if (!(parentPath.isEquivalentTo(root) || parentPath
+                        .isDescendantOf(root))) {
+                    // remove the stale reference from its children
+                    parent.removeChild(item);
+                }
+                // else the parent's state has been refreshed above and we don't
+                // need to do anything
+            }
+        }
     }
 
     public boolean hasPendingChanges() {

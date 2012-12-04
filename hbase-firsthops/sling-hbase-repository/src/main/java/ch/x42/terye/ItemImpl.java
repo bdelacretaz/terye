@@ -140,7 +140,13 @@ public class ItemImpl implements Item {
     @Override
     public void refresh(boolean arg0) throws InvalidItemStateException,
             RepositoryException {
-        logger.debug("refresh({})", arg0);
+        logger.debug("[{}].refresh({})", getPath(), arg0);
+        Path path = PathFactory.create(getPath());
+        getItemManager().refresh(path);
+    }
+    
+    protected void markRemoved() {
+        removed = true;
     }
 
     @Override
@@ -148,7 +154,6 @@ public class ItemImpl implements Item {
             ConstraintViolationException, AccessDeniedException,
             RepositoryException {
         getItemManager().removeItem(this);
-        removed = true;
     }
 
     @Override
