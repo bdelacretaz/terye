@@ -1,6 +1,7 @@
 package ch.x42.terye.persistence.hbase;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -17,6 +18,7 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
@@ -88,11 +90,6 @@ public class HBasePersistenceManager implements PersistenceManager {
             get.setFilter(filter);
         }
         return items.get(get);
-    }
-
-    private void deleteItemRow(String key) throws IOException {
-        Delete delete = new Delete(Bytes.toBytes(key));
-        items.delete(delete);
     }
 
     private String getString(Result result, byte[] qualifier) {
@@ -181,17 +178,16 @@ public class HBasePersistenceManager implements PersistenceManager {
         }
     }
 
-    @Override
-    public synchronized void store(ItemState state) throws RepositoryException {
+    private Put createPut(ItemState state) throws RepositoryException {
         if (state.isNode()) {
-            store((NodeState) state);
+            return createPut((NodeState) state);
         } else {
-            store((PropertyState) state);
+            return createPut((PropertyState) state);
         }
+
     }
 
-    @Override
-    public synchronized void store(NodeState state) throws RepositoryException {
+    private Put createPut(NodeState state) throws RepositoryException {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
         // item type
         put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_ITEMTYPE,
@@ -217,18 +213,10 @@ public class HBasePersistenceManager implements PersistenceManager {
             throw new RepositoryException(
                     "Caught exception while serializing children ids", e);
         }
-        // store node
-        try {
-            items.put(put);
-        } catch (IOException e) {
-            throw new RepositoryException("Could not store node "
-                    + state.getId(), e);
-        }
+        return put;
     }
 
-    @Override
-    public synchronized void store(PropertyState state)
-            throws RepositoryException {
+    private Put createPut(PropertyState state) {
         Put put = new Put(Bytes.toBytes(state.getId().toString()));
         // item type
         put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_ITEMTYPE,
@@ -242,13 +230,44 @@ public class HBasePersistenceManager implements PersistenceManager {
         // value as byte array
         put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_VALUE,
                 state.getBytes());
+        return put;
+    }
+
+    @Override
+    public synchronized void store(ItemState state) throws RepositoryException {
+        if (state.isNode()) {
+            store((NodeState) state);
+        } else {
+            store((PropertyState) state);
+        }
+    }
+
+    @Override
+    public synchronized void store(NodeState state) throws RepositoryException {
+        // store node
+        try {
+            items.put(createPut(state));
+        } catch (IOException e) {
+            throw new RepositoryException("Could not store node "
+                    + state.getId(), e);
+        }
+    }
+
+    @Override
+    public synchronized void store(PropertyState state)
+            throws RepositoryException {
         // store property
         try {
-            items.put(put);
+            items.put(createPut(state));
         } catch (IOException e) {
             throw new RepositoryException("Could not store property "
                     + state.getId(), e);
         }
+    }
+
+    private Delete createDelete(ItemId id) {
+        Delete delete = new Delete(Bytes.toBytes(id.toString()));
+        return delete;
     }
 
     @Override
@@ -264,7 +283,7 @@ public class HBasePersistenceManager implements PersistenceManager {
     public synchronized void delete(NodeId id) throws RepositoryException {
         try {
             // XXX: make sure we really delete a node
-            deleteItemRow(id.toString());
+            items.delete(createDelete(id));
         } catch (IOException e) {
             throw new RepositoryException("Could not delete node " + id, e);
         }
@@ -274,14 +293,17 @@ public class HBasePersistenceManager implements PersistenceManager {
     public synchronized void delete(PropertyId id) throws RepositoryException {
         try {
             // XXX: make sure we really delete a property
-            deleteItemRow(id.toString());
+            items.delete(createDelete(id));
         } catch (IOException e) {
             throw new RepositoryException("Could not delete property " + id, e);
         }
     }
 
-    @Override
-    public synchronized void deleteRange(String partialKey)
+    /**
+     * Deletes all rows (in node and property tables) with matching row key.
+     */
+    @SuppressWarnings("unused")
+    private synchronized void deleteRange(String partialKey)
             throws RepositoryException {
         // XXX: inefficient (HBase does not support range deletes)
         // 1) do a range scan
@@ -299,7 +321,8 @@ public class HBasePersistenceManager implements PersistenceManager {
             scan.setStopRow(stopRow);
             ResultScanner scanner = items.getScanner(scan);
             for (Result result : scanner) {
-                deleteItemRow(Bytes.toString(result.getRow()));
+                Delete delete = new Delete(result.getRow());
+                items.delete(delete);
             }
             scanner.close();
         } catch (Exception e) {
@@ -309,25 +332,27 @@ public class HBasePersistenceManager implements PersistenceManager {
 
     @Override
     public synchronized void persist(ChangeLog log) throws RepositoryException {
-        // XXX: batch processing
+        List<Row> batch = new LinkedList<Row>();
+        // add new states
+        for (ItemState state : log.getAddedStates()) {
+            logger.debug("Add: " + state.getPath());
+            batch.add(createPut(state));
+        }
+        // modify existing states
+        for (ItemState state : log.getModifiedStates()) {
+            logger.debug("Modify: " + state.getPath());
+            batch.add(createPut(state));
+        }
+        // delete removed states
+        for (ItemState state : log.getRemovedStates()) {
+            logger.debug("Delete: " + state.getPath());
+            batch.add(createDelete(state.getId()));
+        }
         try {
-            // add new states
-            for (ItemState state : log.getAddedStates()) {
-                logger.debug("Add: " + state.getPath());
-                store(state);
-            }
-            // modify existing states
-            for (ItemState state : log.getModifiedStates()) {
-                logger.debug("Modify: " + state.getPath());
-                store(state);
-            }
-            // delete removed states
-            for (ItemState state : log.getRemovedStates()) {
-                logger.debug("Delete: " + state.getPath());
-                delete(state.getId());
-            }
-        } catch (RepositoryException e) {
-            throw new RepositoryException("Error persisting change log", e);
+            items.batch(batch);
+        } catch (Exception e) {
+            throw new RepositoryException(
+                    "An error occurred persisting change log", e);
         }
     }
 

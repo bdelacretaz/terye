@@ -26,11 +26,6 @@ public interface PersistenceManager {
 
     public void delete(PropertyId id) throws RepositoryException;
 
-    /**
-     * Deletes all rows (in node and property tables) with matching row key.
-     */
-    public void deleteRange(String partialKey) throws RepositoryException;
-
     public void persist(ChangeLog log) throws RepositoryException;
 
     public void dispose() throws Exception;
