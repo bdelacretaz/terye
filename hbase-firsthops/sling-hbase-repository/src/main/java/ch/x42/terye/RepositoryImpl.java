@@ -82,7 +82,7 @@ public class RepositoryImpl implements Repository {
             }
             wsContext = getWorkspaceContext(workspaceName);
         }
-        logger.debug("login(" + workspaceName + ")");
+        logger.debug("login({})", workspaceName);
         return new SessionImpl(this, wsContext);
     }
 

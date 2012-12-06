@@ -53,12 +53,12 @@ public class SessionImpl implements Session {
 
     public SessionImpl(RepositoryImpl repository, WorkspaceContext wsContext)
             throws RepositoryException {
+        logger.debug("creating new session: {}", this);
         this.repository = repository;
         workspace = new WorkspaceImpl(wsContext, this);
         itemManager = new ItemManager(this,
                 (ObservationManagerImpl) workspace.getObservationManager());
         valueFactory = new ValueFactoryImpl();
-        logger.debug("Session created for workspace {}", workspace.getName());
     }
 
     protected void check() throws RepositoryException {
@@ -195,7 +195,7 @@ public class SessionImpl implements Session {
 
     @Override
     public void refresh(boolean keepChanges) throws RepositoryException {
-        logger.debug("refresh({})", keepChanges);
+        logger.debug("[{}].refresh({})", this, keepChanges);
         getItemManager().refresh(PathFactory.createRootPath());
     }
 
@@ -309,6 +309,7 @@ public class SessionImpl implements Session {
 
     @Override
     public void logout() {
+        logger.debug("[{}].logout()", this);
         // reset node manager
         itemManager = null;
         live = false;
