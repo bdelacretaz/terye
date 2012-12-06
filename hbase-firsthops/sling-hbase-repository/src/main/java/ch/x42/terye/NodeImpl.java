@@ -687,8 +687,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public Property setProperty(String name, String value, int type)
             throws ValueFormatException, VersionException, LockException,
             ConstraintViolationException, RepositoryException {
-        // TODO Auto-generated method stub
-        return null;
+        // XXX: discard type
+        return setProperty(name, value);
     }
 
     @Override
