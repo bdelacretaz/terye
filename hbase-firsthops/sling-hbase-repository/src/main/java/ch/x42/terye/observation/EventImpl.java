@@ -7,23 +7,23 @@ import javax.jcr.RepositoryException;
 import javax.jcr.observation.Event;
 
 import ch.x42.terye.SessionImpl;
-import ch.x42.terye.persistence.id.NodeId;
+import ch.x42.terye.path.Path;
+import ch.x42.terye.path.PathFactory;
 
 public class EventImpl implements Event {
 
     private final int type;
     private final long date;
     private final String path;
-    private final NodeId parentId;
+    private final Path parentPath;
     private final Map<String, String> info;
     private final SessionImpl session;
 
-    protected EventImpl(int type, long date, String path, NodeId parentId,
-            SessionImpl session) {
+    protected EventImpl(int type, long date, String path, SessionImpl session) {
         this.type = type;
         this.date = date;
         this.path = path;
-        this.parentId = parentId;
+        this.parentPath = PathFactory.create(path).getParent();
         this.info = new HashMap<String, String>();
         this.session = session;
     }
@@ -33,8 +33,8 @@ public class EventImpl implements Event {
         return type;
     }
 
-    public NodeId getParentId() {
-        return parentId;
+    public Path getParentPath() {
+        return parentPath;
     }
 
     @Override

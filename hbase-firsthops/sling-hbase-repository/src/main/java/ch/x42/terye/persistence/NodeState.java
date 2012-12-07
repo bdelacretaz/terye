@@ -13,16 +13,16 @@ public class NodeState extends ItemState {
     private List<NodeId> childNodes;
     private List<PropertyId> properties;
 
-    public NodeState(NodeId id, NodeId parentId, String nodeTypeName,
-            List<NodeId> childNodes, List<PropertyId> properties) {
-        super(id, parentId);
+    public NodeState(NodeId id, String nodeTypeName, List<NodeId> childNodes,
+            List<PropertyId> properties) {
+        super(id);
         this.nodeTypeName = nodeTypeName;
         this.childNodes = childNodes;
         this.properties = properties;
     }
 
-    public NodeState(NodeId id, NodeId parentId, String nodeTypeName) {
-        this(id, parentId, nodeTypeName, new CopyOnWriteArrayList<NodeId>(),
+    public NodeState(NodeId id, String nodeTypeName) {
+        this(id, nodeTypeName, new CopyOnWriteArrayList<NodeId>(),
                 new LinkedList<PropertyId>());
     }
 

@@ -48,7 +48,7 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     public void setValue(ValueImpl value) {
         this.value = value;
-        this.state = new PropertyState(getId(), getParentId(), value);
+        this.state = new PropertyState(getId(), value);
     }
 
     @Override

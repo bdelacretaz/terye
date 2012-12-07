@@ -14,6 +14,7 @@ import javax.jcr.RepositoryException;
 
 import ch.x42.terye.ItemImpl;
 import ch.x42.terye.path.Path;
+import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.persistence.id.ItemId;
 
 public class ChangeLog {
@@ -50,7 +51,7 @@ public class ChangeLog {
                 .iterator();
         while (iterator.hasNext()) {
             Entry<ItemId, ItemState> entry = iterator.next();
-            Path path = entry.getValue().getPathInternal();
+            Path path = PathFactory.create(entry.getValue().getPath());
             if (path.isEquivalentTo(root) || path.isDescendantOf(root)) {
                 newAddedStates.put(entry.getKey(), entry.getValue());
                 iterator.remove();
@@ -60,7 +61,7 @@ public class ChangeLog {
         iterator = modifiedStates.entrySet().iterator();
         while (iterator.hasNext()) {
             Entry<ItemId, ItemState> entry = iterator.next();
-            Path path = entry.getValue().getPathInternal();
+            Path path = PathFactory.create(entry.getValue().getPath());
             if (path.isEquivalentTo(root) || path.isDescendantOf(root)) {
                 newModifiedStates.put(entry.getKey(), entry.getValue());
                 iterator.remove();
@@ -70,7 +71,7 @@ public class ChangeLog {
         iterator = removedStates.entrySet().iterator();
         while (iterator.hasNext()) {
             Entry<ItemId, ItemState> entry = iterator.next();
-            Path path = entry.getValue().getPathInternal();
+            Path path = PathFactory.create(entry.getValue().getPath());
             if (path.isEquivalentTo(root) || path.isDescendantOf(root)) {
                 newRemovedStates.put(entry.getKey(), entry.getValue());
                 iterator.remove();
@@ -123,11 +124,11 @@ public class ChangeLog {
 
             @Override
             public int compare(ItemState s1, ItemState s2) {
-                if (s1.getPathInternal().getDepth() < s2.getPathInternal()
-                        .getDepth()) {
+                Path p1 = PathFactory.create(s1.getPath());
+                Path p2 = PathFactory.create(s2.getPath());
+                if (p1.getDepth() < p2.getDepth()) {
                     return -1;
-                } else if (s1.getPathInternal().getDepth() == s2
-                        .getPathInternal().getDepth()) {
+                } else if (p1.getDepth() == p2.getDepth()) {
                     return 0;
                 }
                 return 1;
@@ -143,8 +144,9 @@ public class ChangeLog {
             for (ItemState root : roots) {
                 // if this state is a descendant of one of the minimal roots, we
                 // can discard it
-                if (state.getPathInternal().isDescendantOf(
-                        root.getPathInternal())) {
+                Path statePath = PathFactory.create(state.getPath());
+                Path rootPath = PathFactory.create(root.getPath());
+                if (statePath.isDescendantOf(rootPath)) {
                     covered = true;
                     break;
                 }

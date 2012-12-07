@@ -109,10 +109,6 @@ public class HBasePersistenceManager implements PersistenceManager {
     private NodeState createNewNodeState(Result result) throws IOException,
             ClassNotFoundException {
         NodeId id = new NodeId(Bytes.toString(result.getRow()));
-        byte[] parentIdBytes = getBytes(result,
-                Constants.ITEMS_COLNAME_PARENTID);
-        NodeId parentId = parentIdBytes == null ? null : new NodeId(
-                Bytes.toString(parentIdBytes));
         String nodeTypeName = getString(result,
                 Constants.ITEMS_COLNAME_NODETYPE);
         List<NodeId> childNodes = Utils.<List<NodeId>> deserialize(getBytes(
@@ -120,16 +116,14 @@ public class HBasePersistenceManager implements PersistenceManager {
         List<PropertyId> properties = Utils
                 .<List<PropertyId>> deserialize(getBytes(result,
                         Constants.ITEMS_COLNAME_PROPERTIES));
-        return new NodeState(id, parentId, nodeTypeName, childNodes, properties);
+        return new NodeState(id, nodeTypeName, childNodes, properties);
     }
 
     private PropertyState createNewPropertyState(Result result) {
         PropertyId id = new PropertyId(Bytes.toString(result.getRow()));
-        NodeId parentId = new NodeId(Bytes.toString(getBytes(result,
-                Constants.ITEMS_COLNAME_PARENTID)));
         int type = getInt(result, Constants.ITEMS_COLNAME_TYPE);
         byte[] bytes = getBytes(result, Constants.ITEMS_COLNAME_VALUE);
-        return new PropertyState(id, parentId, type, bytes);
+        return new PropertyState(id, type, bytes);
     }
 
     @Override
@@ -191,12 +185,6 @@ public class HBasePersistenceManager implements PersistenceManager {
         // item type
         put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_ITEMTYPE,
                 Bytes.toBytes(0));
-        // parent id
-        if (state.getParentId() != null) {
-            put.add(Constants.ITEMS_CFNAME_DATA,
-                    Constants.ITEMS_COLNAME_PARENTID,
-                    Bytes.toBytes(state.getParentId().toString()));
-        }
         // node type name
         put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_NODETYPE,
                 Bytes.toBytes(state.getNodeTypeName()));
@@ -220,9 +208,6 @@ public class HBasePersistenceManager implements PersistenceManager {
         // item type
         put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_ITEMTYPE,
                 Bytes.toBytes(1));
-        // parent id
-        put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_PARENTID,
-                Bytes.toBytes(state.getParentId().toString()));
         // type
         put.add(Constants.ITEMS_CFNAME_DATA, Constants.ITEMS_COLNAME_TYPE,
                 Bytes.toBytes(state.getType()));

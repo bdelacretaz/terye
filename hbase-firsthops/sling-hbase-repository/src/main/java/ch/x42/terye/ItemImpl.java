@@ -19,9 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.x42.terye.path.Path;
+import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.id.ItemId;
-import ch.x42.terye.persistence.id.NodeId;
 
 public class ItemImpl implements Item {
 
@@ -30,6 +30,8 @@ public class ItemImpl implements Item {
     private SessionImpl session;
     protected ItemState state;
     private boolean removed;
+    private Path path;
+    private Path parentPath;
 
     public ItemImpl(SessionImpl session, ItemState state) {
         this.session = session;
@@ -86,14 +88,17 @@ public class ItemImpl implements Item {
     public Node getParent() throws ItemNotFoundException,
             AccessDeniedException, RepositoryException {
         sanityCheck();
-        if (getParentId() == null) {
+        if (getParentPath() == null) {
             throw new ItemNotFoundException("The root node has no parent");
         }
-        return (NodeImpl) getItemManager().getItem(getParentId());
+        return (NodeImpl) getItemManager().getItem(getParentPath());
     }
 
-    protected NodeId getParentId() {
-        return state.getParentId();
+    public Path getParentPath() throws RepositoryException {
+        if (parentPath == null) {
+            parentPath = getPathInternal().getParent();
+        }
+        return parentPath;
     }
 
     @Override
@@ -103,7 +108,10 @@ public class ItemImpl implements Item {
     }
 
     public Path getPathInternal() throws RepositoryException {
-        return state.getPathInternal();
+        if (path == null) {
+            path = PathFactory.create(getPath());
+        }
+        return path;
     }
 
     @Override

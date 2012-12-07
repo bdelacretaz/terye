@@ -30,13 +30,12 @@ public class EventCollection {
                 type = Event.PROPERTY_ADDED;
             }
             events.add(new EventImpl(type, System.currentTimeMillis(), state
-                    .getPath(), state.getParentId(), session));
+                    .getPath(), session));
         }
         for (ItemState state : log.getModifiedStates()) {
             if (!state.isNode()) {
                 events.add(new EventImpl(Event.PROPERTY_CHANGED, System
-                        .currentTimeMillis(), state.getPath(), state
-                        .getParentId(), session));
+                        .currentTimeMillis(), state.getPath(), session));
             }
         }
         for (ItemState state : log.getRemovedStates()) {
@@ -47,7 +46,7 @@ public class EventCollection {
                 type = Event.PROPERTY_REMOVED;
             }
             events.add(new EventImpl(type, System.currentTimeMillis(), state
-                    .getPath(), state.getParentId(), session));
+                    .getPath(), session));
         }
     }
 

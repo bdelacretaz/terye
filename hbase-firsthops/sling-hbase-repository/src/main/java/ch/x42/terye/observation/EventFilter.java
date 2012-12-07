@@ -46,12 +46,11 @@ public class EventFilter {
             return true;
         }
         // check path
-        if (event.getParentId() != null) {
-            Path eventPath = PathFactory.create(event.getParentId().toString());
-            boolean match = eventPath.equals(path);
+        if (event.getParentPath() != null) {
+            boolean match = event.getParentPath().equals(path);
             if (!match && isDeep) {
                 try {
-                    match = eventPath.isDescendantOf(path);
+                    match = event.getParentPath().isDescendantOf(path);
                 } catch (RepositoryException e) {
                     logger.warn("Caught exception while applying event filter",
                             e);
