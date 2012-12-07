@@ -42,7 +42,7 @@ public class EventFilter {
             return true;
         }
         // locality
-        if (noLocal && !session.equals(event.getSession())) {
+        if (noLocal && session.equals(event.getSession())) {
             return true;
         }
         // check path
