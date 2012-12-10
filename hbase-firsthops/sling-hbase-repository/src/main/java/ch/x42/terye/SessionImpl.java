@@ -172,8 +172,23 @@ public class SessionImpl implements Session {
             throws ItemExistsException, PathNotFoundException,
             VersionException, ConstraintViolationException, LockException,
             RepositoryException {
-        // TODO Auto-generated method stub
-
+        logger.debug("move({}, {})", srcAbsPath, destAbsPath);
+        Path srcPath = PathFactory.create(srcAbsPath);
+        if (!srcPath.isAbsolute()) {
+            throw new RepositoryException("srcAbsPath is not absolute: "
+                    + srcAbsPath);
+        }
+        Path destPath = PathFactory.create(destAbsPath);
+        if (!destPath.isAbsolute()) {
+            throw new RepositoryException("destAbsPath is not absolute: "
+                    + destAbsPath);
+        }
+        NodeImpl node = getItemManager().getNode(srcPath);
+        if (getItemManager().itemExists(destPath)) {
+            throw new RepositoryException("an item already exists at: "
+                    + destAbsPath);
+        }
+        getItemManager().move(node, destPath);
     }
 
     @Override

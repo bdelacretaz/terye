@@ -49,6 +49,8 @@ public class ItemImpl implements Item {
 
     protected void setState(ItemState state) throws RepositoryException {
         this.state = state;
+        this.path = null;
+        this.parentPath = null;
     }
 
     @Override

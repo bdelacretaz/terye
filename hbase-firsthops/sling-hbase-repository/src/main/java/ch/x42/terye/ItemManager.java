@@ -267,7 +267,6 @@ public class ItemManager {
         log.modified(parent);
         // remove item from cache
         removeFromCache(item.getId());
-        // takes care of removing descendants from store
         log.removed(item);
         // add to paths removed in this session
         markRemoved(item.getId());
@@ -336,6 +335,67 @@ public class ItemManager {
 
     public boolean hasPendingChanges() {
         return !log.isEmpty();
+    }
+
+    public void move(ItemImpl item, Path destination)
+            throws RepositoryException {
+        doMove(item, destination, true);
+    }
+
+    private void doMove(ItemImpl item, Path destination, boolean isRoot)
+            throws RepositoryException {
+        // move child nodes and properties recursively
+        if (item.isNode()) {
+            PropertyIterator pIterator = ((NodeImpl) item).getProperties();
+            while (pIterator.hasNext()) {
+                PropertyImpl property = (PropertyImpl) pIterator.nextProperty();
+                doMove(property, destination.resolve(property.getName()), false);
+            }
+            NodeIterator nIterator = ((NodeImpl) item).getNodes();
+            while (nIterator.hasNext()) {
+                NodeImpl node = (NodeImpl) nIterator.nextNode();
+                doMove(node, destination.resolve(node.getName()), false);
+            }
+        }
+
+        // if this is the root of the move, then remove it from parent's
+        // children
+        if (isRoot) {
+            NodeImpl oldParent = (NodeImpl) item.getParent();
+            oldParent.removeChild(item);
+            log.modified(oldParent);
+        }
+        // remove the item
+        removeFromCache(item.getId());
+        log.removed(item);
+        // add to paths removed in this session
+        markRemoved(item.getId());
+
+        // create new id
+        ItemId id;
+        if (item.isNode()) {
+            id = new NodeId(destination.toString());
+        } else {
+            id = new PropertyId(destination.toString());
+        }
+        // clone item state
+        ItemState old = item.getState();
+        ItemState clone = old.clone(id);
+        // set cloned state
+        item.setState(clone);
+        // add item
+        putToCache(item);
+        log.added(item);
+        // if this is the root of the move, then add it to the new parent's
+        // children
+        if (isRoot) {
+            NodeImpl newParent = (NodeImpl) item.getParent();
+            newParent.addChild(item);
+            log.modified(newParent);
+        }
+
+        // log item as moved
+        log.moved(old, clone);
     }
 
 }

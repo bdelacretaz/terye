@@ -22,19 +22,29 @@ public class ChangeLog {
     private Map<ItemId, ItemState> addedStates;
     private Map<ItemId, ItemState> modifiedStates;
     private Map<ItemId, ItemState> removedStates;
+    // additionally keep track of moved states (the source of a move will be
+    // present in removedStates, the destination in addedStates also)
+    private Map<ItemId, ItemState> movedSrcStates;
+    private Map<ItemId, ItemState> movedDestStates;
 
     public ChangeLog() {
         addedStates = new LinkedHashMap<ItemId, ItemState>();
         modifiedStates = new LinkedHashMap<ItemId, ItemState>();
         removedStates = new LinkedHashMap<ItemId, ItemState>();
+        movedSrcStates = new LinkedHashMap<ItemId, ItemState>();
+        movedDestStates = new LinkedHashMap<ItemId, ItemState>();
     }
 
     private ChangeLog(Map<ItemId, ItemState> addedStates,
             Map<ItemId, ItemState> modifiedStates,
-            Map<ItemId, ItemState> removedStates) {
+            Map<ItemId, ItemState> removedStates,
+            Map<ItemId, ItemState> movedSrcStates,
+            Map<ItemId, ItemState> movedDestStates) {
         this.addedStates = addedStates;
         this.modifiedStates = modifiedStates;
         this.removedStates = removedStates;
+        this.movedSrcStates = movedSrcStates;
+        this.movedDestStates = movedDestStates;
     }
 
     /**
@@ -77,8 +87,14 @@ public class ChangeLog {
                 iterator.remove();
             }
         }
+        // XXX: not correct but ignore conflict cases
+        Map<ItemId, ItemState> newMovedSrcStates = new LinkedHashMap<ItemId, ItemState>(
+                movedSrcStates);
+        Map<ItemId, ItemState> newMovedDestStates = new LinkedHashMap<ItemId, ItemState>(
+                movedDestStates);
+
         return new ChangeLog(newAddedStates, newModifiedStates,
-                newRemovedStates);
+                newRemovedStates, newMovedSrcStates, newMovedDestStates);
     }
 
     public void added(ItemImpl item) {
@@ -98,6 +114,11 @@ public class ChangeLog {
         }
     }
 
+    public void moved(ItemState src, ItemState dest) {
+        movedSrcStates.put(src.getId(), src);
+        movedDestStates.put(dest.getId(), dest);
+    }
+
     public Collection<ItemState> getAddedStates() {
         return addedStates.values();
     }
@@ -108,6 +129,14 @@ public class ChangeLog {
 
     public Collection<ItemState> getRemovedStates() {
         return removedStates.values();
+    }
+
+    public Collection<ItemState> getMovedSrcStates() {
+        return movedSrcStates.values();
+    }
+
+    public Collection<ItemState> getMovedDestStates() {
+        return movedDestStates.values();
     }
 
     /**
@@ -169,6 +198,8 @@ public class ChangeLog {
         addedStates.clear();
         modifiedStates.clear();
         removedStates.clear();
+        movedSrcStates.clear();
+        movedDestStates.clear();
     }
 
 }

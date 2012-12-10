@@ -20,4 +20,6 @@ public abstract class ItemState {
 
     public abstract boolean isNode();
 
+    public abstract ItemState clone(ItemId newId);
+
 }

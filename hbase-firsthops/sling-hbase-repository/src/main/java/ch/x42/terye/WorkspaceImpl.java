@@ -94,8 +94,11 @@ public class WorkspaceImpl implements Workspace {
             throws ConstraintViolationException, VersionException,
             AccessDeniedException, PathNotFoundException, ItemExistsException,
             LockException, RepositoryException {
-        // TODO Auto-generated method stub
-
+        SessionImpl tmpSession = (SessionImpl) session.getRepository().login(
+                getName());
+        tmpSession.move(srcAbsPath, destAbsPath);
+        tmpSession.save();
+        tmpSession.logout();
     }
 
     @Override

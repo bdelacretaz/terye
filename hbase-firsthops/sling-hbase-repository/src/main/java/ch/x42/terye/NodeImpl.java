@@ -81,9 +81,9 @@ public class NodeImpl extends ItemImpl implements Node {
 
     protected void removeChild(ItemImpl child) throws RepositoryException {
         if (child.isNode()) {
-            getState().getChildNodes().remove(child.getId());
+            getState().getChildNodes().remove(child.getName());
         } else {
-            getState().getProperties().remove(child.getId());
+            getState().getProperties().remove(child.getName());
         }
     }
 
