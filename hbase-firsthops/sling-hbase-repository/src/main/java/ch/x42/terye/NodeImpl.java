@@ -49,9 +49,7 @@ import ch.x42.terye.path.Path;
 import ch.x42.terye.path.PathFactory;
 import ch.x42.terye.persistence.ItemState;
 import ch.x42.terye.persistence.NodeState;
-import ch.x42.terye.persistence.id.ItemId;
 import ch.x42.terye.persistence.id.NodeId;
-import ch.x42.terye.persistence.id.PropertyId;
 import ch.x42.terye.value.ValueImpl;
 
 public class NodeImpl extends ItemImpl implements Node {
@@ -75,9 +73,9 @@ public class NodeImpl extends ItemImpl implements Node {
 
     protected void addChild(ItemImpl child) throws RepositoryException {
         if (child.isNode()) {
-            getState().getChildNodes().add((NodeId) child.getId());
+            getState().getChildNodes().add(child.getName());
         } else {
-            getState().getProperties().add((PropertyId) child.getId());
+            getState().getProperties().add(child.getName());
         }
     }
 
@@ -236,8 +234,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public NodeIterator getNodes() throws RepositoryException {
         logger.debug("[{}].getNodes()", getPath());
         sanityCheck();
-        return new NodeIteratorImpl(getItemManager(), new LinkedList<NodeId>(
-                getState().getChildNodes()));
+        return new NodeIteratorImpl(getItemManager(), getPathInternal(),
+                new LinkedList<String>(getState().getChildNodes()));
     }
 
     @Override
@@ -249,10 +247,10 @@ public class NodeImpl extends ItemImpl implements Node {
     public NodeIterator getNodes(String[] nameGlobs) throws RepositoryException {
         logger.debug("[{}].getNodes({})", getPath(), Arrays.toString(nameGlobs));
         sanityCheck();
-        @SuppressWarnings("unchecked")
-        List<NodeId> filteredChildren = (List<NodeId>) filterByName(getState()
-                .getChildNodes(), nameGlobs);
-        return new NodeIteratorImpl(getItemManager(), filteredChildren);
+        List<String> filteredChildren = filterByName(
+                getState().getChildNodes(), nameGlobs);
+        return new NodeIteratorImpl(getItemManager(), getPathInternal(),
+                filteredChildren);
     }
 
     private String[] patternToArray(String namePattern) {
@@ -264,23 +262,21 @@ public class NodeImpl extends ItemImpl implements Node {
         return globs.toArray(new String[globs.size()]);
     }
 
-    private List<? extends ItemId> filterByName(
-            Iterable<? extends ItemId> items, String[] nameGlobs)
+    private List<String> filterByName(Iterable<String> names, String[] nameGlobs)
             throws RepositoryException {
-        List<ItemId> filteredItems = new LinkedList<ItemId>();
-        Iterator<? extends ItemId> iterator = items.iterator();
+        List<String> filteredNames = new LinkedList<String>();
+        Iterator<String> iterator = names.iterator();
         while (iterator.hasNext()) {
-            ItemId id = iterator.next();
-            Path path = PathFactory.create(id.toString());
+            String name = iterator.next();
             for (String nameGlob : nameGlobs) {
                 // XXX: simplistic matching (ignoring wildcard)
-                if (path.getLastElement().matches(nameGlob)) {
-                    filteredItems.add(id);
+                if (name.matches(nameGlob)) {
+                    filteredNames.add(name);
                     break;
                 }
             }
         }
-        return filteredItems;
+        return filteredNames;
     }
 
     @Override
@@ -300,8 +296,8 @@ public class NodeImpl extends ItemImpl implements Node {
     public PropertyIterator getProperties() throws RepositoryException {
         logger.debug("[{}].getProperties()", getPath());
         sanityCheck();
-        return new PropertyIteratorImpl(getItemManager(),
-                new LinkedList<PropertyId>(getState().getProperties()));
+        return new PropertyIteratorImpl(getItemManager(), getPathInternal(),
+                new LinkedList<String>(getState().getProperties()));
     }
 
     @Override
@@ -316,10 +312,10 @@ public class NodeImpl extends ItemImpl implements Node {
         logger.debug("[{}].getProperties({})", getPath(),
                 Arrays.toString(nameGlobs));
         sanityCheck();
-        @SuppressWarnings("unchecked")
-        List<PropertyId> filteredProperties = (List<PropertyId>) filterByName(
-                getState().getProperties(), nameGlobs);
-        return new PropertyIteratorImpl(getItemManager(), filteredProperties);
+        List<String> filteredProperties = filterByName(getState()
+                .getProperties(), nameGlobs);
+        return new PropertyIteratorImpl(getItemManager(), getPathInternal(),
+                filteredProperties);
     }
 
     @Override

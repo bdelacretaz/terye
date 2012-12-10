@@ -111,11 +111,10 @@ public class HBasePersistenceManager implements PersistenceManager {
         NodeId id = new NodeId(Bytes.toString(result.getRow()));
         String nodeTypeName = getString(result,
                 Constants.ITEMS_COLNAME_NODETYPE);
-        List<NodeId> childNodes = Utils.<List<NodeId>> deserialize(getBytes(
+        List<String> childNodes = Utils.<List<String>> deserialize(getBytes(
                 result, Constants.ITEMS_COLNAME_CHILDNODES));
-        List<PropertyId> properties = Utils
-                .<List<PropertyId>> deserialize(getBytes(result,
-                        Constants.ITEMS_COLNAME_PROPERTIES));
+        List<String> properties = Utils.<List<String>> deserialize(getBytes(
+                result, Constants.ITEMS_COLNAME_PROPERTIES));
         return new NodeState(id, nodeTypeName, childNodes, properties);
     }
 

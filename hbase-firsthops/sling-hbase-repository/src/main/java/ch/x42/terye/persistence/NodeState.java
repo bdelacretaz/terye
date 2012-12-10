@@ -5,16 +5,15 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import ch.x42.terye.persistence.id.NodeId;
-import ch.x42.terye.persistence.id.PropertyId;
 
 public class NodeState extends ItemState {
 
     private String nodeTypeName;
-    private List<NodeId> childNodes;
-    private List<PropertyId> properties;
+    private List<String> childNodes;
+    private List<String> properties;
 
-    public NodeState(NodeId id, String nodeTypeName, List<NodeId> childNodes,
-            List<PropertyId> properties) {
+    public NodeState(NodeId id, String nodeTypeName, List<String> childNodes,
+            List<String> properties) {
         super(id);
         this.nodeTypeName = nodeTypeName;
         this.childNodes = childNodes;
@@ -22,8 +21,8 @@ public class NodeState extends ItemState {
     }
 
     public NodeState(NodeId id, String nodeTypeName) {
-        this(id, nodeTypeName, new CopyOnWriteArrayList<NodeId>(),
-                new LinkedList<PropertyId>());
+        this(id, nodeTypeName, new CopyOnWriteArrayList<String>(),
+                new LinkedList<String>());
     }
 
     @Override
@@ -35,11 +34,11 @@ public class NodeState extends ItemState {
         return nodeTypeName;
     }
 
-    public List<NodeId> getChildNodes() {
+    public List<String> getChildNodes() {
         return childNodes;
     }
 
-    public List<PropertyId> getProperties() {
+    public List<String> getProperties() {
         return properties;
     }
 

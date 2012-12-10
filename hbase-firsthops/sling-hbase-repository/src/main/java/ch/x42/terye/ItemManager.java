@@ -197,7 +197,7 @@ public class ItemManager {
         // add to parent
         Path parentPath = path.getParent();
         NodeImpl parent = null;
-        if (parentPath != null) {
+        if (parentPath == null) {
             // only the case for the root node
             return node;
         }

@@ -8,7 +8,6 @@ import javax.jcr.query.QueryResult;
 import javax.jcr.query.RowIterator;
 
 import ch.x42.terye.iterator.NodeIteratorImpl;
-import ch.x42.terye.persistence.id.NodeId;
 
 public class QueryResultImpl implements QueryResult {
 
@@ -26,7 +25,7 @@ public class QueryResultImpl implements QueryResult {
 
     @Override
     public NodeIterator getNodes() throws RepositoryException {
-        return new NodeIteratorImpl(null, new LinkedList<NodeId>());
+        return new NodeIteratorImpl(null, null, new LinkedList<String>());
     }
 
     @Override
