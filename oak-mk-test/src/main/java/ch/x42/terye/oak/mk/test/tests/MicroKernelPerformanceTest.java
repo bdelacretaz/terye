@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.x42.terye.oak.mk.test.ParameterizedPerformanceTestRunner;
+import ch.x42.terye.oak.mk.test.fixtures.InMemoryMKTestFixture;
 import ch.x42.terye.oak.mk.test.fixtures.MicroKernelTestFixture;
-import ch.x42.terye.oak.mk.test.fixtures.MongoMKTestFixture;
 
 /**
  * This is the base class for all MicroKernel performance tests. When run, the
@@ -27,9 +27,13 @@ public abstract class MicroKernelPerformanceTest {
     @Parameters
     public static Collection<Object[]> getParameters() {
         List<Object[]> parameters = new LinkedList<Object[]>();
-        // execute tests with the MongoMicroKernel
+        // execute tests with the MongoDB microkernel
+        // parameters.add(new Object[] {
+        // new MongoMKTestFixture()
+        // });
+        // execute tests with the in-memory microkernel
         parameters.add(new Object[] {
-            new MongoMKTestFixture()
+            new InMemoryMKTestFixture()
         });
         return parameters;
     }
