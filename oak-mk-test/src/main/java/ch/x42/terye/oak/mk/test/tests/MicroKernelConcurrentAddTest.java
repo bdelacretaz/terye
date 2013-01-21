@@ -1,12 +1,8 @@
 package ch.x42.terye.oak.mk.test.tests;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -23,16 +19,18 @@ import ch.x42.terye.oak.mk.test.fixtures.MicroKernelTestFixture;
  * This test measures the performance of many threads concurrently adding a
  * large number of nodes. The test creates NB_THREADS threads, each of which
  * commits a subtree of height TREE_HEIGHT and branching factor
- * TREE_BRANCHING_FACTOR.
+ * TREE_BRANCHING_FACTOR. The workers commit their nodes in batches of
+ * COMMIT_RATE nodes per commit call.
  */
 public class MicroKernelConcurrentAddTest extends MicroKernelPerformanceTest {
 
     private static final int NB_THREADS = Runtime.getRuntime()
             .availableProcessors() * 2;
     private static final int TREE_HEIGHT = 6;
-    private static final int TREE_BRANCHING_FACTOR = 4;
+    private static final int TREE_BRANCHING_FACTOR = 5;
+    private static final int COMMIT_RATE = 5;
 
-    public List<CommitWorker> workers;
+    public List<Callable<String>> workers;
 
     public MicroKernelConcurrentAddTest(MicroKernelTestFixture ctx) {
         super(ctx);
@@ -47,33 +45,15 @@ public class MicroKernelConcurrentAddTest extends MicroKernelPerformanceTest {
         logger.debug("Number of threads: " + NB_THREADS);
         logger.debug("Number of nodes per thread: " + nbPerThread);
         logger.debug("Total number of nodes: " + nbTotal);
-        logger.debug("Creating diff statements");
-
-        // create a set of diff statements for each worker
-        ArrayList<Set<String>> sets = new ArrayList<Set<String>>(NB_THREADS);
-        // keep track of first level nodes
-        Set<String> nodes = new HashSet<String>();
-        for (int i = 0; i < NB_THREADS; i++) {
-            SortedSet<String> statements = new TreeSet<String>();
-            // generate unique name for first level node
-            String name;
-            do {
-                name = generateRandomString(3, 6);
-            } while (nodes.contains(name));
-            // diff statement for first level node
-            statements.add("+\"" + name + "\":{}");
-            // generate diff statements for the subtree
-            generateTreeDiffStatements(name, TREE_HEIGHT - 1,
-                    TREE_BRANCHING_FACTOR, statements);
-            sets.add(statements);
-        }
+        logger.debug("Creating workers");
 
         // create workers
-        workers = new LinkedList<CommitWorker>();
+        workers = new LinkedList<Callable<String>>();
         for (int i = 0; i < NB_THREADS; i++) {
             MicroKernel mk = createMicroKernel();
-            CommitWorker cw = new CommitWorker(mk, sets.get(i), 1);
-            workers.add(cw);
+            Callable<String> worker = new SubtreeCommitter(mk, "node_" + i,
+                    TREE_HEIGHT, TREE_BRANCHING_FACTOR, COMMIT_RATE);
+            workers.add(worker);
         }
     }
 
@@ -83,17 +63,17 @@ public class MicroKernelConcurrentAddTest extends MicroKernelPerformanceTest {
         logger.debug("Starting concurrent worker execution");
         ExecutorService executor = Executors.newFixedThreadPool(NB_THREADS);
         List<Future<String>> futures = new LinkedList<Future<String>>();
-        for (CommitWorker worker : workers) {
+        for (Callable<String> worker : workers) {
             futures.add(executor.submit(worker));
         }
         executor.shutdown();
         executor.awaitTermination(60, TimeUnit.SECONDS);
-        // get return value of workers (rethrows exceptions that might have
-        // happened during execution)
+        // get return value of workers (this forces exceptions that might have
+        // happened during execution to be re-thrown)
         for (Future<String> future : futures) {
             future.get();
         }
-        logger.debug("Worker execution done");
+        logger.debug("All workers are done");
     }
 
     @After
@@ -103,47 +83,84 @@ public class MicroKernelConcurrentAddTest extends MicroKernelPerformanceTest {
     }
 
     /**
-     * Recursively generates diff statements for adding a subtree of specified
-     * height and with branching factor. The resulting diff statements are
-     * collected in the specified set.
+     * This callable commits a subtree defined by the constructor arguments with
+     * a specified commit rate. The name of the nodes will be the concatenation
+     * of a constant prefix and a number corresponding to the zero-based
+     * numbering of the child nodes of a given node.
      */
-    private void generateTreeDiffStatements(String prefix, int height, int k,
-            Set<String> stmts) {
-        if (height == 0) {
-            // done
-            return;
-        }
-        // keep track of node names
-        Set<String> nodes = new HashSet<String>();
-        // generate k children
-        for (int i = 0; i < k; i++) {
-            // generate unique node name
-            String name;
-            do {
-                name = generateRandomString(3, 6);
-            } while (nodes.contains(name));
-            String path = prefix + "/" + name;
-            // diff statement
-            stmts.add("+\"" + path + "\":{}");
-            // call recursively
-            generateTreeDiffStatements(path, height - 1, k, stmts);
-        }
-    }
+    private class SubtreeCommitter implements Callable<String> {
 
-    /**
-     * Generates random strings within a given length range and composed of
-     * lowercase alphabetic characters.
-     */
-    private String generateRandomString(int minLength, int maxLength) {
-        int length = minLength
-                + (int) (Math.round(Math.random() * (maxLength - minLength)));
-        String str = "";
-        for (int i = 0; i < length; i++) {
-            // random char a-z
-            char c = (char) (97 + (int) (Math.random() * 26));
-            str += c;
+        private static final String NODE_NAME = "node_";
+
+        private MicroKernel mk;
+        private String root;
+        private int height;
+        private int branchingFactor;
+        private int rate;
+
+        public SubtreeCommitter(MicroKernel mk, String root, int height,
+                int branchingFactor, int rate) {
+            this.mk = mk;
+            this.root = root;
+            this.height = height;
+            this.branchingFactor = branchingFactor;
+            this.rate = rate;
         }
-        return str;
+
+        @Override
+        public String call() throws Exception {
+            String r = null;
+            String batch = "";
+            int batchCount = 0;
+            // loop through all levels
+            for (int i = 0; i <= height; i++) {
+                // number of nodes on this level
+                int nbNodes = (int) Math.pow(branchingFactor, i);
+                // loop through all nodes on this level
+                for (int j = 0; j < nbNodes; j++) {
+                    if (batchCount == rate) {
+                        // commit batch
+                        r = mk.commit("/", batch, null, "");
+                        batch = "";
+                        batchCount = 0;
+                    }
+                    // add new statement to batch for later commit
+                    batch += "+\"" + generatePath(i, j) + "\":{} ";
+                    batchCount++;
+                }
+            }
+            // commit remaining statements, if any
+            if (batchCount > 0) {
+                // commit batch
+                r = mk.commit("/", batch, null, "");
+            }
+            return r;
+        }
+
+        /**
+         * This method generates the path for a node in the subtree rooted at
+         * 'root'.
+         * 
+         * @param level the level of the node (0 being the same level as the
+         *            root of the subtree)
+         * @param index the zero-based index of the node on the specified level
+         * @return the absolute path of the specified node
+         */
+        private String generatePath(int level, int index) {
+            String path = root;
+            if (level == 0) {
+                return root;
+            }
+            // loop through all levels, starting at first sublevel of the root
+            for (int i = 1; i <= level; i++) {
+                // number of nodes at level 'level' that share the same ancestor
+                // node on the current level
+                int n = ((int) Math.pow(branchingFactor, level - i));
+                path += "/" + NODE_NAME + ((index / n) % branchingFactor);
+            }
+            return path;
+        }
+
     }
 
 }
