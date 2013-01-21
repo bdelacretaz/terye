@@ -14,11 +14,15 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * JUnit test runner measuring test performance.
  */
 public class PerformanceTestRunner extends BlockJUnit4ClassRunner {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     // performance test methods
     private List<FrameworkMethod> methods;
@@ -95,19 +99,39 @@ public class PerformanceTestRunner extends BlockJUnit4ClassRunner {
         eachNotifier.fireTestStarted();
         try {
             // warm-up phase
-            int n = annotation.warmUpInvocations();
-            for (int i = 0; i < n; i++) {
-                statement.evaluate();
-            }
-            // test phase
             Timer timer = new Timer();
-            n = annotation.invocations();
+            int n = annotation.nbWarmupRuns();
+            logger.debug("-------------------------------------");
+            logger.debug("WARMUP PHASE (" + n + " invocations):");
+            logger.debug("-------------------------------------");
             for (int i = 0; i < n; i++) {
+                logger.debug("Test run " + (i + 1) + " of " + n);
                 timer.start();
                 statement.evaluate();
                 timer.stop();
-                System.out.println("Duration: " + timer.getDuration());
+                logger.debug("Execution time: " + timer.getLastDuration());
             }
+            // test phase
+            timer = new Timer();
+            n = annotation.nbRuns();
+            logger.debug("-----------------------------------");
+            logger.debug("TEST PHASE (" + n + " invocations):");
+            logger.debug("-----------------------------------");
+            for (int i = 0; i < n; i++) {
+                logger.debug("Test run " + (i + 1) + " of " + n);
+                timer.start();
+                statement.evaluate();
+                timer.stop();
+                logger.debug("Execution time: " + timer.getLastDuration());
+            }
+            logger.debug("--------");
+            logger.debug("RESULTS:");
+            logger.debug("--------");
+            logger.debug("Number of test runs: " + n);
+            logger.debug("Average execution time: "
+                    + timer.getAverageDuration());
+            logger.debug("Minimum execution time: " + timer.getMinDuration());
+            logger.debug("Maximum execution time: " + timer.getMaxDuration());
         } catch (AssumptionViolatedException e) {
             eachNotifier.addFailedAssumption(e);
         } catch (Throwable e) {

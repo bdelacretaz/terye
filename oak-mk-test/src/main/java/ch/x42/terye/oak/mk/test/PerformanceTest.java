@@ -16,11 +16,11 @@ public @interface PerformanceTest {
     /**
      * The number of times the test should be executed in the warm-up phase.
      */
-    int warmUpInvocations() default 0;
+    int nbWarmupRuns() default 0;
 
     /**
      * The number of times the test should be executed.
      */
-    int invocations() default 1;
+    int nbRuns() default 1;
 
 }

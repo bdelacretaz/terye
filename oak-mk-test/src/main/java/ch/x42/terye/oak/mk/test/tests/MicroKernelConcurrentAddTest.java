@@ -26,8 +26,8 @@ public class MicroKernelConcurrentAddTest extends MicroKernelPerformanceTest {
 
     private static final int NB_THREADS = Runtime.getRuntime()
             .availableProcessors() * 2;
-    private static final int TREE_HEIGHT = 6;
-    private static final int TREE_BRANCHING_FACTOR = 5;
+    private static final int TREE_HEIGHT = 5;
+    private static final int TREE_BRANCHING_FACTOR = 6;
     private static final int COMMIT_RATE = 5;
 
     public List<Callable<String>> workers;
@@ -57,7 +57,7 @@ public class MicroKernelConcurrentAddTest extends MicroKernelPerformanceTest {
         }
     }
 
-    @PerformanceTest
+    @PerformanceTest(nbWarmupRuns = 3, nbRuns = 3)
     public void test() throws Exception {
         // run them
         logger.debug("Starting concurrent worker execution");
