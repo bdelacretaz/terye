@@ -28,21 +28,21 @@ public class HBaseMicroKernelSchema {
         public static final byte DATA_PROPERTY_PREFIX = (byte) 1;
 
         // columns
-        public static final Qualifier COL_DELETED = new Qualifier("deleted",
-                SYSTEM_PROPERTY_PREFIX);
+        public static final Qualifier COL_DELETED = new Qualifier(
+                SYSTEM_PROPERTY_PREFIX, "deleted");
 
         // initial content
         private static final List<KeyValue[]> ROWS = new LinkedList<KeyValue[]>();
         static {
             KeyValue[] row = {
-                new KeyValue(Bytes.toBytes("/"), CF_DATA.getBytes(),
-                        COL_DELETED.getBytes(), 0L, Bytes.toBytes(false))
+                new KeyValue(Bytes.toBytes("/"), CF_DATA.toBytes(),
+                        COL_DELETED.toBytes(), 0L, Bytes.toBytes(false)),
             };
             ROWS.add(row);
         };
 
         private NodeTable() {
-            super(TABLE_NAME, COLUMN_FAMILIES, ROWS);
+            super(TABLE_NAME, COLUMN_FAMILIES, ROWS, Integer.MAX_VALUE);
         }
 
     }

@@ -37,12 +37,12 @@ public class HBaseTableManager {
         HTable hTable;
         try {
             hTable = new HTable(admin.getConfiguration(), table.getQualifier()
-                    .getBytes());
+                    .toBytes());
         } catch (TableNotFoundException e) {
             // create table
             admin.createTable(createDescriptor(table));
             hTable = new HTable(admin.getConfiguration(), table.getQualifier()
-                    .getBytes());
+                    .toBytes());
             // add initial content
             List<Put> batch = new LinkedList<Put>();
             for (KeyValue[] row : table.getRows()) {
@@ -59,10 +59,11 @@ public class HBaseTableManager {
 
     private HTableDescriptor createDescriptor(HBaseTableDefinition table) {
         HTableDescriptor tableDesc = new HTableDescriptor(table.getQualifier()
-                .getBytes());
+                .toBytes());
         for (Qualifier columnFamily : table.getColumnFamilies()) {
             HColumnDescriptor colDesc = new HColumnDescriptor(
-                    columnFamily.getBytes());
+                    columnFamily.toBytes());
+            colDesc.setMaxVersions(table.getMaxVersions());
             tableDesc.addFamily(colDesc);
         }
         return tableDesc;
@@ -77,8 +78,8 @@ public class HBaseTableManager {
 
     public void dropAllTables() throws IOException {
         for (HBaseTableDefinition schema : HBaseMicroKernelSchema.TABLES) {
-            admin.disableTable(schema.getQualifier().getString());
-            admin.deleteTable(schema.getQualifier().getString());
+            admin.disableTable(schema.getQualifier().toBytes());
+            admin.deleteTable(schema.getQualifier().toBytes());
         }
     }
 
