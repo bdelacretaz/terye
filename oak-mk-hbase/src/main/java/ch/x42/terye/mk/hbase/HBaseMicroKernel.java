@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
@@ -32,13 +33,18 @@ public class HBaseMicroKernel implements MicroKernel {
     private HBaseTableManager tableMgr;
     // XXX: temporarily use simple revision ids
     private long revisionCounter = 0;
-    // cache the revision ids we know are valid
-    private Set<Long> validRevisions = new HashSet<Long>();
-    // cache the revision ids we know are not valid
-    private Set<Long> invalidRevisions = new HashSet<Long>();
+    // node cache
+    private NodeCache cache;
+    // cache for the revision ids we know are valid
+    private Set<Long> validRevisions;
+    // cache for the revision ids we know are not valid
+    private Set<Long> invalidRevisions;
 
     public HBaseMicroKernel(HBaseAdmin admin) throws Exception {
         tableMgr = new HBaseTableManager(admin, HBaseMicroKernelSchema.TABLES);
+        this.cache = new NodeCache(1000);
+        this.validRevisions = new HashSet<Long>();
+        this.invalidRevisions = new HashSet<Long>();
     }
 
     @Override
@@ -200,24 +206,46 @@ public class HBaseMicroKernel implements MicroKernel {
         return timestamp | machineId | counter;
     }
 
-    private Result[] getNodeRows(Collection<String> paths) throws IOException {
+    private Result[] getNodeRows(Collection<String> paths, long revisionId)
+            throws IOException {
+        if (paths.isEmpty()) {
+            return new Result[0];
+        }
         List<Get> batch = new LinkedList<Get>();
         for (String path : paths) {
             Get get = new Get(NodeTable.pathToRowKey(path));
             get.setMaxVersions();
+            get.setTimeRange(0L, revisionId + 1L);
             batch.add(get);
         }
         return tableMgr.get(NODES).get(batch);
     }
 
-    private Result getNodeRow(String path) throws IOException {
+    private Result getNodeRow(String path, long revisionId) throws IOException {
         List<String> paths = new LinkedList<String>();
         paths.add(path);
-        Result[] results = getNodeRows(paths);
+        Result[] results = getNodeRows(paths, revisionId);
         if (results.length == 0) {
             return null;
         }
         return results[0];
+    }
+
+    private Map<String, Node> getNodes(Collection<String> paths, long revisionId)
+            throws IOException {
+        Map<String, Node> nodes = new TreeMap<String, Node>();
+        List<String> pathsToRead = new LinkedList<String>();
+        for (String path : paths) {
+            Node node = cache.get(revisionId, path);
+            if (node != null) {
+                nodes.put(path, node);
+            } else {
+                pathsToRead.add(path);
+            }
+        }
+        Result[] results = getNodeRows(pathsToRead, revisionId);
+        nodes.putAll(parseNodes(results));
+        return nodes;
     }
 
     /**
@@ -230,6 +258,10 @@ public class HBaseMicroKernel implements MicroKernel {
         Map<String, Node> nodes = new LinkedHashMap<String, Node>();
         // loop through all nodes
         for (Result result : results) {
+            // skip empty results
+            if (result.isEmpty()) {
+                continue;
+            }
             String path = NodeTable.rowKeyToPath(result.getRow());
             Node node = new Node(path);
             boolean nodeExists = false;
@@ -249,11 +281,10 @@ public class HBaseMicroKernel implements MicroKernel {
                                 NodeTable.COL_COMMIT_POINTER.toBytes())) {
                     continue;
                 }
-                // get the most recent value with a valid revision
+                // get the most recent column value with a valid revision
                 byte[] value = null;
                 NavigableMap<Long, byte[]> revisions = columns.get(column);
                 // loop through all revisions, starting with the highest
-                // XXX: verify order of keys in the key set
                 for (Long revision : revisions.keySet()) {
                     if (revisionIsValid(revision, result)) {
                         // we have found a valid revision for that column
@@ -261,8 +292,9 @@ public class HBaseMicroKernel implements MicroKernel {
                         break;
                     }
                 }
-                // we haven't found a valid revision for that column
+                // we haven't found a valid revision for that column...
                 if (value == null) {
+                    // ...thus it doesn't exist
                     continue;
                 }
                 nodeExists = true;
@@ -311,7 +343,7 @@ public class HBaseMicroKernel implements MicroKernel {
             int ptr = Bytes.toInt(pointer.get(revisionId));
             String path = NodeTable.rowKeyToPath(result.getRow());
             String commitRoot = PathUtils.getAncestorPath(path, ptr);
-            result = getNodeRow(commitRoot);
+            result = getNodeRow(commitRoot, revisionId);
             // commit root node doesn't exist
             if (result == null) {
                 valid = false;
