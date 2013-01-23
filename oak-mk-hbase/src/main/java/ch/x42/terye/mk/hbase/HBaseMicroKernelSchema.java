@@ -5,10 +5,11 @@ import java.util.List;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.jackrabbit.oak.commons.PathUtils;
 
 /**
  * This class defines the HBase schema (i.e. the tables and their schemas) used
- * by the HBase microkernel.
+ * by the HBase microkernel and provides schema-related helper methods.
  */
 public class HBaseMicroKernelSchema {
 
@@ -28,21 +29,46 @@ public class HBaseMicroKernelSchema {
         public static final byte DATA_PROPERTY_PREFIX = (byte) 1;
 
         // columns
-        public static final Qualifier COL_DELETED = new Qualifier(
-                SYSTEM_PROPERTY_PREFIX, "deleted");
+        public static final Qualifier COL_COMMIT = new Qualifier(
+                SYSTEM_PROPERTY_PREFIX, "commit");
+        public static final Qualifier COL_COMMIT_POINTER = new Qualifier(
+                SYSTEM_PROPERTY_PREFIX, "commitPointer");
+        public static final Qualifier COL_LAST_REVISION = new Qualifier(
+                SYSTEM_PROPERTY_PREFIX, "lastRevision");
 
         // initial content
         private static final List<KeyValue[]> ROWS = new LinkedList<KeyValue[]>();
         static {
+            // root node
+            long revId = 0L;
+            byte[] rowKey = Bytes.toBytes("/");
             KeyValue[] row = {
-                new KeyValue(Bytes.toBytes("/"), CF_DATA.toBytes(),
-                        COL_DELETED.toBytes(), 0L, Bytes.toBytes(false)),
+                    new KeyValue(rowKey, CF_DATA.toBytes(),
+                            COL_COMMIT.toBytes(), revId, Bytes.toBytes(true)),
+                    new KeyValue(rowKey, CF_DATA.toBytes(),
+                            COL_LAST_REVISION.toBytes(), revId,
+                            Bytes.toBytes(revId))
             };
             ROWS.add(row);
         };
 
         private NodeTable() {
             super(TABLE_NAME, COLUMN_FAMILIES, ROWS, Integer.MAX_VALUE);
+        }
+
+        public static String pathToRowKeyString(String path) {
+            // add trailing slash to path (simplifies prefix scan)
+            return PathUtils.denotesRoot(path) ? path : path + "/";
+        }
+
+        public static byte[] pathToRowKey(String path) {
+            return Bytes.toBytes(pathToRowKeyString(path));
+        }
+
+        public static String rowKeyToPath(byte[] rowKey) {
+            String rowKeyStr = Bytes.toString(rowKey);
+            return PathUtils.denotesRoot(rowKeyStr) ? rowKeyStr : rowKeyStr
+                    .substring(0, rowKeyStr.length() - 1);
         }
 
     }
