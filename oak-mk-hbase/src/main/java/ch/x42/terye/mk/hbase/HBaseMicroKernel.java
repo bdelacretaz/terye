@@ -6,13 +6,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Random;
 import java.util.Set;
@@ -20,10 +25,12 @@ import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.jackrabbit.mk.api.MicroKernel;
 import org.apache.jackrabbit.mk.api.MicroKernelException;
+import org.apache.jackrabbit.mongomk.impl.json.JsopParser;
 import org.apache.jackrabbit.oak.commons.PathUtils;
 
 import ch.x42.terye.mk.hbase.HBaseMicroKernelSchema.NodeTable;
@@ -106,8 +113,141 @@ public class HBaseMicroKernel implements MicroKernel {
     @Override
     public String commit(String path, String jsonDiff, String revisionId,
             String message) throws MicroKernelException {
-        // TODO Auto-generated method stub
+        try {
+            // parse diff to an update object
+            Update update = new Update();
+            new JsopParser(path, jsonDiff, update.getJsopHandler()).parse();
+
+            // generate new revision id
+            long newRevId = generateNewRevisionId();
+
+            // find the commit root
+            String gcaPath = findGreatestCommonAncestor(update
+                    .getModifiedNodes());
+            int gcaDepth = PathUtils.getDepth(gcaPath);
+
+            // read nodes (most of them will be in the cache)
+            // XXX: replace with current head revision
+            long headRevId = 1000L;
+            Map<String, Node> nodesBefore = getNodes(update.getModifiedNodes(),
+                    headRevId);
+
+            // write changes to HBase
+            Map<String, Put> puts = new HashMap<String, Put>();
+            // - commit pointer
+            for (String node : update.getModifiedNodes()) {
+                Put put = getPut(node, newRevId, puts);
+                // if this node is not the commit root...
+                if (!node.equals(gcaPath)) {
+                    // ...then add a commit pointer pointing to it
+                    put.add(NodeTable.CF_DATA.toBytes(),
+                            NodeTable.COL_COMMIT_POINTER.toBytes(), newRevId,
+                            Bytes.toBytes(PathUtils.getDepth(node) - gcaDepth));
+                }
+            }
+            // - added nodes
+            for (String node : update.getAddedNodes()) {
+                Put put = getPut(node, newRevId, puts);
+                // child count
+                put.add(NodeTable.CF_DATA.toBytes(),
+                        NodeTable.COL_CHILD_COUNT.toBytes(), newRevId,
+                        Bytes.toBytes(0L));
+            }
+            // - changed child counts
+            for (Entry<String, Long> entry : update.getChangedChildCounts()
+                    .entrySet()) {
+                String node = entry.getKey();
+                long childCount;
+                if (nodesBefore.containsKey(node)) {
+                    childCount = nodesBefore.get(node).getChildCount()
+                            + entry.getValue();
+                } else {
+                    childCount = entry.getValue();
+                }
+                Put put = getPut(node, newRevId, puts);
+                put.add(NodeTable.CF_DATA.toBytes(),
+                        NodeTable.COL_CHILD_COUNT.toBytes(), newRevId,
+                        Bytes.toBytes(childCount));
+            }
+            // write batch
+            // XXX: check results for null
+            tableMgr.get(NODES).batch(new LinkedList<Put>(puts.values()));
+
+            // check for potential concurrent modifications
+            verifyUpdate(nodesBefore, update, newRevId);
+
+            // write commit root
+            Put put = getPut(gcaPath, newRevId, puts);
+            put.add(NodeTable.CF_DATA.toBytes(),
+                    NodeTable.COL_COMMIT.toBytes(), newRevId,
+                    Bytes.toBytes(true));
+            tableMgr.get(NODES).put(put);
+        } catch (Exception e) {
+            throw new MicroKernelException("Commit failed", e);
+        }
         return null;
+    }
+
+    private Put getPut(String path, long revisionId, Map<String, Put> puts) {
+        if (!puts.containsKey(path)) {
+            Put put = new Put(NodeTable.pathToRowKey(path), revisionId);
+            put.add(NodeTable.CF_DATA.toBytes(),
+                    NodeTable.COL_LAST_REVISION.toBytes(), revisionId,
+                    Bytes.toBytes(revisionId));
+            puts.put(path, put);
+        }
+        return puts.get(path);
+    }
+
+    private void verifyUpdate(Map<String, Node> nodesBefore, Update update,
+            long revisionId) throws IOException {
+        Map<String, Result> nodesAfter = getRawNodes(update.getModifiedNodes(),
+                revisionId);
+        // loop through all nodes we have written
+        for (String path : update.getModifiedNodes()) {
+            boolean concurrentUpdate = false;
+            Result after = nodesAfter.get(path);
+            // get "last revision" column
+            NavigableMap<Long, byte[]> lastRevCol = after.getMap()
+                    .get(NodeTable.CF_DATA.toBytes())
+                    .get(NodeTable.COL_LAST_REVISION.toBytes());
+            // verify that our revision is contained in the column
+            if (!lastRevCol.containsKey(revisionId)) {
+                throw new MicroKernelException("Write of node " + path
+                        + " failed");
+            }
+            // split column in two parts at our revision
+            NavigableMap<Long, byte[]> lastRevColHead = lastRevCol.headMap(
+                    revisionId, false);
+            NavigableMap<Long, byte[]> lastRevColTail = lastRevCol.tailMap(
+                    revisionId, false);
+            // check that nobody wrote on top of our uncommitted changes
+            if (!lastRevColHead.isEmpty()) {
+                concurrentUpdate = true;
+            } else {
+                // make sure nobody wrote immediately before we did:
+                // if the node didn't exist before...
+                if (!nodesBefore.containsKey(path)) {
+                    // ...then there should be no revision before ours
+                    if (!lastRevColTail.isEmpty()) {
+                        concurrentUpdate = true;
+                    }
+                } else {
+                    // ...else the revision before ours must be equal to the one
+                    // of the node read before our write
+                    Node before = nodesBefore.get(path);
+                    if (!lastRevColTail.firstKey().equals(
+                            before.getLastRevision())) {
+                        concurrentUpdate = true;
+                    }
+                }
+            }
+            if (concurrentUpdate) {
+                // this update conflicted with some other update
+                throw new MicroKernelException("Node " + path
+                        + " was concurrently modified by another revision");
+            }
+        }
     }
 
     @Override
@@ -364,6 +504,49 @@ public class HBaseMicroKernel implements MicroKernel {
             invalidRevisions.add(revisionId);
         }
         return valid;
+    }
+
+    /**
+     * Finds and returns the longest path that is an ancestor of all other paths
+     * of the specified set.
+     */
+    private String findGreatestCommonAncestor(Collection<String> paths) {
+        if (paths.isEmpty()) {
+            return null;
+        }
+        // sort paths according to their depth
+        ArrayList<String> sortedPaths = new ArrayList<String>(paths);
+        Comparator<String> comparator = new Comparator<String>() {
+
+            @Override
+            public int compare(String path1, String path2) {
+                Integer nb1 = PathUtils.getDepth(path1);
+                Integer nb2 = PathUtils.getDepth(path2);
+                return nb1.compareTo(nb2);
+            }
+
+        };
+        Collections.sort(sortedPaths, comparator);
+        // one path with least depth
+        String path = sortedPaths.get(0);
+        // try all subpaths until root is reached
+        while (!PathUtils.denotesRoot(path)) {
+            // verify path is an ancestor of all other paths
+            boolean done = true;
+            for (int i = 1; i < sortedPaths.size(); i++) {
+                if (!PathUtils.isAncestor(path, sortedPaths.get(i))) {
+                    // candidate is not an ancestor of this path
+                    done = false;
+                    break;
+                }
+            }
+            if (done) {
+                return path;
+            }
+            path = PathUtils.getParentPath(path);
+        }
+        // no ancestor found, return root
+        return "/";
     }
 
 }

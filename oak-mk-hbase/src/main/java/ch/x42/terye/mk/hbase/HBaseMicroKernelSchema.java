@@ -35,6 +35,8 @@ public class HBaseMicroKernelSchema {
                 SYSTEM_PROPERTY_PREFIX, "commitPointer");
         public static final Qualifier COL_LAST_REVISION = new Qualifier(
                 SYSTEM_PROPERTY_PREFIX, "lastRevision");
+        public static final Qualifier COL_CHILD_COUNT = new Qualifier(
+                SYSTEM_PROPERTY_PREFIX, "childCount");
 
         // initial content
         private static final List<KeyValue[]> ROWS = new LinkedList<KeyValue[]>();
@@ -47,7 +49,9 @@ public class HBaseMicroKernelSchema {
                             COL_COMMIT.toBytes(), revId, Bytes.toBytes(true)),
                     new KeyValue(rowKey, CF_DATA.toBytes(),
                             COL_LAST_REVISION.toBytes(), revId,
-                            Bytes.toBytes(revId))
+                            Bytes.toBytes(revId)),
+                    new KeyValue(rowKey, CF_DATA.toBytes(),
+                            COL_CHILD_COUNT.toBytes(), revId, Bytes.toBytes(0L))
             };
             ROWS.add(row);
         };

@@ -28,6 +28,12 @@
       <artifactId>oak-mk-api</artifactId>
       <version>0.6-SNAPSHOT</version>
     </dependency>
+    <!-- needed for the JSOP parser -->
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>oak-mongomk</artifactId>
+      <version>0.6-SNAPSHOT</version>
+    </dependency>
     
     <!-- Hadoop / HBase -->
     <dependency>
