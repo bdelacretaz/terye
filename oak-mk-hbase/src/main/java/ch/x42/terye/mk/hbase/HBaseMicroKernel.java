@@ -206,10 +206,11 @@ public class HBaseMicroKernel implements MicroKernel {
         return timestamp | machineId | counter;
     }
 
-    private Result[] getNodeRows(Collection<String> paths, long revisionId)
-            throws IOException {
+    private Map<String, Result> getRawNodes(Collection<String> paths,
+            long revisionId) throws IOException {
+        Map<String, Result> nodes = new LinkedHashMap<String, Result>();
         if (paths.isEmpty()) {
-            return new Result[0];
+            return nodes;
         }
         List<Get> batch = new LinkedList<Get>();
         for (String path : paths) {
@@ -218,17 +219,19 @@ public class HBaseMicroKernel implements MicroKernel {
             get.setTimeRange(0L, revisionId + 1L);
             batch.add(get);
         }
-        return tableMgr.get(NODES).get(batch);
+        for (Result result : tableMgr.get(NODES).get(batch)) {
+            if (!result.isEmpty()) {
+                String path = NodeTable.rowKeyToPath(result.getRow());
+                nodes.put(path, result);
+            }
+        }
+        return nodes;
     }
 
-    private Result getNodeRow(String path, long revisionId) throws IOException {
+    private Result getRawNode(String path, long revisionId) throws IOException {
         List<String> paths = new LinkedList<String>();
         paths.add(path);
-        Result[] results = getNodeRows(paths, revisionId);
-        if (results.length == 0) {
-            return null;
-        }
-        return results[0];
+        return getRawNodes(paths, revisionId).get(path);
     }
 
     private Map<String, Node> getNodes(Collection<String> paths, long revisionId)
@@ -243,29 +246,26 @@ public class HBaseMicroKernel implements MicroKernel {
                 pathsToRead.add(path);
             }
         }
-        Result[] results = getNodeRows(pathsToRead, revisionId);
-        nodes.putAll(parseNodes(results));
+        Map<String, Result> rawNodes = getRawNodes(pathsToRead, revisionId);
+        nodes.putAll(parseNodes(rawNodes));
         return nodes;
     }
 
     /**
-     * This method parses the specified HBase results into nodes.
+     * This method parses the specified raw nodes into nodes.
      * 
-     * @param results the HBase results
+     * @param results the raw nodes
      * @return a map mapping paths to the corresponding node
      */
-    private Map<String, Node> parseNodes(Result[] results) throws IOException {
+    private Map<String, Node> parseNodes(Map<String, Result> rawNodes)
+            throws IOException {
         Map<String, Node> nodes = new LinkedHashMap<String, Node>();
-        // loop through all nodes
-        for (Result result : results) {
-            // skip empty results
-            if (result.isEmpty()) {
-                continue;
-            }
-            String path = NodeTable.rowKeyToPath(result.getRow());
+        // loop through all raw nodes
+        for (Result raw : rawNodes.values()) {
+            String path = NodeTable.rowKeyToPath(raw.getRow());
             Node node = new Node(path);
             boolean nodeExists = false;
-            NavigableMap<byte[], NavigableMap<Long, byte[]>> columns = result
+            NavigableMap<byte[], NavigableMap<Long, byte[]>> columns = raw
                     .getMap().get(NodeTable.CF_DATA.toBytes());
             // if the node contains the "commit" column...
             if (columns.containsKey(NodeTable.COL_COMMIT.toBytes())) {
@@ -286,7 +286,7 @@ public class HBaseMicroKernel implements MicroKernel {
                 NavigableMap<Long, byte[]> revisions = columns.get(column);
                 // loop through all revisions, starting with the highest
                 for (Long revision : revisions.keySet()) {
-                    if (revisionIsValid(revision, result)) {
+                    if (revisionIsValid(revision, raw)) {
                         // we have found a valid revision for that column
                         value = revisions.get(revision);
                         break;
@@ -316,10 +316,10 @@ public class HBaseMicroKernel implements MicroKernel {
      * the validity of the revision.
      * 
      * @param revisionId the revision id to validate
-     * @param result the result where
+     * @param result the raw node in which the revision occurs
      * @return true if the revision is valid, false otherwise
      */
-    private boolean revisionIsValid(long revisionId, Result result)
+    private boolean revisionIsValid(long revisionId, Result raw)
             throws IOException {
         // check cache of valid revisions
         if (validRevisions.contains(revisionId)) {
@@ -330,28 +330,29 @@ public class HBaseMicroKernel implements MicroKernel {
             return false;
         }
         boolean valid = true;
-        NavigableMap<Long, byte[]> commit = result.getMap()
+        NavigableMap<Long, byte[]> commitCol = raw.getMap()
                 .get(NodeTable.CF_DATA.toBytes())
                 .get(NodeTable.COL_COMMIT.toBytes());
-        if (commit == null || !commit.containsKey(revisionId)) {
+        if (commitCol == null || !commitCol.containsKey(revisionId)) {
             valid = false;
         } else {
             // read commit root
-            NavigableMap<Long, byte[]> pointer = result.getMap()
+            NavigableMap<Long, byte[]> pointer = raw.getMap()
                     .get(NodeTable.CF_DATA.toBytes())
                     .get(NodeTable.COL_COMMIT_POINTER.toBytes());
             int ptr = Bytes.toInt(pointer.get(revisionId));
-            String path = NodeTable.rowKeyToPath(result.getRow());
-            String commitRoot = PathUtils.getAncestorPath(path, ptr);
-            result = getNodeRow(commitRoot, revisionId);
-            // commit root node doesn't exist
-            if (result == null) {
+            String path = PathUtils.getAncestorPath(
+                    NodeTable.rowKeyToPath(raw.getRow()), ptr);
+            Result commitRoot = getRawNode(path, revisionId);
+            if (commitRoot == null) {
+                // commit root node doesn't exist
                 valid = false;
             } else {
-                commit = result.getMap().get(NodeTable.CF_DATA.toBytes())
+                commitCol = commitRoot.getMap()
+                        .get(NodeTable.CF_DATA.toBytes())
                         .get(NodeTable.COL_COMMIT.toBytes());
-                if (commit == null || !commit.containsKey(revisionId)) {
-                    // no commit root for this revision
+                if (commitCol == null || !commitCol.containsKey(revisionId)) {
+                    // commit root is not a commit root for this revision
                     valid = false;
                 }
             }
