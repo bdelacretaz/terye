@@ -87,6 +87,7 @@ public class HBaseTableManager {
         for (HBaseTableDefinition schema : HBaseMicroKernelSchema.TABLES) {
             tables.get(schema.getQualifier()).close();
         }
+        admin.close();
     }
 
 }

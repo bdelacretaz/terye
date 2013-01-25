@@ -23,6 +23,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.Put;
@@ -52,6 +53,21 @@ public class HBaseMicroKernel implements MicroKernel {
         this.cache = new NodeCache(1000);
         this.validRevisions = new HashSet<Long>();
         this.invalidRevisions = new HashSet<Long>();
+    }
+
+    /**
+     * Closes the HTable objects and HBaseAdmin and optionally drops the tables
+     * used by the microkernel.
+     */
+    public void dispose(boolean dropTables) throws IOException {
+        if (dropTables) {
+            try {
+                tableMgr.dropAllTables();
+            } catch (TableNotFoundException e) {
+                // nothing to do
+            }
+        }
+        tableMgr.dispose();
     }
 
     @Override
