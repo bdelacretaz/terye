@@ -504,8 +504,6 @@ public class HBaseMicroKernel implements MicroKernel {
                 .get(NodeTable.CF_DATA.toBytes())
                 .get(NodeTable.COL_COMMIT.toBytes());
         if (commitCol == null || !commitCol.containsKey(revisionId)) {
-            valid = false;
-        } else {
             // read commit root
             NavigableMap<Long, byte[]> pointer = raw.getMap()
                     .get(NodeTable.CF_DATA.toBytes())
