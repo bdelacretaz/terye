@@ -1,5 +1,6 @@
 package ch.x42.terye.mk.hbase;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -19,18 +20,26 @@ public class Update {
             changeChildCount(parentPath, true);
         }
 
+        @Override
+        public void propertySet(String path, String key, Object value,
+                String rawValue) {
+            setProperty(PathUtils.concat(path, key), value);
+        }
+
     }
 
     private Set<String> modifiedNodes;
     private Set<String> addedNodes;
     private Map<String, Long> changedChildCounts;
+    private Map<String, Object> setProperties;
 
     public Update() {
         modifiedNodes = new TreeSet<String>();
         addedNodes = new TreeSet<String>();
         changedChildCounts = new LinkedHashMap<String, Long>();
+        setProperties = new HashMap<String, Object>();
     }
-    
+
     public DefaultJsopHandler getJsopHandler() {
         return new JsopHandler();
     }
@@ -53,6 +62,10 @@ public class Update {
         modifiedNodes.add(path);
     }
 
+    public void setProperty(String path, Object value) {
+        setProperties.put(path, value);
+    }
+
     public Set<String> getModifiedNodes() {
         return modifiedNodes;
     }
@@ -63,6 +76,10 @@ public class Update {
 
     public Map<String, Long> getChangedChildCounts() {
         return changedChildCounts;
+    }
+
+    public Map<String, Object> getSetProperties() {
+        return setProperties;
     }
 
 }

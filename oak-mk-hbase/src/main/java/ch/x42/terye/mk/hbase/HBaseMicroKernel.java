@@ -36,6 +36,7 @@ import org.apache.jackrabbit.mongomk.impl.json.JsopParser;
 import org.apache.jackrabbit.oak.commons.PathUtils;
 
 import ch.x42.terye.mk.hbase.HBaseMicroKernelSchema.NodeTable;
+import ch.x42.terye.mk.hbase.HBaseTableDefinition.Qualifier;
 
 public class HBaseMicroKernel implements MicroKernel {
 
@@ -185,6 +186,18 @@ public class HBaseMicroKernel implements MicroKernel {
                 put.add(NodeTable.CF_DATA.toBytes(),
                         NodeTable.COL_CHILD_COUNT.toBytes(), newRevId,
                         Bytes.toBytes(childCount));
+            }
+            // - set properties
+            for (Entry<String, Object> entry : update.getSetProperties()
+                    .entrySet()) {
+                String parentPath = PathUtils.getParentPath(entry.getKey());
+                String name = PathUtils.getName(entry.getKey());
+                Object value = entry.getValue();
+                Put put = getPut(parentPath, newRevId, puts);
+                Qualifier q = new Qualifier(NodeTable.DATA_PROPERTY_PREFIX,
+                        name);
+                put.add(NodeTable.CF_DATA.toBytes(), q.toBytes(), newRevId,
+                        Bytes.toBytes(value.toString()));
             }
             // write batch
             // XXX: check results for null
