@@ -144,11 +144,13 @@ public class HBaseMicroKernel implements MicroKernel {
                     .getModifiedNodes());
             int gcaDepth = PathUtils.getDepth(gcaPath);
 
-            // read nodes (most of them will be in the cache)
+            // read nodes that are to be written (most of them will be cached)
             // XXX: replace with current head revision
-            long headRevId = 1000L;
             Map<String, Node> nodesBefore = getNodes(update.getModifiedNodes(),
-                    headRevId);
+                    1000L);
+
+            // make sure the update is valid
+            validateUpdate(nodesBefore, update);
 
             // write changes to HBase
             Map<String, Put> puts = new HashMap<String, Put>();
@@ -218,6 +220,32 @@ public class HBaseMicroKernel implements MicroKernel {
         return null;
     }
 
+    /**
+     * This method validates the changes that are to be committed.
+     * 
+     * @param nodesBefore the current state of the nodes that will be modified
+     * @param update the update to validate
+     * @throws MicroKernelException if the update is not valid
+     */
+    private void validateUpdate(Map<String, Node> nodesBefore, Update update)
+            throws MicroKernelException {
+        Set<String> parents = new HashSet<String>();
+        parents.addAll(nodesBefore.keySet());
+        parents.addAll(update.getAddedNodes());
+        // verify that all the nodes to be added have a valid parent
+        for (String path : update.getAddedNodes()) {
+            String parentPath = PathUtils.getParentPath(path);
+            if (!parents.contains(parentPath)) {
+                throw new MicroKernelException("Cannot add node " + path
+                        + ": parent doesn't exist");
+            }
+            if (nodesBefore.containsKey(path)) {
+                throw new MicroKernelException("Cannot add node " + path
+                        + ": node already exists");
+            }
+        }
+    }
+
     private Put getPut(String path, long revisionId, Map<String, Put> puts) {
         if (!puts.containsKey(path)) {
             Put put = new Put(NodeTable.pathToRowKey(path), revisionId);
@@ -229,8 +257,19 @@ public class HBaseMicroKernel implements MicroKernel {
         return puts.get(path);
     }
 
+    /**
+     * This method verifies that the update has correctly been written to the
+     * database. In particular, it detects conflicts of concurrent writes.
+     * 
+     * @param nodesBefore the state of the nodes that were written before the
+     *            write
+     * @param update the update to verify
+     * @param revisionId the revision id of the revision the changes were
+     *            written in
+     * @throws MicroKernelException if there was a conflicting concurrent update
+     */
     private void verifyUpdate(Map<String, Node> nodesBefore, Update update,
-            long revisionId) throws IOException {
+            long revisionId) throws MicroKernelException, IOException {
         Map<String, Result> nodesAfter = getRawNodes(update.getModifiedNodes(),
                 revisionId);
         // loop through all nodes we have written
@@ -386,7 +425,7 @@ public class HBaseMicroKernel implements MicroKernel {
         for (String path : paths) {
             Get get = new Get(NodeTable.pathToRowKey(path));
             get.setMaxVersions();
-            get.setTimeRange(0L, revisionId + 1L);
+            get.setTimeRange(0L, revisionId + 1);
             batch.add(get);
         }
         for (Result result : tableMgr.get(NODES).get(batch)) {
