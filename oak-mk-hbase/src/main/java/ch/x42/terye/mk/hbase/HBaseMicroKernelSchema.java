@@ -28,6 +28,11 @@ public class HBaseMicroKernelSchema {
         public static final byte SYSTEM_PROPERTY_PREFIX = (byte) 0;
         public static final byte DATA_PROPERTY_PREFIX = (byte) 1;
 
+        // data type prefixes
+        public static final byte TYPE_STRING_PREFIX = (byte) 0;
+        public static final byte TYPE_LONG_PREFIX = (byte) 1;
+        public static final byte TYPE_BOOLEAN_PREFIX = (byte) 2;
+
         // columns
         public static final Qualifier COL_COMMIT = new Qualifier(
                 SYSTEM_PROPERTY_PREFIX, "commit");

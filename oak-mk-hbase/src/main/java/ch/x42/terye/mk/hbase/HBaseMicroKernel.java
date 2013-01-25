@@ -195,11 +195,29 @@ public class HBaseMicroKernel implements MicroKernel {
                 String parentPath = PathUtils.getParentPath(entry.getKey());
                 String name = PathUtils.getName(entry.getKey());
                 Object value = entry.getValue();
+                byte typePrefix;
+                byte[] tmp;
+                if (value instanceof String) {
+                    typePrefix = NodeTable.TYPE_STRING_PREFIX;
+                    tmp = Bytes.toBytes((String) value);
+                } else if (value instanceof Number) {
+                    typePrefix = NodeTable.TYPE_LONG_PREFIX;
+                    tmp = Bytes.toBytes(((Number) value).longValue());
+                } else if (value instanceof Boolean) {
+                    typePrefix = NodeTable.TYPE_BOOLEAN_PREFIX;
+                    tmp = Bytes.toBytes((Boolean) value);
+                } else {
+                    throw new MicroKernelException("Property " + entry.getKey()
+                            + " has unknown type " + value.getClass());
+                }
                 Put put = getPut(parentPath, newRevId, puts);
                 Qualifier q = new Qualifier(NodeTable.DATA_PROPERTY_PREFIX,
                         name);
+                byte[] bytes = new byte[tmp.length + 1];
+                bytes[0] = typePrefix;
+                System.arraycopy(tmp, 0, bytes, 1, tmp.length);
                 put.add(NodeTable.CF_DATA.toBytes(), q.toBytes(), newRevId,
-                        Bytes.toBytes(value.toString()));
+                        bytes);
             }
             // write batch
             // XXX: check results for null

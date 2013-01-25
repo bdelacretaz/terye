@@ -64,6 +64,7 @@ public class Update {
 
     public void setProperty(String path, Object value) {
         setProperties.put(path, value);
+        modifiedNodes.add(PathUtils.getParentPath(path));
     }
 
     public Set<String> getModifiedNodes() {
