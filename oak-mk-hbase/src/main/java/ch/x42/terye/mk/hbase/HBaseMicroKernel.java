@@ -23,12 +23,19 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.RegexStringComparator;
+import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.jackrabbit.mk.api.MicroKernel;
 import org.apache.jackrabbit.mk.api.MicroKernelException;
@@ -124,8 +131,48 @@ public class HBaseMicroKernel implements MicroKernel {
     public String getNodes(String path, String revisionId, int depth,
             long offset, int maxChildNodes, String filter)
             throws MicroKernelException {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            // parse revision id
+            long revId;
+            try {
+                revId = Long.parseLong(revisionId);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid revision id: "
+                        + revisionId);
+            }
+
+            // do a filtered prefix scan:
+            Scan scan = new Scan();
+            scan.setMaxVersions();
+            scan.setTimeRange(0L, revId + 1);
+            // compute scan range
+            String prefix = path
+                    + (path.charAt(path.length() - 1) == '/' ? "" : "/");
+            byte[] startRow = Bytes.toBytes(prefix);
+            byte[] stopRow = startRow.clone();
+            // make stop row inclusive
+            stopRow[stopRow.length - 1]++;
+            scan.setStartRow(startRow);
+            scan.setStopRow(stopRow);
+            // limit the depth of the scan
+            String regex = "^" + Pattern.quote(prefix) + "(([^/])+/){0,"
+                    + (depth + 1) + "}$";
+            Filter depthFilter = new RowFilter(CompareFilter.CompareOp.EQUAL,
+                    new RegexStringComparator(regex));
+            scan.setFilter(depthFilter);
+            Map<String, Result> rawNodes = new LinkedHashMap<String, Result>();
+            ResultScanner scanner = tableMgr.get(NODES).getScanner(scan);
+            for (Result result : scanner) {
+                rawNodes.put(NodeTable.rowKeyToPath(result.getRow()), result);
+            }
+            scanner.close();
+
+            // parse nodes, create tree, build and return JSON
+            Map<String, Node> nodes = parseNodes(rawNodes);
+            return Node.toJson(Node.toTree(nodes), depth);
+        } catch (Exception e) {
+            throw new MicroKernelException("Error while getting nodes", e);
+        }
     }
 
     @Override
@@ -525,9 +572,37 @@ public class HBaseMicroKernel implements MicroKernel {
                     continue;
                 }
                 nodeExists = true;
-                if (Arrays
-                        .equals(column, NodeTable.COL_LAST_REVISION.toBytes())) {
-                    node.setLastRevision(Bytes.toLong(value));
+                if (column[0] == NodeTable.SYSTEM_PROPERTY_PREFIX) {
+                    // system properties
+                    if (Arrays.equals(column,
+                            NodeTable.COL_LAST_REVISION.toBytes())) {
+                        node.setLastRevision(Bytes.toLong(value));
+                    } else if (Arrays.equals(column,
+                            NodeTable.COL_CHILD_COUNT.toBytes())) {
+                        node.setChildCount(Bytes.toLong(value));
+                    }
+                } else if (column[0] == NodeTable.DATA_PROPERTY_PREFIX) {
+                    // user properties:
+                    // name
+                    byte[] tmp = new byte[column.length - 1];
+                    System.arraycopy(column, 1, tmp, 0, tmp.length);
+                    String name = Bytes.toString(tmp);
+                    // value
+                    Object val;
+                    tmp = new byte[value.length - 1];
+                    System.arraycopy(value, 1, tmp, 0, value.length - 1);
+                    if (value[0] == NodeTable.TYPE_STRING_PREFIX) {
+                        val = Bytes.toString(tmp);
+                    } else if (value[0] == NodeTable.TYPE_LONG_PREFIX) {
+                        val = Bytes.toLong(tmp);
+                    } else if (value[0] == NodeTable.TYPE_BOOLEAN_PREFIX) {
+                        val = Bytes.toBoolean(tmp);
+                    } else {
+                        throw new MicroKernelException("Property "
+                                + PathUtils.concat(path, name)
+                                + " has unknown type prefix " + value[0]);
+                    }
+                    node.setProperty(name, val);
                 }
             }
             if (nodeExists) {
