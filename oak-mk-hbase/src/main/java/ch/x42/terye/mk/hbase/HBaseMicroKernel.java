@@ -22,6 +22,7 @@ import java.util.NavigableMap;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.client.Get;
@@ -40,7 +41,7 @@ public class HBaseMicroKernel implements MicroKernel {
 
     private HBaseTableManager tableMgr;
     // XXX: temporarily use simple revision ids
-    private long revisionCounter = 0;
+    private static AtomicLong REVISION = new AtomicLong(0);
     // node cache
     private NodeCache cache;
     // cache for the revision ids we know are valid
@@ -328,7 +329,7 @@ public class HBaseMicroKernel implements MicroKernel {
     private long generateNewRevisionId() {
         // XXX: temporarily use simple revision ids
         if (true) {
-            return ++revisionCounter;
+            return REVISION.addAndGet(1);
         }
 
         // NEVER EVER CHANGE THIS VALUE
