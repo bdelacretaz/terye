@@ -54,14 +54,11 @@ public class HBaseMicroKernel implements MicroKernel {
     private NodeCache cache;
     // cache for the revision ids we know are valid
     private Set<Long> validRevisions;
-    // cache for the revision ids we know are not valid
-    private Set<Long> invalidRevisions;
 
     public HBaseMicroKernel(HBaseAdmin admin) throws Exception {
         tableMgr = new HBaseTableManager(admin, HBaseMicroKernelSchema.TABLES);
         this.cache = new NodeCache(1000);
         this.validRevisions = new HashSet<Long>();
-        this.invalidRevisions = new HashSet<Long>();
     }
 
     /**
@@ -627,10 +624,6 @@ public class HBaseMicroKernel implements MicroKernel {
         if (validRevisions.contains(revisionId)) {
             return true;
         }
-        // check cache of invalid revisions
-        if (invalidRevisions.contains(revisionId)) {
-            return false;
-        }
         boolean valid = true;
         NavigableMap<Long, byte[]> commitCol = raw.getMap()
                 .get(NodeTable.CF_DATA.toBytes())
@@ -660,8 +653,6 @@ public class HBaseMicroKernel implements MicroKernel {
         // update cache
         if (valid) {
             validRevisions.add(revisionId);
-        } else {
-            invalidRevisions.add(revisionId);
         }
         return valid;
     }
