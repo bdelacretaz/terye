@@ -43,7 +43,11 @@ public class MongoMKTestFixture implements MicroKernelTestFixture {
     public void tearDownAfterTest() throws Exception {
         // drop the database and close the connections
         for (MongoConnection connection : connections) {
-            connection.getDB().dropDatabase();
+            try {
+                connection.getDB().dropDatabase();
+            } catch (Exception e) {
+                // connection might already have been closed
+            }
             connection.close();
         }
     }
