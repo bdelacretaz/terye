@@ -25,10 +25,10 @@ import ch.x42.terye.oak.mk.test.fixtures.MicroKernelTestFixture;
 public class MicroKernelConcurrentAddTest extends MicroKernelPerformanceTest {
 
     private static final int NB_THREADS = Runtime.getRuntime()
-            .availableProcessors() * 2;
+            .availableProcessors();
     private static final int TREE_HEIGHT = 5;
     private static final int TREE_BRANCHING_FACTOR = 6;
-    private static final int COMMIT_RATE = 5;
+    private static final int COMMIT_RATE = 500;
 
     public List<Callable<String>> workers;
 
@@ -54,6 +54,8 @@ public class MicroKernelConcurrentAddTest extends MicroKernelPerformanceTest {
             Callable<String> worker = new SubtreeCommitter(mk, "node_" + i,
                     TREE_HEIGHT, TREE_BRANCHING_FACTOR, COMMIT_RATE);
             workers.add(worker);
+            // XXX: temporarily commit first node here to avoid any conflict
+            mk.commit("/", "+\"node_" + i + "\":{}", null, "");
         }
     }
 
@@ -113,7 +115,8 @@ public class MicroKernelConcurrentAddTest extends MicroKernelPerformanceTest {
             String batch = "";
             int batchCount = 0;
             // loop through all levels
-            for (int i = 0; i <= height; i++) {
+            // XXX: temporarily skip first level node
+            for (int i = 1; i <= height; i++) {
                 // number of nodes on this level
                 int nbNodes = (int) Math.pow(branchingFactor, i);
                 // loop through all nodes on this level
