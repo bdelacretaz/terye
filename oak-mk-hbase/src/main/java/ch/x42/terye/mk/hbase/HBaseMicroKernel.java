@@ -130,18 +130,20 @@ public class HBaseMicroKernel implements MicroKernel {
             throws MicroKernelException {
         try {
             // parse revision id
-            long revId;
-            try {
-                revId = Long.parseLong(revisionId);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid revision id: "
-                        + revisionId);
+            Long revId = null;
+            if (revisionId != null) {
+                try {
+                    revId = Long.parseLong(revisionId);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid revision id: "
+                            + revisionId);
+                }
             }
 
             // do a filtered prefix scan:
             Scan scan = new Scan();
             scan.setMaxVersions();
-            scan.setTimeRange(0L, revId + 1);
+            scan.setTimeRange(0L, revId == null ? Long.MAX_VALUE : revId + 1);
             // compute scan range
             String prefix = path
                     + (path.charAt(path.length() - 1) == '/' ? "" : "/");
@@ -189,9 +191,8 @@ public class HBaseMicroKernel implements MicroKernel {
             int gcaDepth = PathUtils.getDepth(gcaPath);
 
             // read nodes that are to be written (most of them will be cached)
-            // XXX: replace with current head revision
             Map<String, Node> nodesBefore = getNodes(update.getModifiedNodes(),
-                    1000L);
+                    null);
 
             // make sure the update is valid
             validateUpdate(nodesBefore, update);
@@ -333,7 +334,7 @@ public class HBaseMicroKernel implements MicroKernel {
     private void verifyUpdate(Map<String, Node> nodesBefore, Update update,
             long revisionId) throws MicroKernelException, IOException {
         Map<String, Result> nodesAfter = getRawNodes(update.getModifiedNodes(),
-                revisionId);
+                null);
         // loop through all nodes we have written
         for (String path : update.getModifiedNodes()) {
             boolean concurrentUpdate = false;
@@ -478,7 +479,7 @@ public class HBaseMicroKernel implements MicroKernel {
     }
 
     private Map<String, Result> getRawNodes(Collection<String> paths,
-            long revisionId) throws IOException {
+            Long revisionId) throws IOException {
         Map<String, Result> nodes = new LinkedHashMap<String, Result>();
         if (paths.isEmpty()) {
             return nodes;
@@ -487,7 +488,8 @@ public class HBaseMicroKernel implements MicroKernel {
         for (String path : paths) {
             Get get = new Get(NodeTable.pathToRowKey(path));
             get.setMaxVersions();
-            get.setTimeRange(0L, revisionId + 1);
+            get.setTimeRange(0L, revisionId == null ? Long.MAX_VALUE
+                    : revisionId + 1);
             batch.add(get);
         }
         for (Result result : tableMgr.get(NODES).get(batch)) {
@@ -499,13 +501,13 @@ public class HBaseMicroKernel implements MicroKernel {
         return nodes;
     }
 
-    private Result getRawNode(String path, long revisionId) throws IOException {
+    private Result getRawNode(String path, Long revisionId) throws IOException {
         List<String> paths = new LinkedList<String>();
         paths.add(path);
         return getRawNodes(paths, revisionId).get(path);
     }
 
-    private Map<String, Node> getNodes(Collection<String> paths, long revisionId)
+    private Map<String, Node> getNodes(Collection<String> paths, Long revisionId)
             throws IOException {
         Map<String, Node> nodes = new TreeMap<String, Node>();
         List<String> pathsToRead = new LinkedList<String>();
