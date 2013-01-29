@@ -50,14 +50,11 @@ public class HBaseMicroKernel implements MicroKernel {
     private HBaseTableManager tableMgr;
     // XXX: temporarily use simple revision ids
     private static AtomicLong REVISION = new AtomicLong(0);
-    // node cache
-    private NodeCache cache;
     // cache for the revision ids we know are valid
     private Set<Long> validRevisions;
 
     public HBaseMicroKernel(HBaseAdmin admin) throws Exception {
         tableMgr = new HBaseTableManager(admin, HBaseMicroKernelSchema.TABLES);
-        this.cache = new NodeCache(1000);
         this.validRevisions = new HashSet<Long>();
     }
 
@@ -512,12 +509,7 @@ public class HBaseMicroKernel implements MicroKernel {
         Map<String, Node> nodes = new TreeMap<String, Node>();
         List<String> pathsToRead = new LinkedList<String>();
         for (String path : paths) {
-            Node node = cache.get(revisionId, path);
-            if (node != null) {
-                nodes.put(path, node);
-            } else {
-                pathsToRead.add(path);
-            }
+            pathsToRead.add(path);
         }
         Map<String, Result> rawNodes = getRawNodes(pathsToRead, revisionId);
         nodes.putAll(parseNodes(rawNodes));
