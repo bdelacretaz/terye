@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.internal.runners.model.EachTestNotifier;
+import org.junit.internal.runners.model.ReflectiveCallable;
+import org.junit.internal.runners.statements.Fail;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -89,8 +91,9 @@ public class PerformanceTestRunner extends BlockJUnit4ClassRunner {
             notifier.fireTestIgnored(description);
             return;
         }
-        // get statement corresponding to the test method
-        Statement statement = methodBlock(method);
+        // create statement
+        Timer timer = new Timer();
+        Statement statement = createStatement(method, timer);
         // get the annotation
         PerformanceTest annotation = method
                 .getAnnotation(PerformanceTest.class);
@@ -99,29 +102,26 @@ public class PerformanceTestRunner extends BlockJUnit4ClassRunner {
         eachNotifier.fireTestStarted();
         try {
             // warm-up phase
-            Timer timer = new Timer();
             int n = annotation.nbWarmupRuns();
-            logger.debug("-------------------------------------");
-            logger.debug("WARMUP PHASE (" + n + " invocations):");
-            logger.debug("-------------------------------------");
+            if (n > 0) {
+                logger.debug("-------------------------------------");
+                logger.debug("WARMUP PHASE (" + n + " invocations):");
+                logger.debug("-------------------------------------");
+            }
             for (int i = 0; i < n; i++) {
                 logger.debug("Test run " + (i + 1) + " of " + n);
-                timer.start();
                 statement.evaluate();
-                timer.stop();
                 logger.debug("Execution time: " + timer.getLastDuration());
             }
             // test phase
-            timer = new Timer();
+            timer.reset();
             n = annotation.nbRuns();
             logger.debug("-----------------------------------");
             logger.debug("TEST PHASE (" + n + " invocations):");
             logger.debug("-----------------------------------");
             for (int i = 0; i < n; i++) {
                 logger.debug("Test run " + (i + 1) + " of " + n);
-                timer.start();
                 statement.evaluate();
-                timer.stop();
                 logger.debug("Execution time: " + timer.getLastDuration());
             }
             logger.debug("--------");
@@ -139,6 +139,34 @@ public class PerformanceTestRunner extends BlockJUnit4ClassRunner {
         } finally {
             eachNotifier.fireTestFinished();
         }
+    }
+
+    /**
+     * This method is copied from super.methodBlock but uses a custom
+     * InvokeMethod class to measure the execution time of the test method.
+     */
+    @SuppressWarnings("deprecation")
+    private Statement createStatement(FrameworkMethod method, Timer timer) {
+        Object test;
+        try {
+            test = new ReflectiveCallable() {
+
+                @Override
+                protected Object runReflectiveCall() throws Throwable {
+                    return createTest();
+                }
+
+            }.run();
+        } catch (Throwable e) {
+            return new Fail(e);
+        }
+        Statement statement = new TimedInvokeMethod(method, test, timer);
+        statement = possiblyExpectingExceptions(method, test, statement);
+        statement = withPotentialTimeout(method, test, statement);
+        statement = withBefores(method, test, statement);
+        statement = withAfters(method, test, statement);
+        // rules are ignored
+        return statement;
     }
 
     private String getParameterString() {
@@ -173,6 +201,27 @@ public class PerformanceTestRunner extends BlockJUnit4ClassRunner {
             return getTestClass().getOnlyConstructor().newInstance(parameters);
         }
         return getTestClass().getOnlyConstructor().newInstance();
+    }
+
+    private class TimedInvokeMethod extends Statement {
+
+        private final FrameworkMethod fTestMethod;
+        private Object fTarget;
+        private Timer timer;
+
+        public TimedInvokeMethod(FrameworkMethod testMethod, Object target,
+                Timer timer) {
+            fTestMethod = testMethod;
+            fTarget = target;
+            this.timer = timer;
+        }
+
+        @Override
+        public void evaluate() throws Throwable {
+            timer.start();
+            fTestMethod.invokeExplosively(fTarget);
+            timer.stop();
+        }
     }
 
 }
