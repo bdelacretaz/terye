@@ -1,6 +1,0 @@
-<configuration>
-  <property>
-    <name>hbase.zookeeper.quorum</name>
-    <value>192.168.50.4</value>
-  </property>
-</configuration>
