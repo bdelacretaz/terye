@@ -23,7 +23,7 @@ if [ $? -gt 0 ]; then
 
 	echo "Installing Oracle Java Runtime Environment"
 	apt-get -qq update > /dev/null 2>&1
-	wget -c --no-cookies --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F" "http://download.oracle.com/otn-pub/java/jdk/6u34-b04/jre-6u34-linux-x64.bin" --output-document="jre-6u34-linux-x64.bin" > /dev/null 2>&1
+	wget -c --no-check-certificate --no-cookies --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F" "http://download.oracle.com/otn-pub/java/jdk/6u34-b04/jre-6u34-linux-x64.bin" --output-document="jre-6u34-linux-x64.bin" > /dev/null 2>&1
 	chmod u+x jre-6u34-linux-x64.bin
 	./jre-6u34-linux-x64.bin > /dev/null 2>&1
 	mkdir -p /usr/lib/jvm
@@ -32,7 +32,7 @@ if [ $? -gt 0 ]; then
 	update-alternatives --install "/usr/bin/javaws" "javaws" "/usr/lib/jvm/jre1.6.0_34/bin/javaws" 1 > /dev/null 2>&1
 
 	echo "Downloading Apache Hadoop 1.0.4 from http://mirror.switch.ch/mirror/apache/dist/"
-	wget -q  http://mirror.switch.ch/mirror/apache/dist/hadoop/common/hadoop-1.0.4/hadoop-1.0.4.tar.gz
+	wget -q --no-check-certificate http://mirror.switch.ch/mirror/apache/dist/hadoop/common/hadoop-1.0.4/hadoop-1.0.4.tar.gz
 	echo "Untaring Hadoop tarball"
 	tar -zxf hadoop-1.0.4.tar.gz
 	echo "Configuring Hadoop"
@@ -46,7 +46,7 @@ if [ $? -gt 0 ]; then
 	./hadoop-1.0.4/bin/start-all.sh
 
 	echo "Downloading Apache HBase 0.94.2 from http://mirror.switch.ch/mirror/apache/dist/"
-	wget -q http://mirror.switch.ch/mirror/apache/dist/hbase/hbase-0.94.2/hbase-0.94.2.tar.gz
+	wget -q --no-check-certificate http://mirror.switch.ch/mirror/apache/dist/hbase/hbase-0.94.2/hbase-0.94.2.tar.gz
 	echo "Untaring HBase tarball"
 	tar -zxf hbase-0.94.2.tar.gz
 	echo "Configuring HBase"
